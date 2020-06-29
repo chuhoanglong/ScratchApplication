@@ -5,11 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.example.scratchapplication.fragment.HomeFragment;
+import com.example.scratchapplication.fragment.ProfileFragment;
+import com.example.scratchapplication.fragment.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
