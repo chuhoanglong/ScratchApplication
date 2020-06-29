@@ -22,25 +22,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         bottomNavigation = findViewById(R.id.bottom_navigation);
-        BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.navigation_home:
-                        openFragment(HomeFragment.newInstance("", ""));
-                        return true;
-                    case R.id.navigation_profile:
-                        openFragment(SearchFragment.newInstance("", ""));
-                        return true;
-                    case R.id.navigation_search:
-                        openFragment(ProfileFragment.newInstance("", ""));
-                        return true;
-                }
-                return false;
-            }
-        };
-
+        bottomNavigation.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
+        if (savedInstanceState == null){
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, new HomeFragment()).commit();
+            bottomNavigation.setSelectedItemId(R.id.navigation_home);
+        }
     }
+    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    openFragment(HomeFragment.newInstance("", ""));
+                    break;
+                case R.id.navigation_profile:
+                    openFragment(ProfileFragment.newInstance("", ""));
+                    break;
+                case R.id.navigation_search:
+                    openFragment(SearchFragment.newInstance("", ""));
+                    break;
+            }
+            return true;
+        }
+    };
 
     @Override
     protected void onResume() {
