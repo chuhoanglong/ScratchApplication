@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
                     openFragment(HomeFragment.newInstance("", ""));
                     break;
                 case R.id.navigation_profile:
-                    openFragment(ProfileFragment.newInstance("", ""));
+                    startActivity(new Intent(MainActivity.this, MyProfileActivity.class));
                     break;
                 case R.id.navigation_search:
                     openFragment(SearchFragment.newInstance("", ""));
