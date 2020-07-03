@@ -10,4 +10,5 @@
         android:layout_gravity="center"
         android:src="@drawable/icon_search"
         />
+
 </RelativeLayout>
