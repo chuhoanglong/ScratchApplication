@@ -1,4 +1,4 @@
-package com.example.scratchapplication.fragment;
+package com.example.scratchapplication.fragment.main;
 
 import android.content.Intent;
 import android.os.Bundle;
