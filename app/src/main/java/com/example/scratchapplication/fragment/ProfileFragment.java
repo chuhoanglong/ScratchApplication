@@ -6,8 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scratchapplication.R;
+import com.example.scratchapplication.adapter.RecipeAdapter;
+import com.example.scratchapplication.obj.MyProfileRecipe;
+import com.example.scratchapplication.obj.RecipeFeed;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ProfileFragment extends Fragment {
@@ -18,6 +26,9 @@ public class ProfileFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private static final int REP_LIST_ITEMS = 100;
+    private RecipeAdapter recipeAdapter;
+    private RecyclerView recyclerView;
     public ProfileFragment() {
         // Required empty public constructor
     }
@@ -45,12 +56,29 @@ public class ProfileFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_profile, container, false);
+        List<MyProfileRecipe> myProfileRecipeList = new ArrayList<>();
+        for (int i=0; i<10; i++){
+            myProfileRecipeList.add(new MyProfileRecipe( R.drawable.img1, "Food " + i));
+        }
+
+        recyclerView = v.findViewById(R.id.rv_my_recipes);
+        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
+        recyclerView.setHasFixedSize(true);
+        recipeAdapter = new RecipeAdapter(myProfileRecipeList);
+        recyclerView.setAdapter(recipeAdapter);
         return v;
+
     }
+
 }
+
+

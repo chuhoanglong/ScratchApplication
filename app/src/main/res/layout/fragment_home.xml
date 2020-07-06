@@ -28,11 +28,12 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:src="@drawable/ic_messages"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview_feed"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="48dp"
-        app:layout_constraintBottom_toBottomOf="@id/image_logo"
-        tools:listitem="@layout/item_feed"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/item_feed" />
 </androidx.constraintlayout.widget.ConstraintLayout>

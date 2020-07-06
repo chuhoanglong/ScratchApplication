@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
                     openFragment(HomeFragment.newInstance("", ""));
                     break;
                 case R.id.navigation_profile:
-                    startActivity(new Intent(MainActivity.this, MyProfileActivity.class));
+                    openFragment(ProfileFragment.newInstance("",""));
                     break;
                 case R.id.navigation_search:
                     openFragment(SearchFragment.newInstance("", ""));
