@@ -1,22 +1,24 @@
-package com.example.scratchapplication.obj;
+package com.example.scratchapplication.model.home;
 
-public class Recipe {
-    private int profileAvatar;
+public class RecipeFeed {
+    private String rId;
+    private String profileAvatar;
     private String profileName;
-    private int recipeCover;
+    private String recipeCover;
     private String recipeName;
     private String recipeDescription;
     private int likeCount;
     private int cmtCount;
-    private String servingTime;
-    private String nutritionFacts;
-    private String tags;
+    private boolean isLiked;
+    private boolean isSaved;
 
-
-    public Recipe() {
+    public RecipeFeed() {
     }
 
-    public Recipe(int profileAvatar, String profileName, int recipeCover, String recipeName, String recipeDescription, int likeCount, int cmtCount) {
+    public RecipeFeed(String rId, String profileAvatar, String profileName, String recipeCover,
+                      String recipeName, String recipeDescription, int likeCount, int cmtCount,
+                      boolean isLiked, boolean isSaved) {
+        this.rId = rId;
         this.profileAvatar = profileAvatar;
         this.profileName = profileName;
         this.recipeCover = recipeCover;
@@ -24,13 +26,23 @@ public class Recipe {
         this.recipeDescription = recipeDescription;
         this.likeCount = likeCount;
         this.cmtCount = cmtCount;
+        this.isLiked = isLiked;
+        this.isSaved = isSaved;
     }
 
-    public int getProfileAvatar() {
+    public String getrId() {
+        return rId;
+    }
+
+    public void setrId(String rId) {
+        this.rId = rId;
+    }
+
+    public String getProfileAvatar() {
         return profileAvatar;
     }
 
-    public void setProfileAvatar(int profileAvatar) {
+    public void setProfileAvatar(String profileAvatar) {
         this.profileAvatar = profileAvatar;
     }
 
@@ -42,11 +54,11 @@ public class Recipe {
         this.profileName = profileName;
     }
 
-    public int getRecipeCover() {
+    public String getRecipeCover() {
         return recipeCover;
     }
 
-    public void setRecipeCover(int recipeCover) {
+    public void setRecipeCover(String recipeCover) {
         this.recipeCover = recipeCover;
     }
 
@@ -80,5 +92,21 @@ public class Recipe {
 
     public void setCmtCount(int cmtCount) {
         this.cmtCount = cmtCount;
+    }
+
+    public boolean isLiked() {
+        return isLiked;
+    }
+
+    public void setLiked(boolean liked) {
+        isLiked = liked;
+    }
+
+    public boolean isSaved() {
+        return isSaved;
+    }
+
+    public void setSaved(boolean saved) {
+        isSaved = saved;
     }
 }

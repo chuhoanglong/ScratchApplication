@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.obj.MyProfileRecipe;
-import com.example.scratchapplication.obj.RecipeFeed;
 
 import java.util.List;
 

@@ -34,7 +34,7 @@
                 app:civ_border_width="2dp"
                 app:civ_border_color="@android:color/white"
                 android:layout_gravity="center_vertical"
-                android:layout_margin="8dp"/>
+                android:layout_margin="5dp"/>
             <TextView
                 android:id="@+id/txt_profile_name"
                 android:layout_width="wrap_content"
@@ -58,8 +58,8 @@
             android:layout_marginRight="16dp"/>
         <ImageView
             android:id="@+id/image_like"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:src="@drawable/ic_like"
             android:layout_below="@id/image_cover"
             android:layout_alignParentEnd="true"
@@ -104,12 +104,12 @@
             android:id="@+id/btn_save"
             android:layout_width="73dp"
             android:layout_height="26dp"
-            android:background="@drawable/backgroud_btn_white"
+            android:background="@drawable/button_light_background"
             android:layout_below="@id/txt_recipe_desc"
             android:layout_alignParentEnd="true"
             android:layout_margin="16dp"
             android:text="+ Save"
-            android:textColor="#30BE76"/>
+            android:textColor="?attr/colorPrimary"/>
     </RelativeLayout>
 
 

@@ -1,3 +1,8 @@
 <resources>
+
     <string name="app_name">Good Food</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+>>>>>>> 4a6d1be0072500e5fe1d9547ee37a69a40665b56
 </resources>

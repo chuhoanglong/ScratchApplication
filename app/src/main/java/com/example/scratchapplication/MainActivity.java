@@ -8,11 +8,10 @@ import androidx.fragment.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 
-import com.example.scratchapplication.fragment.HomeFragment;
-import com.example.scratchapplication.fragment.ProfileFragment;
-import com.example.scratchapplication.fragment.SearchFragment;
+import com.example.scratchapplication.fragment.main.HomeFragment;
+import com.example.scratchapplication.fragment.main.ProfileFragment;
+import com.example.scratchapplication.fragment.main.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -54,5 +53,10 @@ public class MainActivity extends AppCompatActivity {
         transaction.replace(R.id.container, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 }

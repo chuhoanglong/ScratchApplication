@@ -1,22 +1,23 @@
-package com.example.scratchapplication.fragment;
+package com.example.scratchapplication.fragment.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.Button;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.scratchapplication.CreateRecipeActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.adapter.FeedAdapter;
-import com.example.scratchapplication.obj.RecipeFeed;
+import com.example.scratchapplication.model.home.RecipeFeed;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class HomeFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
@@ -28,6 +29,7 @@ public class HomeFragment extends Fragment {
     private String mParam2;
     //View
     private RecyclerView recyclerView;
+    private Button buttonAdd;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -62,15 +64,18 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
         //fake data
-        List<RecipeFeed> recipeFeedList = new ArrayList<>();
-        Random rd = new Random();
-        int rdliked, rdcmt;
-        for (int i=0; i<10; i++){
-            rdliked = rd.nextInt(1000);
-            rdcmt = rd.nextInt(1000);
-            recipeFeedList.add(new RecipeFeed(R.drawable.avatar_blank, "Profile name "+ i, R.drawable.food1,
-                    "Food " + i,"Description " + i, rdliked,
-                    rdcmt, false, false));
+        List<RecipeFeed> recipeFeedsList = new ArrayList<>();
+        for (int i = 0; i<10; i++){
+            recipeFeedsList.add(
+                    new RecipeFeed(
+                            i+"",
+                            "https://kansai-resilience-forum.jp/wp-content/uploads/2019/02/IAFOR-Blank-Avatar-Image-1.jpg",
+                            "User "+i,
+                            "https://www.bbcgoodfood.com/sites/default/files/recipe-collections/collection-image/2013/05/chorizo-mozarella-gnocchi-bake-cropped.jpg",
+                            "Food "+ i, "Description " +i,
+                            1, 10,
+                            false, false
+                    ));
         }
 
 
@@ -78,8 +83,19 @@ public class HomeFragment extends Fragment {
         recyclerView = v.findViewById(R.id.recyclerview_feed);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(false);
-        FeedAdapter adapter = new FeedAdapter(recipeFeedList,getContext());
+        FeedAdapter adapter = new FeedAdapter(recipeFeedsList,getContext());
         recyclerView.setAdapter(adapter);
+        //button add
+        buttonAdd =(Button) v.findViewById(R.id.btn_add);
+        buttonAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), CreateRecipeActivity.class);
+                startActivity(intent);
+            }
+        });
+
         return v;
     }
+
 }
