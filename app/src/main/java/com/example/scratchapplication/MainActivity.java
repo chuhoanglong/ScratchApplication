@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.example.scratchapplication.fragment.main.HomeFragment;
+import com.example.scratchapplication.fragment.main.ProfileFragment;
 import com.example.scratchapplication.fragment.main.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
                     openFragment(HomeFragment.newInstance("", ""));
                     break;
                 case R.id.navigation_profile:
-                    startActivity(new Intent(MainActivity.this, MyProfileActivity.class));
+                    openFragment(ProfileFragment.newInstance("",""));
                     break;
                 case R.id.navigation_search:
                     openFragment(SearchFragment.newInstance("", ""));
