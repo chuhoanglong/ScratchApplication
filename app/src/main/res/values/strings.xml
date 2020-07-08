@@ -4,5 +4,23 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
->>>>>>> 4a6d1be0072500e5fe1d9547ee37a69a40665b56
+    <string name="action_settings">Settings</string>
+    <string name="noti_1_key" translatable="false">noti_1</string>
+    <string name="noti_2_key" translatable="false">noti_2</string>
+    <string name="noti_3_key" translatable="false">noti_3</string>
+    <string name="privacy_1_key" translatable="false">privacy_1</string>
+    <string name="privacy_2_key" translatable="false">privacy_2</string>
+    <string name="action_edit_profile">Edit Profile</string>
+    <string name="pref_full_name_summary">Full Name</string>
+    <string name="pref_full_name_key">name</string>
+    <string name="pref_full_name_default">Long Tinder</string>
+    <string name="pref_bio_summary">Bio</string>
+    <string name="pref_bio_key">bio</string>
+    <string name="pref_bio_default">Chăn Rau Master</string>
+    <string name="pref_email_summary">Email</string>
+    <string name="pref_email_key">email</string>
+    <string name="pref_email_default">gmail@longtinder.com</string>
+    <string name="pref_phone_summary">Phone</string>
+    <string name="pref_phone_key">phone</string>
+    <string name="pref_phone_default">+0 123 456 789</string>
 </resources>
