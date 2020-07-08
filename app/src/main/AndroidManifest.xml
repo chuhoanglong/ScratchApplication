@@ -12,12 +12,25 @@
         android:icon="@mipmap/ic_launcher_recipe"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/NoActionBar"
-        >
-        <activity android:name=".CreateRecipeActivity"></activity>
-        <activity android:name=".ViewRecipeActivity" />
-        <activity android:name=".MainActivity"
+        android:theme="@style/AppTheme">
+        <activity android:name=".SettingsActivity"
+            android:parentActivityName=".SettingsActivity"
+            android:label="@string/action_settings">
+
+            <meta-data
+                android:name="android.support.PARENT.ACTIVITY"
+                android:value=".SettingsActivity"/>
+        </activity>
+        <activity android:name=".CreateRecipeActivity" />
+        <activity android:name=".ViewRecipeActivity"
             android:theme="@style/NoActionBar"/>
+        <activity android:name=".EditProfileActivity"
+            android:label="@string/action_edit_profile"
+            android:parentActivityName=".EditProfileActivity"/>
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
@@ -27,8 +40,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
 
     </application>
 
