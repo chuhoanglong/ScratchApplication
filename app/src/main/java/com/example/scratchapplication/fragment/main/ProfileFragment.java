@@ -1,18 +1,36 @@
 package com.example.scratchapplication.fragment.main;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.scratchapplication.CreateRecipeActivity;
+import com.example.scratchapplication.EditProfileActivity;
 import com.example.scratchapplication.R;
+import com.example.scratchapplication.SettingsActivity;
 import com.example.scratchapplication.adapter.RecipeAdapter;
 import com.example.scratchapplication.obj.MyProfileRecipe;
-
+import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.Fragment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +40,16 @@ public class ProfileFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "Ahihi";
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     private static final int REP_LIST_ITEMS = 100;
     private RecipeAdapter recipeAdapter;
     private RecyclerView recyclerView;
+    private Button button;
+    private ImageView imageView;
+    private TextView textView;
     public ProfileFragment() {
         // Required empty public constructor
     }
@@ -74,9 +96,30 @@ public class ProfileFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         recipeAdapter = new RecipeAdapter(myProfileRecipeList);
         recyclerView.setAdapter(recipeAdapter);
+        button = v.findViewById(R.id.settings);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(ProfileFragment.this.getActivity(), SettingsActivity.class);
+                    startActivity(intent);
+                }
+            });
+
+        imageView = v.findViewById(R.id.edit_profile);
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(getActivity(), EditProfileActivity.class));
+                }
+            });
+
+
+
         return v;
 
     }
+
 
 }
 
