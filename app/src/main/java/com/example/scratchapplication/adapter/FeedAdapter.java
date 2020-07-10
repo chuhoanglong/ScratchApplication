@@ -1,6 +1,8 @@
 package com.example.scratchapplication.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.GestureDetector;
@@ -39,8 +41,8 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        RecipeFeed recipeFeed = recipeFeedsList.get(position);
+    public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
+        final RecipeFeed recipeFeed = recipeFeedsList.get(position);
         Picasso.with(mContext)
                 .load(recipeFeed.getProfileAvatar())
                 .into(holder.imageViewAvatar);
@@ -51,9 +53,35 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
         holder.textViewRecipeName.setText(recipeFeed.getRecipeName());
         holder.textViewRecipeDesc.setText(recipeFeed.getRecipeDescription());
 
+        final boolean isLiked = recipeFeed.isLiked();
 
-        int liked = recipeFeed.getLikeCount();
-        int cmted = recipeFeed.getCmtCount();
+        final int liked = recipeFeed.getLikeCount();
+        final int cmted = recipeFeed.getCmtCount();
+
+        if (isLiked){
+            holder.imageViewLike.setImageResource(R.drawable.ic_liked);
+        }
+        else {
+            holder.imageViewLike.setImageResource(R.drawable.ic_like);
+        }
+        holder.imageViewLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isLiked){
+                    recipeFeed.setLiked(true);
+                    recipeFeed.setLikeCount(liked+1);
+                    notifyItemChanged(position);
+                }
+                else {
+
+                    recipeFeed.setLiked(false);
+                    recipeFeed.setLikeCount(liked-1);
+                    notifyItemChanged(position);
+                }
+            }
+        });
+
+
         if (liked>1){
             holder.textViewLikeCount.setText(liked + " likes");
         }
@@ -94,6 +122,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
                 }
             });
             imageViewLike = itemView.findViewById(R.id.image_like);
+
             textViewProfileName = itemView.findViewById(R.id.txt_profile_name);
             textViewRecipeName = itemView.findViewById(R.id.txt_recipe_name);
             textViewRecipeName.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +139,23 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
             textViewLikeCount = itemView.findViewById(R.id.txt_like_count);
             textViewCmtCount = itemView.findViewById(R.id.txt_cmt_count);
             buttonSave = itemView.findViewById(R.id.btn_save);
+            buttonSave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new AlertDialog.Builder(mContext)
+                            .setTitle("Save")
+                            .setMessage("Save to cookbook?")
+                            .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Toast.makeText(mContext, "Saved" + getAdapterPosition(), Toast.LENGTH_SHORT).show();
+                                    //Save button event
+                                }
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                }
+            });
 
         }
     }
