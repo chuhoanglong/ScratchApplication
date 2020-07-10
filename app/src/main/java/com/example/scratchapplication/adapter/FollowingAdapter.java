@@ -73,6 +73,25 @@ public class FollowingAdapter extends RecyclerView.Adapter<FollowingAdapter.Foll
                     mContext.startActivity(new Intent(mContext, OtherProfileActivity.class));
                 }
             });
+            bio.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mContext.startActivity(new Intent(mContext, OtherProfileActivity.class));
+                }
+            });
+            numberInfo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mContext.startActivity(new Intent(mContext, OtherProfileActivity.class));
+                }
+            });
+            name.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mContext.startActivity(new Intent(mContext, OtherProfileActivity.class));
+                }
+            });
+
 
         }
     }
