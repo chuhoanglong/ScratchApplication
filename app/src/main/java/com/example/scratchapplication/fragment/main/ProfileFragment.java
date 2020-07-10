@@ -1,37 +1,32 @@
 package com.example.scratchapplication.fragment.main;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceManager;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.scratchapplication.CreateRecipeActivity;
 import com.example.scratchapplication.EditProfileActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.SettingsActivity;
+import com.example.scratchapplication.adapter.ProfileViewPagerAdapter;
 import com.example.scratchapplication.adapter.RecipeAdapter;
-import com.example.scratchapplication.obj.MyProfileRecipe;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.fragment.app.Fragment;
+import com.example.scratchapplication.tablayout.FollowingFragment;
+import com.example.scratchapplication.tablayout.RecipesFragment;
+import com.example.scratchapplication.tablayout.SaveFragment;
+import com.google.android.material.tabs.TabLayout;
+
+import androidx.viewpager.widget.ViewPager;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -45,11 +40,17 @@ public class ProfileFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private static final int REP_LIST_ITEMS = 100;
-    private RecipeAdapter recipeAdapter;
-    private RecyclerView recyclerView;
+
     private Button button;
     private ImageView imageView;
-    private TextView textView;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private FollowingFragment followingFragment;
+    private RecipesFragment recipesFragment;
+    private SaveFragment saveFragment;
+
+    private ProfileViewPagerAdapter adapter;
+    private static final String[] TITLES = new String[]{"Recipes","Saved","Following"};
     public ProfileFragment() {
         // Required empty public constructor
     }
@@ -86,16 +87,9 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_profile, container, false);
-        List<MyProfileRecipe> myProfileRecipeList = new ArrayList<>();
-        for (int i=0; i<10; i++){
-            myProfileRecipeList.add(new MyProfileRecipe( R.drawable.img1, "Food " + i));
-        }
+        viewPager = v.findViewById(R.id.pager_recipe);
 
-        recyclerView = v.findViewById(R.id.rv_my_recipes);
-        recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
-        recyclerView.setHasFixedSize(true);
-        recipeAdapter = new RecipeAdapter(myProfileRecipeList);
-        recyclerView.setAdapter(recipeAdapter);
+
         button = v.findViewById(R.id.settings);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -114,11 +108,25 @@ public class ProfileFragment extends Fragment {
                 }
             });
 
-
-
+        tabLayout = v.findViewById(R.id.Tab_Layout);
+        recipesFragment = RecipesFragment.newInstance(2);
+        saveFragment = SaveFragment.newInstance(2);
+        followingFragment = FollowingFragment.newInstance("");
+        tabLayout.setupWithViewPager(viewPager);
+        List<Fragment> fragments = new ArrayList<>();
+        fragments.add(recipesFragment);
+        fragments.add(saveFragment);
+        fragments.add(followingFragment);
+        List<String> titles = new ArrayList<>(Arrays.asList(TITLES));
+        adapter = new ProfileViewPagerAdapter(getActivity().getSupportFragmentManager(),0,fragments,titles);
+        viewPager.setAdapter(adapter);
         return v;
-
     }
+
+
+
+
+
 
 
 }
