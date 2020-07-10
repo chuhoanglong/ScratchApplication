@@ -13,24 +13,29 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SettingsActivity"
-            android:parentActivityName=".SettingsActivity"
-            android:label="@string/action_settings">
-
+        <activity
+            android:name=".ui.login.fragment_login"
+            android:label="@string/title_activity_fragment_login"></activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/action_settings"
+            android:parentActivityName=".SettingsActivity">
             <meta-data
                 android:name="android.support.PARENT.ACTIVITY"
-                android:value=".SettingsActivity"/>
+                android:value=".SettingsActivity" />
         </activity>
         <activity android:name=".CreateRecipeActivity" />
-        <activity android:name=".ViewRecipeActivity"
-            android:theme="@style/NoActionBar"/>
-        <activity android:name=".EditProfileActivity"
+        <activity
+            android:name=".ViewRecipeActivity"
+            android:theme="@style/NoActionBar" />
+        <activity
+            android:name=".EditProfileActivity"
             android:label="@string/action_edit_profile"
-            android:parentActivityName=".EditProfileActivity"/>
+            android:parentActivityName=".EditProfileActivity" />
         <activity
             android:name=".MainActivity"
             android:theme="@style/AppTheme"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
@@ -40,7 +45,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>
