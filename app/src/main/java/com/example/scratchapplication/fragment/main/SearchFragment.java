@@ -20,6 +20,7 @@ import com.example.scratchapplication.model.search.SearchRecipe;
 import android.content.Context;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -64,6 +65,35 @@ public class SearchFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_search, container, false);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false);
         RecyclerView myList = (RecyclerView) v.findViewById(R.id.recyclerview_trending);
+
+       final EditText editTextSearch = v.findViewById(R.id.editTextSearch);
+        editTextSearch.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                final int DRAWABLE_LEFT = 0;
+                final int DRAWABLE_TOP = 1;
+                final int DRAWABLE_RIGHT = 2;
+                final int DRAWABLE_BOTTOM = 3;
+
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    if(event.getRawX() >= (editTextSearch.getRight() - editTextSearch.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                        // your action here
+                        Toast.makeText(getContext(), "DRAWABLE_RIGHT", Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                }
+
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    if(event.getRawX() >= (editTextSearch.getLeft() - editTextSearch.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
+                        // your action here
+                        Toast.makeText(getContext(), "DRAWABLE_LEFT", Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
         myList.setLayoutManager(layoutManager);
         //data
         final List<SearchRecipe> searchRecipes = new ArrayList<>();
