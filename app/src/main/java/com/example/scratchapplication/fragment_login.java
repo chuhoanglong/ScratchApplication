@@ -1,18 +1,32 @@
 package com.example.scratchapplication;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.text.Editable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link fragment_login#newInstance} factory method to
  * create an instance of this fragment.
  */
+import org.w3c.dom.Text;
+
+import static android.content.ContentValues.TAG;
+
 public class fragment_login extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
@@ -59,6 +73,32 @@ public class fragment_login extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_login, container, false);
+        View v = inflater.inflate(R.layout.fragment_login, container, false);
+        //get user name
+        EditText txtEmailOrUsername = v.findViewById(R.id.txtEmailOrUsername);
+        final Editable userName = txtEmailOrUsername.getText();
+        //get pass
+        EditText txtPass = v.findViewById(R.id.txtPass);
+        final Editable password = txtPass.getText();
+        // get Btn
+        TextView idForgotPass = v.findViewById(R.id.idForgotPass);
+        final Button idSignIn = v.findViewById(R.id.idSignIn);
+        TextView idSignUp = v.findViewById(R.id.idSignUp);
+
+        idSignIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getContext(), "Login", Toast.LENGTH_SHORT).show();
+            }
+        });
+        return v;
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        View v = activity.getWindow().getCurrentFocus();
+        if (v != null) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+        }
     }
 }

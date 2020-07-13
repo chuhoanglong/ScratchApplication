@@ -1,5 +1,8 @@
 package com.example.scratchapplication.adapter;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,20 +10,27 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scratchapplication.R;
-import com.example.scratchapplication.obj.MyProfileRecipe;
+import com.example.scratchapplication.ViewRecipeActivity;
+import com.example.scratchapplication.model.home.RecipeFeed;
+import com.example.scratchapplication.model.profile.MyProfileRecipe;
 
 import java.util.List;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>{
-    List<MyProfileRecipe> myProfileRecipeList;
+    private FragmentManager fragmentManager;
     private List<MyProfileRecipe> mRecipeItems;
 
-    public RecipeAdapter(List<MyProfileRecipe> mRecipeItems) {
+    Context mContext;
+    public RecipeAdapter(FragmentManager fragmentManager, List<MyProfileRecipe> mRecipeItems, Context mContext) {
+        this.fragmentManager = fragmentManager;
         this.mRecipeItems = mRecipeItems;
+        this.mContext = mContext;
     }
+
 
     @NonNull
     @Override
@@ -50,6 +60,17 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             super(itemView);
             recipeImageView = itemView.findViewById(R.id.img_recipe);
             recipeTextView = itemView.findViewById(R.id.tv_recipe);
+            recipeImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Intent intent = new Intent(mContext, ViewRecipeActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("RID",mRecipeItems.get(getAdapterPosition()).getrId());
+                    intent.putExtras(bundle);
+                    mContext.startActivity(intent);
+                }
+            });
         }
     }
 }
