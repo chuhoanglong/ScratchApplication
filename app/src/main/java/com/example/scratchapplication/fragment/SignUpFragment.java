@@ -30,6 +30,7 @@ public class SignUpFragment extends Fragment {
                     Intent intent = new Intent(getContext(), MainActivity.class);
                     intent.putExtra("CHECK", false);
                     startActivity(intent);
+                    getActivity().finish();
                 }
             });
 
@@ -37,7 +38,10 @@ public class SignUpFragment extends Fragment {
             login.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    getActivity().onBackPressed();
+                    getActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.login_container, new SignInFragment())
+                            .commit();
                 }
             });
         return v;

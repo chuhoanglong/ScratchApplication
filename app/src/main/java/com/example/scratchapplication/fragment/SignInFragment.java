@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,7 +15,6 @@ import androidx.fragment.app.Fragment;
 
 import com.example.scratchapplication.MainActivity;
 import com.example.scratchapplication.R;
-import com.example.scratchapplication.SignUpActivity;
 
 public class SignInFragment extends Fragment {
     private Button buttonSignIn;
@@ -39,6 +37,7 @@ public class SignInFragment extends Fragment {
                 Intent intent = new Intent(getContext(), MainActivity.class);
                 intent.putExtra("CHECK", false);
                 startActivity(intent);
+                getActivity().finish();
             }
         });
 
@@ -48,6 +47,7 @@ public class SignInFragment extends Fragment {
                 Intent intent = new Intent(getContext(), MainActivity.class);
                 intent.putExtra("CHECK", false);
                 startActivity(intent);
+                getActivity().finish();
             }
         });
 
@@ -57,14 +57,14 @@ public class SignInFragment extends Fragment {
                 Intent intent = new Intent(getContext(), MainActivity.class);
                 intent.putExtra("CHECK", false);
                 startActivity(intent);
+                getActivity().finish();
             }
         });
 
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(), SignUpActivity.class);
-                startActivity(intent);
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.login_container,new SignUpFragment()).commit();
             }
         });
         return v;
