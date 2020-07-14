@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.preference.PreferenceManager;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
@@ -34,6 +35,13 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         int id = item.getItemId();
         if(id == android.R.id.home){
             NavUtils.navigateUpFromSameTask(this);
+        }
+        switch (id) {
+            case R.id.action_logout:
+                Intent newIncome = new Intent(this, LoginActivity.class);
+                this.startActivity(newIncome);
+                finish();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

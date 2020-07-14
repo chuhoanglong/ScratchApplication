@@ -38,10 +38,19 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome Back!"
+            android:text="Start"
             android:textSize="25dp"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="100dp"
+            android:textColor="#000"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="from Scratch"
+            android:textSize="25dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="130dp"
             android:textColor="#000"
             />
     </RelativeLayout>
@@ -56,135 +65,87 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Please login to continue."
+            android:text="Create account to continue."
             android:textColor="#606060"
             />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Email address"
+            android:text="Full Name"
             android:layout_marginTop="30dp"
             android:textSize="16dp"
             />
         <EditText
-            android:id="@+id/txtEmailOrUsername"
+            android:id="@+id/txtFullName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="#000"
-            android:hint="Enter Email or User name"
-            android:textSize="14dp"
+            android:hint="Enter full name "
             android:inputType="textEmailAddress"
+            android:textSize="14dp"
             />
 
-        <LinearLayout
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:layout_marginTop="10dp"
+            android:textSize="16dp"
+            />
+        <EditText
+            android:id="@+id/txtEmailSignUp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:hint="Enter email"
+            android:inputType="textPassword"
+            android:textSize="14dp"
+            />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Password"
             android:layout_marginTop="10dp"
-            >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Password"
-                android:textSize="16dp"
-                />
-            <TextView
-                android:id="@+id/idForgotPass"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Forgot password?"
-                android:gravity="right"
-                android:textColor="#606060"
-                />
-        </LinearLayout>
+            android:textSize="16dp"
+            />
         <EditText
-            android:id="@+id/txtPass"
+            android:id="@+id/txtPassSignUp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="#000"
             android:hint="Enter password"
-            android:textSize="14dp"
             android:inputType="textPassword"
+            android:textSize="14dp"
             />
         <Button
-            android:id="@+id/btn_signin"
+            android:id="@+id/btn_signUp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:shadowRadius="@android:integer/config_longAnimTime"
-            android:text="Login"
+            android:text="Create Account"
             android:textAllCaps="false"
             android:textColor="#FFF"
             android:background="@drawable/button_visible_background"
             android:layout_marginVertical="10dp"
             />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#4267B2"
-            android:id="@+id/btn_signin_fb"
-            >
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:src="@drawable/facebook_logo"
-                />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Login With Facebook"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:textColor="#FFF"
-                android:layout_marginRight="20dp"
-                />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="__________or__________"
-            android:textColor="#999"
-            android:gravity="center"
-            android:textSize="18dp"
-            />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#E2E2E2"
-            android:id="@+id/btn_signin_google"
-            >
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/google_logo"
-                android:background="#E2E2E2"
-                android:layout_margin="10dp"
-                />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Login With Google"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:textColor="#000"
-                android:layout_marginRight="20dp"
-                />
-        </LinearLayout>
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="New to Scratch?"
+            android:text="Already have an account?"
+            android:layout_marginTop="50dp"
             />
         <TextView
-            android:id="@+id/idSignUp"
+            android:id="@+id/idSignIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Create Account Here"
+            android:text="Login Here"
             android:textSize="16dp"
             android:textColor="#30BE76"
             />
