@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -20,8 +22,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (true){
-            setContentView(R.layout.fragment_login);
+        Intent intent = getIntent();
+        boolean check = intent.getBooleanExtra("CHECK",true);
+        if (check){
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
             return;
         }
         setContentView(R.layout.activity_main);

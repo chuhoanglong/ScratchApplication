@@ -17,7 +17,7 @@
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="390dp"
+                android:layout_height="256dp"
                 android:scaleType="centerCrop"
                 android:cropToPadding="false"
                 android:src="@drawable/background_login"
@@ -104,7 +104,7 @@
             android:inputType="textPassword"
             />
         <Button
-            android:id="@+id/idSignIn"
+            android:id="@+id/btn_signin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:shadowRadius="@android:integer/config_longAnimTime"
