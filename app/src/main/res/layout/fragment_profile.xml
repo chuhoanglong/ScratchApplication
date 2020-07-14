@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -12,7 +10,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="My Kitchen"
-            android:textSize="24dp"
+            android:textSize="24sp"
             android:padding="8dp"
             android:id="@+id/my_kitchen"
             />
@@ -33,7 +31,8 @@
             android:layout_below="@+id/my_kitchen"
             android:layout_marginTop="16dp"
             android:layout_marginLeft="8dp"
-            android:id="@+id/avatar"/>
+            android:id="@+id/avatar"
+            />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -41,7 +40,7 @@
             android:layout_toRightOf="@+id/avatar"
             android:layout_below="@+id/my_kitchen"
             android:layout_marginTop="16dp"
-            android:textSize="16dp"
+            android:textSize="16sp"
             android:fontFamily="sans-serif-medium"
             android:layout_marginLeft="16dp"
             android:id="@+id/name"/>
@@ -60,48 +59,44 @@
             android:layout_height="wrap_content"
             android:text="999 followers  |  50k likes"
             android:layout_below="@id/job"
-            android:layout_toRightOf="@id/avatar"
+            android:layout_toEndOf="@id/avatar"
             android:layout_margin="16dp"/>
         <ImageView
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:src="@drawable/edit_profile"
             android:layout_below="@id/settings"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginRight="16dp"
             android:id="@+id/edit_profile"/>
+        <androidx.viewpager.widget.ViewPager
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/avatar"
+            android:id="@+id/pager_recipe"
+            >
         <com.google.android.material.tabs.TabLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/avatar"
-            android:layout_marginTop="16dp"
             android:id="@+id/Tab_Layout"
+            android:layout_marginTop="16dp"
+
             >
             <com.google.android.material.tabs.TabItem
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="20\nRecipes"
                 />
             <com.google.android.material.tabs.TabItem
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="75\nSaved"
                 />
             <com.google.android.material.tabs.TabItem
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="240\nFollowing"
                 />
         </com.google.android.material.tabs.TabLayout>
+        </androidx.viewpager.widget.ViewPager>
 
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/rv_my_recipes"
-            android:layout_below="@id/Tab_Layout"
-            android:layout_centerHorizontal="true"
-            />
 
 </RelativeLayout>
-</LinearLayout>

@@ -12,26 +12,43 @@
         android:icon="@mipmap/ic_launcher_recipe"
         android:label="@string/app_name"
         android:supportsRtl="true"
+<<<<<<< HEAD
         android:theme="@style/NoActionBar">
         <activity android:name=".SettingsActivity"
             android:parentActivityName=".SettingsActivity"
             android:theme="@style/AppTheme"
             android:label="@string/action_settings">
+=======
+        android:theme="@style/AppTheme">
+>>>>>>> 0c55631bd6f8b77f763f1bb4139b82887b922e8a
 
+        <activity android:name=".OtherProfileActivity"
+            android:parentActivityName=".OtherProfileActivity"></activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/action_settings"
+            android:parentActivityName=".SettingsActivity"
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT.ACTIVITY"
-                android:value=".SettingsActivity"/>
+                android:value=".SettingsActivity" />
         </activity>
         <activity android:name=".CreateRecipeActivity" />
-        <activity android:name=".ViewRecipeActivity"
-            android:theme="@style/NoActionBar"/>
-        <activity android:name=".EditProfileActivity"
+        <activity
+            android:name=".ViewRecipeActivity"
+            android:theme="@style/NoActionBar" />
+        <activity
+            android:name=".EditProfileActivity"
             android:label="@string/action_edit_profile"
-            android:parentActivityName=".EditProfileActivity"/>
+            android:parentActivityName=".EditProfileActivity" />
         <activity
             android:name=".MainActivity"
             android:theme="@style/NoActionBar"
+<<<<<<< HEAD
             android:windowSoftInputMode="adjustPan"/>
+=======
+            android:windowSoftInputMode="adjustPan" />
+>>>>>>> 0c55631bd6f8b77f763f1bb4139b82887b922e8a
         <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
@@ -41,7 +58,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

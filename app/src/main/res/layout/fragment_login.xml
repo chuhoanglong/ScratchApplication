@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".fragment_login"
+    android:theme="@style/NoActionBar"
+    android:orientation="vertical"
+    android:id="@+id/wrap_login"
+    >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="390dp"
+                android:scaleType="centerCrop"
+                android:cropToPadding="false"
+                android:src="@drawable/background_login"
+                android:alpha="0.7"
+                />
+
+            <ImageView
+                android:src="@drawable/border_background"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_logo"
+            android:layout_margin="20dp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome Back!"
+            android:textSize="30dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="100dp"
+            android:textColor="#000"
+            />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="10dp"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Please login to continue."
+            android:textColor="#606060"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email address"
+            android:layout_marginTop="30dp"
+            />
+        <EditText
+            android:id="@+id/txtEmailOrUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:hint="Enter Email or User name"
+            android:inputType="textEmailAddress"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Password"
+                />
+            <TextView
+                android:id="@+id/idForgotPass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Forgot password?"
+                android:gravity="right"
+                android:textColor="#606060"
+                />
+        </LinearLayout>
+        <EditText
+            android:id="@+id/txtPass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:hint="Enter password"
+            android:inputType="textPassword"
+            />
+        <Button
+            android:id="@+id/idSignIn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:shadowRadius="@android:integer/config_longAnimTime"
+            android:text="Login"
+            android:textAllCaps="false"
+            android:textColor="#FFF"
+            android:background="@drawable/button_visible_background"
+            android:layout_marginVertical="10dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="New to Scratch?"
+            />
+        <TextView
+            android:id="@+id/idSignUp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Create Account Here"
+            android:textSize="16dp"
+            android:textColor="#30BE76"
+            />
+
+    </LinearLayout>
+
+
+</LinearLayout>

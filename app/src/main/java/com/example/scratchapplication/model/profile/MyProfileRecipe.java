@@ -1,15 +1,26 @@
-package com.example.scratchapplication.obj;
+package com.example.scratchapplication.model.profile;
 
 public class MyProfileRecipe {
+    private String rId;
     private int imageRecipe;
     private String nameRecipe;
 
 
-    public MyProfileRecipe( int imageRecipe, String nameRecipe) {
 
+    public MyProfileRecipe( String rId, int imageRecipe, String nameRecipe) {
+
+        this.rId = rId;
         this.imageRecipe = imageRecipe;
         this.nameRecipe = nameRecipe;
 
+    }
+
+    public String getrId() {
+        return rId;
+    }
+
+    public void setrId(String rId) {
+        this.rId = rId;
     }
 
     public int getImageRecipe() {
