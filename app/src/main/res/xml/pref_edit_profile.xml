@@ -32,4 +32,5 @@
         android:key="@string/pref_phone_key"
         app:useSimpleSummaryProvider = "true"
         />
+
 </PreferenceScreen>

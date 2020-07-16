@@ -32,5 +32,14 @@
         <item name="android:scaleX">0.8</item>
         <item name="android:scaleY">0.8</item>
     </style>
+    <style name="MyRounded.MaterialComponents.MaterialAlertDialog" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.App.CustomDialog.Rounded
+        </item>
+        <item name="colorSurface">#fff</item>
+    </style>
 
+    <style name="ShapeAppearanceOverlay.App.CustomDialog.Rounded" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">10dp</item>
+    </style>
 </resources>
