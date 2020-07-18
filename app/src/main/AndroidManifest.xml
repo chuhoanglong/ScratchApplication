@@ -44,6 +44,7 @@
         <activity
             android:name=".EditProfileActivity"
             android:label="@string/action_edit_profile"
+            android:theme="@style/AppTheme"
             android:parentActivityName=".EditProfileActivity" />
         <activity
             android:name=".MainActivity"

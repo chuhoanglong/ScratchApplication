@@ -55,7 +55,8 @@
         android:background="@color/colorPrimary"
         android:layout_margin="16dp"
         app:cornerRadius="8dp"
-        android:id="@+id/btn_follow"/>
+        android:id="@+id/btn_follow"
+        android:theme="@style/AppTheme"/>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

@@ -6,8 +6,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,6 +18,7 @@ import com.example.scratchapplication.MainActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.ViewRecipeActivity;
 import com.example.scratchapplication.adapter.SearchAdapter;
+import com.example.scratchapplication.dialog.DialogFilter;
 import com.example.scratchapplication.model.search.SearchRecipe;
 
 import android.content.Context;
@@ -70,22 +73,23 @@ public class SearchFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false);
         RecyclerView myList = (RecyclerView) v.findViewById(R.id.recyclerview_trending);
 
+        Button button = v.findViewById(R.id.btnFilter);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDialog();
+            }
+        });
+
        final EditText editTextSearch = v.findViewById(R.id.editTextSearch);
         editTextSearch.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 final int DRAWABLE_LEFT = 0;
                 final int DRAWABLE_TOP = 1;
-                final int DRAWABLE_RIGHT = 2;
+
                 final int DRAWABLE_BOTTOM = 3;
 
-                if(event.getAction() == MotionEvent.ACTION_UP) {
-                    if(event.getRawX() >= (editTextSearch.getRight() - editTextSearch.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-                        // your action here
-                        Toast.makeText(getContext(), "DRAWABLE_RIGHT", Toast.LENGTH_SHORT).show();
-                        return true;
-                    }
-                }
 
                 if(event.getAction() == MotionEvent.ACTION_UP) {
                     if(event.getRawX() >= (editTextSearch.getLeft() - editTextSearch.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
@@ -129,9 +133,12 @@ public class SearchFragment extends Fragment {
         );
         return v;
     }
-}
 
-class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
+public void openDialog(){
+    DialogFilter dialogFilter = new DialogFilter();
+    dialogFilter.show(getChildFragmentManager(), "dialog filter");
+}
+static class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
     private OnItemClickListener mListener;
 
     public interface OnItemClickListener {
@@ -173,4 +180,4 @@ class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
 
     @Override
     public void onRequestDisallowInterceptTouchEvent (boolean disallowIntercept){}
-}
+}}
