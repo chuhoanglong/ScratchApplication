@@ -13,15 +13,26 @@ import com.example.scratchapplication.fragment.main.HomeFragment;
 import com.example.scratchapplication.fragment.main.ProfileFragment;
 import com.example.scratchapplication.fragment.main.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView bottomNavigation;
+    private FirebaseAuth mAuth;
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
+
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
         Intent intent = getIntent();
         boolean check = intent.getBooleanExtra("CHECK",true);
         if (check){
@@ -64,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        finish();
+//        finish();
+        return;
     }
 }

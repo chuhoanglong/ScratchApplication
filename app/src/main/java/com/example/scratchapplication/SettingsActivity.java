@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Override
@@ -38,6 +40,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         }
         switch (id) {
             case R.id.action_logout:
+                FirebaseAuth.getInstance().signOut();
                 Intent newIncome = new Intent(this, LoginActivity.class);
                 this.startActivity(newIncome);
                 finish();
