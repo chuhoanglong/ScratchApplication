@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.scratchapplication.MainActivity;
 import com.example.scratchapplication.R;
+import com.example.scratchapplication.adapter.User;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -39,7 +40,10 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static android.content.ContentValues.TAG;
@@ -180,7 +184,20 @@ public class SignInFragment extends Fragment {
     }
 
     public void updateUI(FirebaseUser user){
-        Toast.makeText(getContext(), user.getPhotoUrl().toString(), Toast.LENGTH_SHORT).show();
+        String avatar = user.getPhotoUrl().toString();
+        String name = user.getDisplayName();
+        String uid = user.getUid();
+        ArrayList followers = new ArrayList();
+        followers.add("uKDBqAqUBAQqldj1nAesQ8ChqA82");
+        User dataUser = new User(name, avatar,"",0, followers);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("users");
+        FirebaseDatabase dataTemp = myRef.child(uid).getDatabase();
+        if (dataTemp == null){
+            myRef.child(uid).setValue(dataUser);
+        }else {
+            Toast.makeText(getContext(), user.getPhotoUrl().toString(), Toast.LENGTH_SHORT).show();
+        }
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra("CHECK", false);
         startActivity(intent);
