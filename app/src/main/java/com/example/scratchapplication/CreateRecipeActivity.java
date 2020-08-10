@@ -50,13 +50,13 @@ public class CreateRecipeActivity extends AppCompatActivity {
             }
         });
 
-        imageEditGallery= findViewById(R.id.image_edit_gallery);
+        /*imageEditGallery= findViewById(R.id.image_edit_gallery);
         imageEditGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openDialogGallery();
             }
-        });
+        });*/
 
         buttonAddInfo = findViewById(R.id.btn_add_info);
         buttonAddInfo.setOnClickListener(new View.OnClickListener() {
@@ -73,13 +73,13 @@ public class CreateRecipeActivity extends AppCompatActivity {
                 openDialogDirections();
             }
         });
-        buttonAddGallery = findViewById(R.id.btn_add_gallery);
-        buttonAddGallery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openMultifileChooser();
-            }
-        });
+//        buttonAddGallery = findViewById(R.id.btn_add_gallery);
+//        buttonAddGallery.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                openMultifileChooser();
+//            }
+//        });
     }
 
     private void openDialogGallery() {
@@ -143,11 +143,11 @@ public class CreateRecipeActivity extends AppCompatActivity {
                     }
 
                     //edit view
-                    recyclerViewGallery = findViewById(R.id.rv_add_gallery);
-                    recyclerViewGallery.setAdapter(new GalleryAdapter(galleryUri,this));
-                    recyclerViewGallery.setHasFixedSize(true);
-
-                    buttonAddGallery.setVisibility(View.GONE);
+//                    recyclerViewGallery = findViewById(R.id.rv_add_gallery);
+//                    recyclerViewGallery.setAdapter(new GalleryAdapter(galleryUri,this));
+//                    recyclerViewGallery.setHasFixedSize(true);
+//
+//                    buttonAddGallery.setVisibility(View.GONE);
                 }
                 break;
             default:
