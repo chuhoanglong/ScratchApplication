@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -68,7 +69,7 @@ public class HomeFragment extends Fragment {
         for (int i = 0; i<10; i++){
             recipeFeedsList.add(
                     new RecipeFeed(
-                            i+"",
+                            i+"",i+"",
                             "https://kansai-resilience-forum.jp/wp-content/uploads/2019/02/IAFOR-Blank-Avatar-Image-1.jpg",
                             "User "+i,
                             "https://www.bbcgoodfood.com/sites/default/files/recipe-collections/collection-image/2013/05/chorizo-mozarella-gnocchi-bake-cropped.jpg",
@@ -81,10 +82,14 @@ public class HomeFragment extends Fragment {
 
         //get a reference to recyclerview
         recyclerView = v.findViewById(R.id.recyclerview_feed);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        LinearLayoutManager layout = new LinearLayoutManager(getContext());
+        layout.setReverseLayout(true);
+        recyclerView.setLayoutManager(layout);
         recyclerView.setHasFixedSize(false);
         FeedAdapter adapter = new FeedAdapter(recipeFeedsList,getContext());
         recyclerView.setAdapter(adapter);
+        recyclerView.scrollToPosition(recipeFeedsList.size()-1);
+
         //button add
         buttonAdd =(Button) v.findViewById(R.id.btn_add);
         buttonAdd.setOnClickListener(new View.OnClickListener() {

@@ -88,5 +88,4 @@
                 />
         </com.google.android.material.tabs.TabLayout>
     </androidx.viewpager.widget.ViewPager>
-    \
 </RelativeLayout>

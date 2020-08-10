@@ -2,6 +2,7 @@ package com.example.scratchapplication.model.home;
 
 public class RecipeFeed {
     private String rId;
+    private String uId;
     private String profileAvatar;
     private String profileName;
     private String recipeCover;
@@ -15,10 +16,9 @@ public class RecipeFeed {
     public RecipeFeed() {
     }
 
-    public RecipeFeed(String rId, String profileAvatar, String profileName, String recipeCover,
-                      String recipeName, String recipeDescription, int likeCount, int cmtCount,
-                      boolean isLiked, boolean isSaved) {
+    public RecipeFeed(String rId, String uId, String profileAvatar, String profileName, String recipeCover, String recipeName, String recipeDescription, int likeCount, int cmtCount, boolean isLiked, boolean isSaved) {
         this.rId = rId;
+        this.uId = uId;
         this.profileAvatar = profileAvatar;
         this.profileName = profileName;
         this.recipeCover = recipeCover;
@@ -28,6 +28,14 @@ public class RecipeFeed {
         this.cmtCount = cmtCount;
         this.isLiked = isLiked;
         this.isSaved = isSaved;
+    }
+
+    public String getuId() {
+        return uId;
+    }
+
+    public void setuId(String uId) {
+        this.uId = uId;
     }
 
     public String getrId() {

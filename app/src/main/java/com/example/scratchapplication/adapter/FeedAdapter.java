@@ -12,12 +12,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.scratchapplication.OtherProfileActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.ViewRecipeActivity;
 import com.example.scratchapplication.model.home.RecipeFeed;
@@ -103,6 +106,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder{
+        private LinearLayout layoutTittle;
         private ImageView imageViewAvatar, imageViewCover, imageViewLike;
         private TextView textViewProfileName, textViewRecipeName, textViewRecipeDesc, textViewLikeCount,textViewCmtCount;
         private Button buttonSave;
@@ -156,6 +160,19 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
                             .show();
                 }
             });
+            textViewProfileName = itemView.findViewById(R.id.txt_profile_name);
+            layoutTittle = itemView.findViewById(R.id.title_bar);
+            layoutTittle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, OtherProfileActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("UID",recipeFeedsList.get(getAdapterPosition()).getuId());
+                    intent.putExtras(bundle);
+                    mContext.startActivity(intent);
+                }
+            });
+
 
         }
     }
