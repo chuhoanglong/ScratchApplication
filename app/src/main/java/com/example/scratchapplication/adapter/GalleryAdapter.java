@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.scratchapplication.OnItemClickListener;
 import com.example.scratchapplication.R;
 import com.squareup.picasso.Picasso;
 
@@ -18,6 +19,10 @@ import java.util.List;
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHolder> {
     List<Uri> uriList;
     Context context;
+    private OnItemClickListener onItemClickListener;
+    public void setOnClickItemListener(OnItemClickListener onClickItemListener){
+        this.onItemClickListener = onClickItemListener;
+    }
     public GalleryAdapter(List<Uri> uriList,Context context){
         this.uriList = uriList;
         this.context = context;
@@ -45,6 +50,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MyViewHo
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.image_item_gallery);
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (position!=RecyclerView.NO_POSITION){
+                        onItemClickListener.onItemClick(position);
+                    }
+                }
+            });
         }
     }
 }

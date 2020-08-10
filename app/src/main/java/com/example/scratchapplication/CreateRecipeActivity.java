@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.example.scratchapplication.adapter.GalleryAdapter;
 import com.example.scratchapplication.dialog.BottomSheetDirections;
+import com.example.scratchapplication.dialog.BottomSheetGallery;
 import com.example.scratchapplication.dialog.BottomSheetInfo;
 import com.squareup.picasso.Picasso;
 
@@ -27,6 +28,7 @@ public class CreateRecipeActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int PICK_MULTI_IMAGE_REQUEST = 2;
     private ImageView imageViewUploadCover;
+    private ImageView imageEditGallery;
     private Button buttonAddInfo;
     private Button buttonAddDirections;
     private Button buttonAddGallery;
@@ -45,6 +47,14 @@ public class CreateRecipeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 openFileChooser();
+            }
+        });
+
+        imageEditGallery= findViewById(R.id.image_edit_gallery);
+        imageEditGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDialogGallery();
             }
         });
 
@@ -70,6 +80,11 @@ public class CreateRecipeActivity extends AppCompatActivity {
                 openMultifileChooser();
             }
         });
+    }
+
+    private void openDialogGallery() {
+        BottomSheetGallery bottomSheetGallery = new BottomSheetGallery(galleryUri,this);
+        bottomSheetGallery.show(getSupportFragmentManager(),"gallery");
     }
 
     private void openMultifileChooser() {
