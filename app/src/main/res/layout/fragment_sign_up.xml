@@ -100,7 +100,7 @@
             android:layout_height="wrap_content"
             android:textColor="#000"
             android:hint="Enter email"
-            android:inputType="textPassword"
+            android:inputType="textEmailAddress"
             android:textSize="14dp"
             />
 

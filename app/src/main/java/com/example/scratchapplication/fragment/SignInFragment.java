@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,6 +52,9 @@ import static android.content.ContentValues.TAG;
 public class SignInFragment extends Fragment {
     private Button buttonSignIn;
     private TextView signUp;
+    private EditText txtEmailOrUsername;
+    private EditText txtPass;
+
     private LinearLayout buttonSignInFB;
     private LinearLayout buttonSignInGoogle;
     private FirebaseAuth mAuth;
@@ -76,6 +80,8 @@ public class SignInFragment extends Fragment {
         signUp = v.findViewById(R.id.idSignUp);
         buttonSignInFB = v.findViewById(R.id.btn_signin_fb);
         buttonSignInGoogle = v.findViewById(R.id.btn_signin_google);
+        txtPass = v.findViewById(R.id.txtPass);
+        txtEmailOrUsername = v.findViewById(R.id.txtEmailOrUsername);
 
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
@@ -115,10 +121,9 @@ public class SignInFragment extends Fragment {
         buttonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(), MainActivity.class);
-                intent.putExtra("CHECK", false);
-                startActivity(intent);
-                getActivity().finish();
+                String email = txtEmailOrUsername.getText().toString();
+                String password = txtPass.getText().toString();
+                signInWidthUser(email,password);
             }
         });
 
@@ -129,6 +134,26 @@ public class SignInFragment extends Fragment {
             }
         });
         return v;
+    }
+
+    private void signInWidthUser(String email, String password) {
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInWithEmail:failure", task.getException());
+                        }
+
+                        // ...
+                    }
+                });
     }
 
     private void createRequest() {
@@ -184,11 +209,13 @@ public class SignInFragment extends Fragment {
     }
 
     public void updateUI(FirebaseUser user){
-        String avatar = user.getPhotoUrl().toString();
+        String avatar = null;
+        if (user.getPhotoUrl() != null){
+             avatar = user.getPhotoUrl().toString();
+        }
         String name = user.getDisplayName();
         String uid = user.getUid();
         ArrayList followers = new ArrayList();
-        followers.add("uKDBqAqUBAQqldj1nAesQ8ChqA82");
         User dataUser = new User(name, avatar,"",0, followers);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("users");
@@ -196,7 +223,6 @@ public class SignInFragment extends Fragment {
         if (dataTemp == null){
             myRef.child(uid).setValue(dataUser);
         }else {
-            Toast.makeText(getContext(), user.getPhotoUrl().toString(), Toast.LENGTH_SHORT).show();
         }
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra("CHECK", false);
