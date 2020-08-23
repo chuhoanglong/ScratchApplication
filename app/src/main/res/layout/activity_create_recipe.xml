@@ -144,20 +144,26 @@
                     android:layout_height="wrap_content">
                     <RelativeLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Ingredients"
                             android:layout_marginBottom="16dp"
                             android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true"/>
+                            android:layout_alignParentTop="true"/>
                         <ImageView
                             android:id="@+id/image_edit_ingredients"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:src="@drawable/ic_edit"
                             android:layout_alignParentEnd="true"/>
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rv_ingredients_create"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/image_edit_ingredients"/>
                     </RelativeLayout>
                     <Button
                         android:id="@+id/btn_add_ingredients"
@@ -184,20 +190,26 @@
                     android:layout_height="wrap_content">
                     <RelativeLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="How to Cook"
                             android:layout_marginBottom="16dp"
                             android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true"/>
+                            android:layout_alignParentTop="true"/>
                         <ImageView
                             android:id="@+id/image_edit_howtocoook"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:src="@drawable/ic_edit"
                             android:layout_alignParentEnd="true"/>
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rv_directions_create"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/image_edit_howtocoook"/>
                     </RelativeLayout>
                     <Button
                         android:id="@+id/btn_add_direction"
@@ -230,6 +242,7 @@
                             android:layout_height="wrap_content"
                             android:text="Additional Info"
                             android:layout_marginBottom="16dp"
+                            android:layout_alignParentTop="true"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"/>
                         <ImageView
@@ -238,7 +251,23 @@
                             android:layout_height="32dp"
                             android:src="@drawable/ic_edit"
                             android:layout_alignParentEnd="true"/>
+                        <TextView
+                            android:id="@+id/tv_info_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/image_edit_info"/>
+                        <TextView
+                            android:id="@+id/tv_info_nutrition"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/tv_info_time"/>
+                        <TextView
+                            android:id="@+id/tv_info_tags"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/tv_info_nutrition"/>
                     </RelativeLayout>
+
                     <Button
                         android:id="@+id/btn_add_info"
                         android:layout_width="match_parent"
@@ -250,10 +279,20 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
             <!--Button-->
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_above="@id/btn_post"
+                android:layout_below="@id/layout_info"
+                android:layout_alignParentStart="true"
+                android:layout_marginBottom="16dp"
+                android:layout_height="wrap_content"/>
 
             <Button
                 android:id="@+id/btn_post"
                 android:layout_below="@id/layout_info"
+                android:layout_alignParentBottom="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/button_invisible_background"
