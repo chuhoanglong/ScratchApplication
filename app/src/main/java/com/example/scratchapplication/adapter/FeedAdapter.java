@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -24,6 +25,11 @@ import com.example.scratchapplication.OtherProfileActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.ViewRecipeActivity;
 import com.example.scratchapplication.model.home.RecipeFeed;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 
@@ -46,6 +52,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
         final RecipeFeed recipeFeed = recipeFeedsList.get(position);
+
         Picasso.with(mContext)
                 .load(recipeFeed.getProfileAvatar())
                 .into(holder.imageViewAvatar);
@@ -53,6 +60,8 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
         Picasso.with(mContext)
                 .load(recipeFeed.getRecipeCover())
                 .into(holder.imageViewCover);
+        Log.e("IMAGE",recipeFeed.getRecipeCover());
+        //Toast.makeText(mContext, recipeFeed.getRecipeCover(), Toast.LENGTH_SHORT).show();
         holder.textViewRecipeName.setText(recipeFeed.getRecipeName());
         holder.textViewRecipeDesc.setText(recipeFeed.getRecipeDescription());
 

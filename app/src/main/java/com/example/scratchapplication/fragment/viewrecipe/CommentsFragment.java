@@ -2,13 +2,37 @@ package com.example.scratchapplication.fragment.viewrecipe;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.scratchapplication.R;
+import com.example.scratchapplication.model.CommentView;
+
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.firebase.ui.database.SnapshotParser;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,25 +50,35 @@ public class CommentsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public CommentsFragment() {
-        // Required empty public constructor
+    private RecyclerView recyclerViewComment;
+    private EditText editTextComment;
+    private Button buttonComment;
+    private List<CommentView> commentViews;
+
+    private DatabaseReference databaseRef;
+    private FirebaseRecyclerAdapter<CommentView, CommentViewHolder> adapter;
+
+    public static class CommentViewHolder extends RecyclerView.ViewHolder {
+        ImageView imageViewAvatar;
+        TextView textViewName;
+        TextView textViewComment;
+        public CommentViewHolder(@NonNull View v) {
+            super(v);
+            imageViewAvatar = itemView.findViewById(R.id.image_avatar_comment);
+            textViewName = itemView.findViewById(R.id.txt_profile_name_comment);
+            textViewComment = itemView.findViewById(R.id.txt_comment);
+        }
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment GalleryFragment.
-     */
-    // TODO: Rename and change types and number of parameters
+
+    public CommentsFragment(String mParam1, String mParam2) {
+        this.mParam1 = mParam1;
+        this.mParam2 = mParam2;
+    }
+
     public static CommentsFragment newInstance(String param1, String param2) {
-        CommentsFragment fragment = new CommentsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
+        CommentsFragment fragment = new CommentsFragment(param1,param2);
+
         return fragment;
     }
 
@@ -61,8 +95,84 @@ public class CommentsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
         View v = inflater.inflate(R.layout.fragment_comment, container, false);
+        recyclerViewComment = v.findViewById(R.id.rv_comment);
+        LinearLayoutManager layout = new LinearLayoutManager(getContext());
+        layout.setReverseLayout(true);
+        recyclerViewComment.setLayoutManager(layout);
+        commentViews = new ArrayList<>();
+
+        editTextComment = v.findViewById(R.id.et_comment);
+        buttonComment = v.findViewById(R.id.btn_comment);
+
+            buttonComment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    databaseRef.child(mParam1).push().setValue(new CommentView(
+                            user.getPhotoUrl().toString(),
+                            user.getDisplayName(),
+                            editTextComment.getText().toString().trim()
+                    ));
+                    editTextComment.setText("");
+                }
+            });
+
+        databaseRef = FirebaseDatabase.getInstance().getReference("comments");
+        SnapshotParser<CommentView> parser = new SnapshotParser<CommentView>() {
+            @NonNull
+            @Override
+            public CommentView parseSnapshot(@NonNull DataSnapshot snapshot) {
+                CommentView commentView = snapshot.getValue(CommentView.class);
+                return commentView;
+            }
+        };
+        final DatabaseReference commentRef = databaseRef.child(mParam1);
+        FirebaseRecyclerOptions<CommentView> options = new FirebaseRecyclerOptions.Builder<CommentView>()
+                .setQuery(commentRef,parser)
+                .build();
+        adapter = new FirebaseRecyclerAdapter<CommentView, CommentViewHolder>(options){
+            @Override
+            protected void onBindViewHolder(@NonNull final CommentViewHolder holder,
+                                            int i,
+                                            @NonNull CommentView commentView) {
+                if (commentView.getComment()!=null){
+                    //Log.e("RV",commentView.getComment());
+                    holder.textViewName.setText(commentView.getName());
+                    holder.textViewComment.setText(commentView.getComment());
+                    Picasso.with(getContext()).load(commentView.getAvatar()).into(holder.imageViewAvatar);
+                }
+            }
+
+            @NonNull
+            @Override
+            public CommentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_comment,parent,false);
+                return new CommentViewHolder(v);
+            }
+        };
+//        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+//////            @Override
+//////            public void onItemRangeChanged(int positionStart, int itemCount) {
+//////                super.onItemRangeChanged(positionStart, itemCount);
+//////
+//////            }
+//////        });
+        recyclerViewComment.setAdapter(adapter);
 
         return v;
+    }
+
+    @Override
+    public void onPause() {
+        adapter.stopListening();
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        adapter.startListening();
+        super.onResume();
     }
 }

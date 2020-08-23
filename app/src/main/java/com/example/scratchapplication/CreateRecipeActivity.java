@@ -13,6 +13,7 @@ import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
@@ -31,9 +32,12 @@ import com.example.scratchapplication.dialog.BottomSheetInfo;
 import com.example.scratchapplication.dialog.BottomSheetIngredients;
 import com.example.scratchapplication.model.Additional;
 import com.example.scratchapplication.model.RecipeCreate;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -51,7 +55,7 @@ public class CreateRecipeActivity extends AppCompatActivity
         BottomSheetDirections.BottomSheetListener,
         BottomSheetInfo.BottomSheetListener{
     private static final int PICK_IMAGE_REQUEST = 1;
-    private static final int PICK_MULTI_IMAGE_REQUEST = 2;
+    //private static final int PICK_MULTI_IMAGE_REQUEST = 2;
     private ImageView imageViewUploadCover;
     private ImageView imageEditGallery;
     private EditText editTextName;
@@ -84,7 +88,7 @@ public class CreateRecipeActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_recipe);
         mProgressBar = findViewById(R.id.progress_bar);
-
+        mProgressBar.setVisibility(View.INVISIBLE);
         mStorageRef = FirebaseStorage.getInstance().getReference("covers");
         mDatabaseRef = FirebaseDatabase.getInstance().getReference("recipes");
 
@@ -138,8 +142,12 @@ public class CreateRecipeActivity extends AppCompatActivity
                 if (mUploadTask!=null&&mUploadTask.isInProgress()){
                     Toast.makeText(CreateRecipeActivity.this, "Upload in progress", Toast.LENGTH_SHORT).show();
                 }
-                else 
+                else {
                     uploadFile();
+                    Intent intent = new Intent(CreateRecipeActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
     }
@@ -151,25 +159,52 @@ public class CreateRecipeActivity extends AppCompatActivity
 
     private void uploadFile() {
         if (imageCoverUri!=null){
-            StorageReference fileRef = mStorageRef.child(System.currentTimeMillis()+"." + getFileExtension(imageCoverUri));
+            final StorageReference fileRef = mStorageRef.child(System.currentTimeMillis()+"." + getFileExtension(imageCoverUri));
             mUploadTask = fileRef.putFile(imageCoverUri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        public void onSuccess(final UploadTask.TaskSnapshot taskSnapshot) {
                             Handler handler = new Handler();
                             handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
+                                    mProgressBar.setVisibility(View.VISIBLE);
                                     mProgressBar.setProgress(0);
                                 }
                             },500);
                             Toast.makeText(CreateRecipeActivity.this, "Post successfully", Toast.LENGTH_SHORT).show();
+                            Log.d("UPLOAD",fileRef.getDownloadUrl().toString());
                             recipeCreate.setName(editTextName.getText().toString());
                             recipeCreate.setDescription(editTextDesc.getText().toString());
                             recipeCreate.setpId(FirebaseAuth.getInstance().getCurrentUser().getUid());
                             recipeCreate.setUrlCover(taskSnapshot.getMetadata().getReference().getDownloadUrl().toString());
-                            String uploadId = mDatabaseRef.push().getKey();
-                            mDatabaseRef.child(uploadId).setValue(recipeCreate);
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            recipeCreate.setProfileName(user.getDisplayName());
+                            Log.e("NAME",user.getDisplayName());
+                            if(user.getPhotoUrl()!=null) {
+                                recipeCreate.setProfileAvatar(user.getPhotoUrl().toString());
+                            }
+                            else {
+                                recipeCreate.setProfileAvatar("https://kansai-resilience-forum.jp/wp-content/uploads/2019/02/IAFOR-Blank-Avatar-Image-1.jpg");
+                            }
+                            Log.e("AVATAR",user.getPhotoUrl().toString());
+                            if(taskSnapshot.getMetadata()!=null){
+                                if (taskSnapshot.getMetadata().getReference()!=null){
+                                    Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                                    result.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            recipeCreate.setUrlCover(uri.toString());
+                                            Log.e("UPLOAD",uri.toString());
+                                            String uploadId = mDatabaseRef.push().getKey();
+                                            mDatabaseRef.child(uploadId).setValue(recipeCreate);
+                                        }
+                                    });
+                                }
+                            }
+//                            String uploadId = mDatabaseRef.push().getKey();
+//                            mDatabaseRef.child(uploadId).setValue(recipeCreate);
+
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {

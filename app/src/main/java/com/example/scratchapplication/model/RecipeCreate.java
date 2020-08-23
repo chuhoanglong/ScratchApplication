@@ -12,14 +12,17 @@ public class RecipeCreate {
     private String nutrition;
     private String tags;
     private String pId;
+    private String profileAvatar;
+    private String profileName;
 
     public RecipeCreate() {
     }
 
-    public RecipeCreate(String urlCover, String name, String description,
-                        List<String> ingredients, List<String> directions,
-                        String servingTime, String nutrition, String tags,
-                        String pId) {
+
+
+    public RecipeCreate(String urlCover, String name, String description, List<String> ingredients,
+                        List<String> directions, String servingTime, String nutrition, String tags,
+                        String pId, String profileAvatar, String profileName) {
         this.urlCover = urlCover;
         this.name = name;
         this.description = description;
@@ -29,6 +32,24 @@ public class RecipeCreate {
         this.nutrition = nutrition;
         this.tags = tags;
         this.pId = pId;
+        this.profileAvatar = profileAvatar;
+        this.profileName = profileName;
+    }
+
+    public String getProfileAvatar() {
+        return profileAvatar;
+    }
+
+    public void setProfileAvatar(String profileAvatar) {
+        this.profileAvatar = profileAvatar;
+    }
+
+    public String getProfileName() {
+        return profileName;
+    }
+
+    public void setProfileName(String profileName) {
+        this.profileName = profileName;
     }
 
     public String getpId() {
