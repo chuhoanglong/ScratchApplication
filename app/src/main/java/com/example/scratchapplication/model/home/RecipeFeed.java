@@ -16,7 +16,9 @@ public class RecipeFeed {
     public RecipeFeed() {
     }
 
-    public RecipeFeed(String rId, String uId, String profileAvatar, String profileName, String recipeCover, String recipeName, String recipeDescription, int likeCount, int cmtCount, boolean isLiked, boolean isSaved) {
+    public RecipeFeed(String rId, String uId, String profileAvatar, String profileName,
+                      String recipeCover, String recipeName, String recipeDescription,
+                      int likeCount, int cmtCount, boolean isLiked, boolean isSaved) {
         this.rId = rId;
         this.uId = uId;
         this.profileAvatar = profileAvatar;

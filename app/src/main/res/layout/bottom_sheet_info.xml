@@ -71,7 +71,7 @@
         app:layout_constraintTop_toBottomOf="@id/txt_tags"
         android:layout_marginTop="8dp"/>
     <Button
-        android:id="@+id/btn_dialog_info"
+        android:id="@+id/btn_save_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/button_visible_background"

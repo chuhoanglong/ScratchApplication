@@ -1,8 +1,7 @@
 package com.example.scratchapplication.dialog;
 
-import android.inputmethodservice.Keyboard;
+import android.content.Context;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +10,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,7 +34,17 @@ public class BottomSheetDirections extends BottomSheetDialogFragment {
     private RecyclerView recyclerViewDirections;
     private List<String> directionsList;
     private List<Integer> drawableStepList;
+
+    private BottomSheetListener mListener;
+
+
+    public interface BottomSheetListener{
+        void onButtonClickedSaveDirections(List<String> list);
+    }
+
     public BottomSheetDirections(){
+
+
         directionsList = new ArrayList<>();
         drawableStepList = new ArrayList<>();
         drawableStepList.add(R.drawable.ic_1);
@@ -111,13 +119,13 @@ public class BottomSheetDirections extends BottomSheetDialogFragment {
         View v = inflater.inflate(R.layout.bottom_sheet_directions,container,false);
         buttonAddDirection = v.findViewById(R.id.btn_add_direction_into_bts);
         editTextDirection = v.findViewById(R.id.et_direction);
-        buttonSaveDirections = v.findViewById(R.id.btn_save_directions);
-        buttonSaveDirections.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+//        buttonSaveDirections = v.findViewById(R.id.btn_save_directions);
+//        buttonSaveDirections.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                dismiss();
+//            }
+//        });
         imageViewClose = v.findViewById(R.id.image_close_dialog_directions);
         imageViewClose.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -180,6 +188,24 @@ public class BottomSheetDirections extends BottomSheetDialogFragment {
                 });
             }
         });
+        buttonSaveDirections = v.findViewById(R.id.btn_save_directions);
+        buttonSaveDirections.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onButtonClickedSaveDirections(directionsList);
+                dismiss();
+            }
+        });
         return v;
+    }
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try {
+            mListener = (BottomSheetListener) context;
+        }
+        catch (ClassCastException e){
+            throw new ClassCastException(context.toString()+"must implement Bottomsheetlistener");
+        }
     }
 }

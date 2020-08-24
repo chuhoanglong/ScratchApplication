@@ -1,13 +1,18 @@
 package com.example.scratchapplication.fragment.main;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,7 +20,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.scratchapplication.CreateRecipeActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.adapter.FeedAdapter;
+import com.example.scratchapplication.adapter.User;
+import com.example.scratchapplication.model.RecipeCreate;
 import com.example.scratchapplication.model.home.RecipeFeed;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +52,12 @@ public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
     private Button buttonAdd;
 
+    private DatabaseReference mDatabaseRef;
+    private List<RecipeFeed> recipeFeedsList;
+    List<User> users;
+
     public HomeFragment() {
-        // Required empty public constructor
+
     }
     /**
      * Use this factory method to create a new instance of
@@ -61,23 +85,26 @@ public class HomeFragment extends Fragment {
         }
     }
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
-        //fake data
-        List<RecipeFeed> recipeFeedsList = new ArrayList<>();
-        for (int i = 0; i<10; i++){
-            recipeFeedsList.add(
-                    new RecipeFeed(
-                            i+"",i+"",
-                            "https://kansai-resilience-forum.jp/wp-content/uploads/2019/02/IAFOR-Blank-Avatar-Image-1.jpg",
-                            "User "+i,
-                            "https://www.bbcgoodfood.com/sites/default/files/recipe-collections/collection-image/2013/05/chorizo-mozarella-gnocchi-bake-cropped.jpg",
-                            "Food "+ i, "Description " +i,
-                            1, 10,
-                            false, false
-                    ));
-        }
+
+        recipeFeedsList = new ArrayList<>();
+
+
+//        for (int i = 0; i<10; i++){
+//            recipeFeedsList.add(
+//                    new RecipeFeed(
+//                            i+"",i+"",
+//                            "https://kansai-resilience-forum.jp/wp-content/uploads/2019/02/IAFOR-Blank-Avatar-Image-1.jpg",
+//                            "User "+i,
+//                            "https://www.bbcgoodfood.com/sites/default/files/recipe-collections/collection-image/2013/05/chorizo-mozarella-gnocchi-bake-cropped.jpg",
+//                            "Food "+ i, "Description " +i,
+//                            1, 10,
+//                            false, false
+//                    ));
+//        }
+
 
 
         //get a reference to recyclerview
@@ -86,10 +113,41 @@ public class HomeFragment extends Fragment {
         layout.setReverseLayout(true);
         recyclerView.setLayoutManager(layout);
         recyclerView.setHasFixedSize(false);
-        FeedAdapter adapter = new FeedAdapter(recipeFeedsList,getContext());
+        final FeedAdapter adapter = new FeedAdapter(recipeFeedsList,getContext());
         recyclerView.setAdapter(adapter);
-        recyclerView.scrollToPosition(recipeFeedsList.size()-1);
 
+
+        mDatabaseRef = FirebaseDatabase .getInstance().getReference("recipes");
+        mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot postSnapshot:snapshot.getChildren()){
+                    RecipeCreate recipe  = postSnapshot.getValue(RecipeCreate.class);
+                    //recipe
+                    RecipeFeed recipeFeed = new RecipeFeed(
+                            postSnapshot.getKey(),
+                            recipe.getpId(),
+                            recipe.getProfileAvatar(),
+                            recipe.getProfileName(),
+                            recipe.getUrlCover(),
+                            recipe.getName(),
+                            recipe.getDescription(),
+                            0,
+                            0,
+                            false,
+                            false);
+                    recipeFeedsList.add(recipeFeed);
+                    adapter.notifyDataSetChanged();
+                    recyclerView.scrollToPosition(recipeFeedsList.size()-1);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
         //button add
         buttonAdd =(Button) v.findViewById(R.id.btn_add);
         buttonAdd.setOnClickListener(new View.OnClickListener() {

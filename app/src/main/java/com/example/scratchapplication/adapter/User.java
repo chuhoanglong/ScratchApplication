@@ -7,6 +7,10 @@ import java.util.ArrayList;
         public String address;
         public int likes;
         public ArrayList followers;
+
+        public User() {
+        }
+
         public User(String userName, String avatar, String address, int likes, ArrayList followers){
             this.userName = userName;
             this.avatar = avatar;
@@ -14,4 +18,44 @@ import java.util.ArrayList;
             this.likes = likes;
             this.followers = followers;
         }
-}
+
+        public String getUserName() {
+            return userName;
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
+        }
+
+        public String getAvatar() {
+            return avatar;
+        }
+
+        public void setAvatar(String avatar) {
+            this.avatar = avatar;
+        }
+
+        public String getAddress() {
+            return address;
+        }
+
+        public void setAddress(String address) {
+            this.address = address;
+        }
+
+        public int getLikes() {
+            return likes;
+        }
+
+        public void setLikes(int likes) {
+            this.likes = likes;
+        }
+
+        public ArrayList getFollowers() {
+            return followers;
+        }
+
+        public void setFollowers(ArrayList followers) {
+            this.followers = followers;
+        }
+    }
