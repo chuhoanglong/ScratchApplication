@@ -1,7 +1,9 @@
 package com.example.scratchapplication.fragment.main;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,16 +21,27 @@ import com.example.scratchapplication.R;
 import com.example.scratchapplication.SettingsActivity;
 import com.example.scratchapplication.adapter.ProfileViewPagerAdapter;
 import com.example.scratchapplication.adapter.RecipeAdapter;
+import com.example.scratchapplication.adapter.User;
 import com.example.scratchapplication.tablayout.FollowingFragment;
 import com.example.scratchapplication.tablayout.RecipesFragment;
 import com.example.scratchapplication.tablayout.SaveFragment;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import androidx.viewpager.widget.ViewPager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 
 public class ProfileFragment extends Fragment {
@@ -48,6 +62,10 @@ public class ProfileFragment extends Fragment {
     private FollowingFragment followingFragment;
     private RecipesFragment recipesFragment;
     private SaveFragment saveFragment;
+
+    private CircleImageView imageViewAvatar;
+    private TextView textViewName,textViewAddress;
+
 
     private ProfileViewPagerAdapter adapter;
     private static final String[] TITLES = new String[]{"Recipes","Saved","Following"};
@@ -86,10 +104,34 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_profile, container, false);
+        final View v = inflater.inflate(R.layout.fragment_profile, container, false);
         viewPager = v.findViewById(R.id.pager_recipe);
 
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String uid = user.getUid();
+        String name = user.getDisplayName();
+        Uri avatar = user.getPhotoUrl();
+        imageViewAvatar = v.findViewById(R.id.avatar);
+        textViewName = v.findViewById(R.id.name);
+        Picasso.with(getContext())
+                .load(avatar)
+                .into(imageViewAvatar);
+        textViewName.setText(name);
 
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
+        reference.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User profile = snapshot.getValue(User.class);
+                textViewAddress = v.findViewById(R.id.address);
+                textViewAddress.setText(profile.getAddress());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
         button = v.findViewById(R.id.settings);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override

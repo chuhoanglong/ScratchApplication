@@ -1,5 +1,7 @@
 package com.example.scratchapplication.model.home;
 
+import java.util.List;
+
 public class RecipeFeed {
     private String rId;
     private String uId;
@@ -12,8 +14,26 @@ public class RecipeFeed {
     private int cmtCount;
     private boolean isLiked;
     private boolean isSaved;
+    private List<String> ingredients;
+    private List<String> directions;
 
     public RecipeFeed() {
+    }
+
+    public List<String> getIngredients() {
+        return ingredients;
+    }
+
+    public void setIngredients(List<String> ingredients) {
+        this.ingredients = ingredients;
+    }
+
+    public List<String> getDirections() {
+        return directions;
+    }
+
+    public void setDirections(List<String> directions) {
+        this.directions = directions;
     }
 
     public RecipeFeed(String rId, String uId, String profileAvatar, String profileName,

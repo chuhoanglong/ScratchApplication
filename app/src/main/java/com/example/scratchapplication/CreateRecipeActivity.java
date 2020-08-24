@@ -135,6 +135,16 @@ public class CreateRecipeActivity extends AppCompatActivity
         editTextDesc = findViewById(R.id.et_recipe_desc);
 
         buttonPost = findViewById(R.id.btn_post);
+        //handler
+//        if (mUploadTask!=null&&
+//                !editTextName.getText().toString().trim().equals("")&&
+//                !editTextDesc.getText().toString().trim().equals("")&&
+//                !recipeCreate.getIngredients().isEmpty()&&
+//                !recipeCreate.getDirections().isEmpty()
+//        ){
+//            buttonPost.setBackgroundResource(R.drawable.button_visible_background);
+//        }
+        buttonPost.setBackgroundResource(R.drawable.button_visible_background);
         buttonPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -143,10 +153,20 @@ public class CreateRecipeActivity extends AppCompatActivity
                     Toast.makeText(CreateRecipeActivity.this, "Upload in progress", Toast.LENGTH_SHORT).show();
                 }
                 else {
+                    recipeCreate.setName(editTextName.getText().toString());
+                    recipeCreate.setDescription(editTextDesc.getText().toString());
+                    recipeCreate.setpId(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    recipeCreate.setProfileName(user.getDisplayName());
+
+
+                    if(user.getPhotoUrl()!=null) {
+                        recipeCreate.setProfileAvatar(user.getPhotoUrl().toString());
+                    }
+                    else {
+                        recipeCreate.setProfileAvatar("https://kansai-resilience-forum.jp/wp-content/uploads/2019/02/IAFOR-Blank-Avatar-Image-1.jpg");
+                    }
                     uploadFile();
-                    Intent intent = new Intent(CreateRecipeActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
                 }
             }
         });
@@ -173,21 +193,6 @@ public class CreateRecipeActivity extends AppCompatActivity
                                 }
                             },500);
                             Toast.makeText(CreateRecipeActivity.this, "Post successfully", Toast.LENGTH_SHORT).show();
-                            Log.d("UPLOAD",fileRef.getDownloadUrl().toString());
-                            recipeCreate.setName(editTextName.getText().toString());
-                            recipeCreate.setDescription(editTextDesc.getText().toString());
-                            recipeCreate.setpId(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                            recipeCreate.setUrlCover(taskSnapshot.getMetadata().getReference().getDownloadUrl().toString());
-                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                            recipeCreate.setProfileName(user.getDisplayName());
-                            Log.e("NAME",user.getDisplayName());
-                            if(user.getPhotoUrl()!=null) {
-                                recipeCreate.setProfileAvatar(user.getPhotoUrl().toString());
-                            }
-                            else {
-                                recipeCreate.setProfileAvatar("https://kansai-resilience-forum.jp/wp-content/uploads/2019/02/IAFOR-Blank-Avatar-Image-1.jpg");
-                            }
-                            Log.e("AVATAR",user.getPhotoUrl().toString());
                             if(taskSnapshot.getMetadata()!=null){
                                 if (taskSnapshot.getMetadata().getReference()!=null){
                                     Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
@@ -198,12 +203,13 @@ public class CreateRecipeActivity extends AppCompatActivity
                                             Log.e("UPLOAD",uri.toString());
                                             String uploadId = mDatabaseRef.push().getKey();
                                             mDatabaseRef.child(uploadId).setValue(recipeCreate);
+                                            Intent intent = new Intent(CreateRecipeActivity.this, MainActivity.class);
+                                            startActivity(intent);
+                                            finish();
                                         }
                                     });
                                 }
                             }
-//                            String uploadId = mDatabaseRef.push().getKey();
-//                            mDatabaseRef.child(uploadId).setValue(recipeCreate);
 
                         }
                     })

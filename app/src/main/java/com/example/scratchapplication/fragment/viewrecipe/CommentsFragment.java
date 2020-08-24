@@ -152,13 +152,7 @@ public class CommentsFragment extends Fragment {
                 return new CommentViewHolder(v);
             }
         };
-//        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-//////            @Override
-//////            public void onItemRangeChanged(int positionStart, int itemCount) {
-//////                super.onItemRangeChanged(positionStart, itemCount);
-//////
-//////            }
-//////        });
+
         recyclerViewComment.setAdapter(adapter);
 
         return v;
