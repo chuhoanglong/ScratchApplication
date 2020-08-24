@@ -117,7 +117,11 @@ public class SignUpFragment extends Fragment {
                             String uid = user.getUid();
 
                             ArrayList followers = new ArrayList();
-                            User dataUser = new User(name, user.getPhotoUrl().toString(),"",0, followers);
+                            String avatar = "";
+                            if (user.getPhotoUrl() != null){
+                                avatar = user.getPhotoUrl().toString();
+                            }
+                            User dataUser = new User(name, avatar,"",0, followers);
                             FirebaseDatabase database = FirebaseDatabase.getInstance();
                             DatabaseReference myRef = database.getReference("users");
                             myRef.child(uid).setValue(dataUser);

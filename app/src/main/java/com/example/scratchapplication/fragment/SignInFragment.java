@@ -54,7 +54,7 @@ public class SignInFragment extends Fragment {
     private TextView signUp;
     private EditText txtEmailOrUsername;
     private EditText txtPass;
-
+    private TextView textError;
     private LinearLayout buttonSignInFB;
     private LinearLayout buttonSignInGoogle;
     private FirebaseAuth mAuth;
@@ -82,7 +82,7 @@ public class SignInFragment extends Fragment {
         buttonSignInGoogle = v.findViewById(R.id.btn_signin_google);
         txtPass = v.findViewById(R.id.txtPass);
         txtEmailOrUsername = v.findViewById(R.id.txtEmailOrUsername);
-
+        textError = v.findViewById(R.id.textError);
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         if (user  == null){
@@ -149,6 +149,7 @@ public class SignInFragment extends Fragment {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
+                            textError.setText( task.getException().getMessage());
                         }
 
                         // ...
