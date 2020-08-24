@@ -64,7 +64,7 @@ public class ProfileFragment extends Fragment {
     private SaveFragment saveFragment;
 
     private CircleImageView imageViewAvatar;
-    private TextView textViewName,textViewAddress;
+    private TextView textViewName,textViewAddress,textViewCount;
 
 
     private ProfileViewPagerAdapter adapter;
@@ -125,6 +125,8 @@ public class ProfileFragment extends Fragment {
                 User profile = snapshot.getValue(User.class);
                 textViewAddress = v.findViewById(R.id.address);
                 textViewAddress.setText(profile.getAddress());
+                textViewCount = v.findViewById(R.id.txt_count);
+                textViewCount.setText(profile.getLikes()+" like");
             }
 
             @Override

@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.scratchapplication.CreateRecipeActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.adapter.FeedAdapter;
+import com.example.scratchapplication.adapter.FeedStringAdapter;
 import com.example.scratchapplication.adapter.User;
 import com.example.scratchapplication.model.RecipeCreate;
 import com.example.scratchapplication.model.home.RecipeFeed;
@@ -111,37 +112,49 @@ public class HomeFragment extends Fragment {
         recyclerView = v.findViewById(R.id.recyclerview_feed);
         LinearLayoutManager layout = new LinearLayoutManager(getContext());
         layout.setReverseLayout(true);
+        layout.setStackFromEnd(true);
         recyclerView.setLayoutManager(layout);
         recyclerView.setHasFixedSize(false);
-        final FeedAdapter adapter = new FeedAdapter(recipeFeedsList,getContext());
-        recyclerView.setAdapter(adapter);
+//        final FeedAdapter adapter = new FeedAdapter(recipeFeedsList,getContext());
+//        recyclerView.setAdapter(adapter);
 
 
         mDatabaseRef = FirebaseDatabase .getInstance().getReference("recipes");
         mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot postSnapshot:snapshot.getChildren()){
-                    RecipeCreate recipe  = postSnapshot.getValue(RecipeCreate.class);
-                    //recipe
-                    RecipeFeed recipeFeed = new RecipeFeed(
-                            postSnapshot.getKey(),
-                            recipe.getpId(),
-                            recipe.getProfileAvatar(),
-                            recipe.getProfileName(),
-                            recipe.getUrlCover().toString(),
-                            recipe.getName(),
-                            recipe.getDescription(),
-                            0,
-                            0,
-                            false,
-                            false);
-                    recipeFeed.setIngredients(recipe.getIngredients());
-                    recipeFeed.setDirections(recipe.getDirections());
-                    recipeFeedsList.add(recipeFeed);
-                    adapter.notifyDataSetChanged();
-                    recyclerView.scrollToPosition(recipeFeedsList.size()-1);
+
+                if (snapshot.exists());
+                {
+                    List<String> keys = new ArrayList<>();
+                    for (DataSnapshot postSnapshot:snapshot.getChildren()){
+                        keys.add(postSnapshot.getKey());
+                    }
+                    FeedStringAdapter adapter = new FeedStringAdapter(keys,getContext());
+                    recyclerView.setAdapter(adapter);
+                    recyclerView.scrollToPosition(keys.size()-1);
                 }
+//                for (DataSnapshot postSnapshot:snapshot.getChildren()){
+//                    RecipeCreate recipe  = postSnapshot.getValue(RecipeCreate.class);
+//                    //recipe
+//                    RecipeFeed recipeFeed = new RecipeFeed(
+//                            postSnapshot.getKey(),
+//                            recipe.getpId(),
+//                            recipe.getProfileAvatar(),
+//                            recipe.getProfileName(),
+//                            recipe.getUrlCover().toString(),
+//                            recipe.getName(),
+//                            recipe.getDescription(),
+//                            0,
+//                            0,
+//                            false,
+//                            false);
+//                    recipeFeed.setIngredients(recipe.getIngredients());
+//                    recipeFeed.setDirections(recipe.getDirections());
+//                    recipeFeedsList.add(recipeFeed);
+//                    adapter.notifyDataSetChanged();
+//                    recyclerView.scrollToPosition(recipeFeedsList.size()-1);
+//                }
 
             }
 
