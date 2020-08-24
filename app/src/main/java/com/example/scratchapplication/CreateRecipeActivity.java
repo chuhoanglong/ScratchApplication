@@ -144,7 +144,9 @@ public class CreateRecipeActivity extends AppCompatActivity
 //        ){
 //            buttonPost.setBackgroundResource(R.drawable.button_visible_background);
 //        }
-        buttonPost.setBackgroundResource(R.drawable.button_visible_background);
+        if (FirebaseAuth.getInstance().getCurrentUser()!=null) {
+            buttonPost.setBackgroundResource(R.drawable.button_visible_background);
+        }
         buttonPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,6 +180,15 @@ public class CreateRecipeActivity extends AppCompatActivity
     }
 
     private void uploadFile() {
+        if(imageCoverUri==null||
+                editTextName.getText().toString().trim().equals("")||
+                editTextDesc.getText().toString().trim().equals("")||
+                recipeCreate.getIngredients()==null||
+                recipeCreate.getDirections()==null
+        ){
+            Toast.makeText(this, "Data is invalid", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (imageCoverUri!=null){
             final StorageReference fileRef = mStorageRef.child(System.currentTimeMillis()+"." + getFileExtension(imageCoverUri));
             mUploadTask = fileRef.putFile(imageCoverUri)
@@ -235,13 +246,6 @@ public class CreateRecipeActivity extends AppCompatActivity
         BottomSheetIngredients bottomSheetIngredients = new BottomSheetIngredients();
         bottomSheetIngredients.show(getSupportFragmentManager(),"ingredients");
     }
-
-//    private void openDialogGallery() {
-//        BottomSheetGallery bottomSheetGallery = new BottomSheetGallery(galleryUri,this);
-//        bottomSheetGallery.show(getSupportFragmentManager(),"gallery");
-//    }
-
-
 
     private void openDialogDirections() {
         BottomSheetDirections bottomSheetDirections = new BottomSheetDirections();

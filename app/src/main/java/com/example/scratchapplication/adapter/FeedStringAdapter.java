@@ -112,6 +112,7 @@ public class FeedStringAdapter extends RecyclerView.Adapter<FeedStringAdapter.My
         });
     }
 
+
     @Override
     public int getItemCount() {
         return keys.size();
@@ -156,36 +157,7 @@ public class FeedStringAdapter extends RecyclerView.Adapter<FeedStringAdapter.My
             textViewLikeCount = itemView.findViewById(R.id.txt_like_count);
             textViewCmtCount = itemView.findViewById(R.id.txt_cmt_count);
             buttonSave = itemView.findViewById(R.id.btn_save);
-//            buttonSave.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    new AlertDialog.Builder(mContext)
-//                            .setTitle("Save")
-//                            .setMessage("Save to cookbook?")
-//                            .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-//                                @Override
-//                                public void onClick(DialogInterface dialog, int which) {
-//                                    DatabaseHandler databaseHandler = new DatabaseHandler(mContext);
-//                                    RecipeFeed recipeFeed = recipeFeedsList.get(getAdapterPosition());
-//                                    RecipeModel recipeModel =
-//                                            new RecipeModel(
-//                                                    recipeFeed.getrId(),
-//                                                    recipeFeed.getRecipeName(),
-//                                                    recipeFeed.getRecipeDescription());
-//                                    databaseHandler.addRecipe(recipeModel);
-//                                    for (String ingredient : recipeFeed.getIngredients()) {
-//                                        databaseHandler.addIngredients(recipeFeed.getrId(), ingredient);
-//                                    }
-//                                    for (String direction : recipeFeed.getDirections()) {
-//                                        databaseHandler.addIngredients(recipeFeed.getrId(), direction);
-//                                    }
-//                                    Toast.makeText(mContext, "Saved " + recipeModel.getRecipeName(), Toast.LENGTH_SHORT).show();
-//                                }
-//                            })
-//                            .setNegativeButton("Cancel", null)
-//                            .show();
-//                }
-//            });
+
             textViewProfileName = itemView.findViewById(R.id.txt_profile_name);
             layoutTittle = itemView.findViewById(R.id.title_bar);
 

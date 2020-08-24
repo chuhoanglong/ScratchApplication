@@ -1,17 +1,34 @@
 package com.example.scratchapplication.tablayout;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.scratchapplication.OtherProfileActivity;
 import com.example.scratchapplication.R;
-import com.example.scratchapplication.adapter.FollowingAdapter;
+import com.example.scratchapplication.adapter.User;
 import com.example.scratchapplication.model.profile.FollowingList;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class FollowingFragment extends Fragment {
     // TODO: Customize parameter argument names
@@ -19,31 +36,15 @@ public class FollowingFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     List<FollowingList> mFollowingList;
     RecyclerView recyclerView;
+    private String uid;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
-
-    // TODO: Customize parameter initialization
-    @SuppressWarnings("unused")
-    public static FollowingFragment newInstance(String param1) {
-        FollowingFragment fragment = new FollowingFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        fragment.setArguments(args);
-        return fragment;
+    public FollowingFragment(String uid){
+        this.uid =uid;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        mFollowingList= new ArrayList<>();
-        for (int i=0; i<10; i++){
-            mFollowingList.add(new FollowingList( R.drawable.other_avatar, "Ariana Barros", "Pancake Lover", "696 followers  |  45k likes"));
-        }
     }
 
     @Override
@@ -54,10 +55,93 @@ public class FollowingFragment extends Fragment {
         // Set the adapter
 
         recyclerView = view.findViewById(R.id.following_list);
-        FollowingAdapter adapter = new FollowingAdapter(this.getChildFragmentManager(), mFollowingList, getContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(adapter);
+        recyclerView.setHasFixedSize(true);
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("follow");
+        reference.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    List<String> keys = new ArrayList<>();
+                    for (DataSnapshot d:snapshot.getChildren()){
+                        keys.add(d.getKey());
+                    }
+                    FolllowingAdapter adapter = new FolllowingAdapter(keys);
+                    recyclerView.setAdapter(adapter);
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
         return view;
+    }
+    class FolllowingAdapter extends RecyclerView.Adapter<FolllowingAdapter.MyViewHolder> {
+        List<String> keys;
+
+        public FolllowingAdapter(List<String> keys){
+            this.keys = keys;
+        }
+        @NonNull
+        @Override
+        public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.following_list_item,parent,false);
+            return new MyViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("follow");
+            ref.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()){
+                        for (final DataSnapshot d:snapshot.getChildren()){
+                            User user = d.getValue(User.class);
+                            Picasso.with(getContext()).load(user.getAvatar()).into(holder.avatar);
+                            holder.textViewName.setText(user.getUserName());
+                            holder.textViewAddress.setText(user.getAddress());
+                            holder.layout.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent(getContext(), OtherProfileActivity.class);
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString("UID", d.getKey());
+                                    intent.putExtras(bundle);
+                                    getContext().startActivity(intent);
+                                }
+                            });
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return keys.size();
+        }
+
+        class MyViewHolder extends RecyclerView.ViewHolder {
+            TextView textViewName,textViewAddress,textViewCount;
+            CircleImageView avatar;
+            RelativeLayout layout;
+            public MyViewHolder(@NonNull View itemView) {
+                super(itemView);
+                avatar = itemView.findViewById(R.id.following_avatar);
+                textViewName = itemView.findViewById(R.id.following_name);
+                textViewAddress = itemView.findViewById(R.id.following_address);
+                textViewCount = itemView.findViewById(R.id.following_count);
+                textViewCount.setText("1 follower");
+                layout = itemView.findViewById(R.id.layout_follow_item);
+            }
+        }
     }
 }

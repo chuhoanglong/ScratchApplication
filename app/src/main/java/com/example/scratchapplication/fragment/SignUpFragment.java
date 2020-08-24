@@ -117,7 +117,7 @@ public class SignUpFragment extends Fragment {
                             String uid = user.getUid();
 
                             ArrayList followers = new ArrayList();
-                            String avatar = "";
+                            String avatar = user.getPhotoUrl().toString();
                             if (user.getPhotoUrl() != null){
                                 avatar = user.getPhotoUrl().toString();
                             }

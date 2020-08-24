@@ -58,8 +58,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         TextView recipeTextView;
         public RecipeViewHolder(@NonNull View itemView) {
             super(itemView);
-            recipeImageView = itemView.findViewById(R.id.img_recipe);
-            recipeTextView = itemView.findViewById(R.id.tv_recipe);
+            recipeImageView = itemView.findViewById(R.id.img_my_recipe);
+            recipeTextView = itemView.findViewById(R.id.tv_my_recipe);
             recipeImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

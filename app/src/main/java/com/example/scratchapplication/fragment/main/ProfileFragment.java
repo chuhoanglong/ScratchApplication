@@ -153,9 +153,9 @@ public class ProfileFragment extends Fragment {
             });
 
         tabLayout = v.findViewById(R.id.Tab_Layout);
-        recipesFragment = RecipesFragment.newInstance(2);
+        recipesFragment = new RecipesFragment(user.getUid());
         saveFragment = SaveFragment.newInstance(2);
-        followingFragment = FollowingFragment.newInstance("");
+        followingFragment = new FollowingFragment(uid);
         tabLayout.setupWithViewPager(viewPager);
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(recipesFragment);
@@ -166,13 +166,6 @@ public class ProfileFragment extends Fragment {
         viewPager.setAdapter(adapter);
         return v;
     }
-
-
-
-
-
-
-
 }
 
 

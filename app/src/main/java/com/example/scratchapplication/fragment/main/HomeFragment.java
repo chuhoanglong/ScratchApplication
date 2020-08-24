@@ -134,27 +134,7 @@ public class HomeFragment extends Fragment {
                     recyclerView.setAdapter(adapter);
                     recyclerView.scrollToPosition(keys.size()-1);
                 }
-//                for (DataSnapshot postSnapshot:snapshot.getChildren()){
-//                    RecipeCreate recipe  = postSnapshot.getValue(RecipeCreate.class);
-//                    //recipe
-//                    RecipeFeed recipeFeed = new RecipeFeed(
-//                            postSnapshot.getKey(),
-//                            recipe.getpId(),
-//                            recipe.getProfileAvatar(),
-//                            recipe.getProfileName(),
-//                            recipe.getUrlCover().toString(),
-//                            recipe.getName(),
-//                            recipe.getDescription(),
-//                            0,
-//                            0,
-//                            false,
-//                            false);
-//                    recipeFeed.setIngredients(recipe.getIngredients());
-//                    recipeFeed.setDirections(recipe.getDirections());
-//                    recipeFeedsList.add(recipeFeed);
-//                    adapter.notifyDataSetChanged();
-//                    recyclerView.scrollToPosition(recipeFeedsList.size()-1);
-//                }
+
 
             }
 

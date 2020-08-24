@@ -5,54 +5,57 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 
 import com.example.scratchapplication.adapter.ProfileViewPagerAdapter;
 
+import com.example.scratchapplication.fragment.OtherProfileFragment;
+import com.example.scratchapplication.fragment.main.ProfileFragment;
 import com.example.scratchapplication.tablayout.FollowingFragment;
 import com.example.scratchapplication.tablayout.RecipesFragment;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class OtherProfileActivity extends AppCompatActivity {
-
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
-    private FollowingFragment followingFragment;
-    private RecipesFragment recipesFragment;
-    private ProfileViewPagerAdapter adapter;
-
-    private static final String[] TITLES = new String[]{"Recipes","Following"};
+    private FrameLayout frameLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.other_profile);
+        setContentView(R.layout.activity_other_profile);
         ActionBar actionBar = this.getSupportActionBar();
         if(actionBar != null){
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        viewPager = findViewById(R.id.pager_other_profile);
-        tabLayout = findViewById(R.id.Tab_other_profile);
-        recipesFragment = RecipesFragment.newInstance(2);
-        followingFragment = FollowingFragment.newInstance("");
-        tabLayout.setupWithViewPager(viewPager);
-        List<Fragment> fragments = new ArrayList<>();
-        fragments.add(recipesFragment);
-        fragments.add(followingFragment);
-        List<String> titles = new ArrayList<>(Arrays.asList(TITLES));
-        adapter = new ProfileViewPagerAdapter(getSupportFragmentManager(),0,fragments,titles);
-        viewPager.setAdapter(adapter);
+
+        Bundle bundle = getIntent().getExtras();
+        String uid = bundle.getString("UID");
+        init(uid);
     }
 
-
-
-
+    private void init(String uid) {
+        Fragment fragment = ProfileFragment.newInstance("","");
+        if (uid.equals(FirebaseAuth.getInstance().getUid())){
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_profile_container, fragment);
+            transaction.commit();
+        }
+        else {
+            fragment = new OtherProfileFragment(uid);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_profile_container, fragment);
+            transaction.commit();
+        }
+    }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
@@ -61,5 +64,11 @@ public class OtherProfileActivity extends AppCompatActivity {
             NavUtils.navigateUpFromSameTask(this);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
     }
 }
