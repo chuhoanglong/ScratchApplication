@@ -92,7 +92,7 @@ public class FeedStringAdapter extends RecyclerView.Adapter<FeedStringAdapter.My
                                                 databaseHandler.addIngredients(keys.get(position), ingredient);
                                             }
                                             for (String direction : recipe.getDirections()) {
-                                                databaseHandler.addIngredients(keys.get(position), direction);
+                                                databaseHandler.addDirections(keys.get(position), direction);
                                             }
                                             Toast.makeText(mContext, "Saved " + recipeModel.getRecipeName(), Toast.LENGTH_SHORT).show();
                                         }

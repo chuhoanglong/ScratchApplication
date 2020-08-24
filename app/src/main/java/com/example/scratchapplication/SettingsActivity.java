@@ -41,6 +41,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         switch (id) {
             case R.id.action_logout:
                 FirebaseAuth.getInstance().signOut();
+                getApplicationContext().deleteDatabase("recipe");
                 Intent newIncome = new Intent(this, LoginActivity.class);
                 this.startActivity(newIncome);
                 finish();

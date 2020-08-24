@@ -154,7 +154,7 @@ public class ProfileFragment extends Fragment {
 
         tabLayout = v.findViewById(R.id.Tab_Layout);
         recipesFragment = new RecipesFragment(user.getUid());
-        saveFragment = SaveFragment.newInstance(2);
+        saveFragment = new SaveFragment();
         followingFragment = new FollowingFragment(uid);
         tabLayout.setupWithViewPager(viewPager);
         List<Fragment> fragments = new ArrayList<>();

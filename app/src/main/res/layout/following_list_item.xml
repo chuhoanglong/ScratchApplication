@@ -9,8 +9,8 @@
         xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <de.hdodenhof.circleimageview.CircleImageView
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:src="@drawable/other_avatar"
             android:layout_marginTop="16dp"
             android:layout_marginStart="16dp"
@@ -40,11 +40,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="999 followers  |  50k likes"
+            android:text="0 follower"
             android:layout_below="@id/following_address"
             android:layout_toEndOf="@id/following_avatar"
             android:layout_marginLeft="16dp"
-            android:id="@+id/following_count"/>
+            android:id="@+id/following_count"
+            android:layout_marginBottom="16dp"/>
 
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
