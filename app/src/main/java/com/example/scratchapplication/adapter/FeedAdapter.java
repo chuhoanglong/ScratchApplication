@@ -25,6 +25,9 @@ import com.example.scratchapplication.OtherProfileActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.ViewRecipeActivity;
 import com.example.scratchapplication.model.home.RecipeFeed;
+import com.example.scratchapplication.room.IngredientsModel;
+import com.example.scratchapplication.room.RecipeModel;
+import com.example.scratchapplication.sql.DatabaseHandler;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -57,6 +60,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
                 .load(recipeFeed.getProfileAvatar())
                 .into(holder.imageViewAvatar);
         holder.textViewProfileName.setText(recipeFeed.getProfileName());
+
         Picasso.with(mContext)
                 .load(recipeFeed.getRecipeCover())
                 .into(holder.imageViewCover);
@@ -161,8 +165,21 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
                             .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Toast.makeText(mContext, "Saved" + getAdapterPosition(), Toast.LENGTH_SHORT).show();
-                                    //Save button event
+                                    DatabaseHandler databaseHandler = new DatabaseHandler(mContext);
+                                    RecipeFeed recipeFeed = recipeFeedsList.get(getAdapterPosition());
+                                    RecipeModel recipeModel =
+                                            new RecipeModel(
+                                                    recipeFeed.getrId(),
+                                                    recipeFeed.getRecipeName(),
+                                                    recipeFeed.getRecipeDescription());
+                                    databaseHandler.addRecipe(recipeModel);
+                                    for (String ingredient:recipeFeed.getIngredients()){
+                                        databaseHandler.addIngredients(recipeFeed.getrId(),ingredient);
+                                    }
+                                    for (String direction:recipeFeed.getDirections()){
+                                        databaseHandler.addIngredients(recipeFeed.getrId(),direction);
+                                    }
+                                    Toast.makeText(mContext, "Saved "+recipeModel.getRecipeName(), Toast.LENGTH_SHORT).show();
                                 }
                             })
                             .setNegativeButton("Cancel", null)

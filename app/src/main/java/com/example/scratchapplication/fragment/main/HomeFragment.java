@@ -129,13 +129,15 @@ public class HomeFragment extends Fragment {
                             recipe.getpId(),
                             recipe.getProfileAvatar(),
                             recipe.getProfileName(),
-                            recipe.getUrlCover(),
+                            recipe.getUrlCover().toString(),
                             recipe.getName(),
                             recipe.getDescription(),
                             0,
                             0,
                             false,
                             false);
+                    recipeFeed.setIngredients(recipe.getIngredients());
+                    recipeFeed.setDirections(recipe.getDirections());
                     recipeFeedsList.add(recipeFeed);
                     adapter.notifyDataSetChanged();
                     recyclerView.scrollToPosition(recipeFeedsList.size()-1);
