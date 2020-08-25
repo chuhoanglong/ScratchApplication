@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Database;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,8 +16,7 @@ import android.widget.TextView;
 
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.ViewRecipeActivity;
-import com.example.scratchapplication.adapter.RecipeAdapter;
-import com.example.scratchapplication.model.RecipeCreate;
+import com.example.scratchapplication.model.recipe.RecipeCreate;
 import com.example.scratchapplication.model.profile.MyProfileRecipe;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

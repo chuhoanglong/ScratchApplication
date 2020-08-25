@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.scratchapplication.CreateRecipeActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.adapter.FeedStringAdapter;
-import com.example.scratchapplication.adapter.User;
+import com.example.scratchapplication.model.User;
 import com.example.scratchapplication.model.home.RecipeFeed;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

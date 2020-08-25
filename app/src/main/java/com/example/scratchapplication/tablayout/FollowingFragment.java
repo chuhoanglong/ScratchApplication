@@ -1,8 +1,8 @@
 package com.example.scratchapplication.tablayout;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scratchapplication.OtherProfileActivity;
 import com.example.scratchapplication.R;
-import com.example.scratchapplication.adapter.User;
+import com.example.scratchapplication.model.User;
 import com.example.scratchapplication.model.profile.FollowingList;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -83,6 +83,7 @@ public class FollowingFragment extends Fragment {
 
         public FolllowingAdapter(List<String> keys){
             this.keys = keys;
+
         }
         @NonNull
         @Override
@@ -92,28 +93,29 @@ public class FollowingFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
+
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference("follow");
-            ref.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            ref.child(uid).child(keys.get(position)).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                public void onDataChange(@NonNull final DataSnapshot snapshot) {
                     if (snapshot.exists()){
-                        for (final DataSnapshot d:snapshot.getChildren()){
-                            User user = d.getValue(User.class);
-                            Picasso.with(getContext()).load(user.getAvatar()).into(holder.avatar);
-                            holder.textViewName.setText(user.getUserName());
-                            holder.textViewAddress.setText(user.getAddress());
-                            holder.layout.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Intent intent = new Intent(getContext(), OtherProfileActivity.class);
-                                    Bundle bundle = new Bundle();
-                                    bundle.putString("UID", d.getKey());
-                                    intent.putExtras(bundle);
-                                    getContext().startActivity(intent);
-                                }
-                            });
-                        }
+
+                        User profile = snapshot.getValue(User.class);
+                        Picasso.with(getContext()).load(profile.getAvatar()).into(holder.avatar);
+                        holder.textViewName.setText(profile.getUserName());
+                        holder.textViewAddress.setText(profile.getAddress());
+                        holder.layout.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(getContext(), OtherProfileActivity.class);
+                                Bundle bundle = new Bundle();
+                                bundle.putString("UID", snapshot.getKey());
+                                intent.putExtras(bundle);
+                                getContext().startActivity(intent);
+                            }
+                        });
+
                     }
                 }
 

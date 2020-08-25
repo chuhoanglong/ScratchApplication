@@ -20,8 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.scratchapplication.OtherProfileActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.ViewRecipeActivity;
-import com.example.scratchapplication.model.RecipeCreate;
-import com.example.scratchapplication.model.home.RecipeFeed;
+import com.example.scratchapplication.model.recipe.RecipeCreate;
 import com.example.scratchapplication.room.RecipeModel;
 import com.example.scratchapplication.sql.DatabaseHandler;
 import com.google.firebase.database.DataSnapshot;
@@ -31,6 +30,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FeedStringAdapter extends RecyclerView.Adapter<FeedStringAdapter.MyViewHolder> {
@@ -71,36 +71,47 @@ public class FeedStringAdapter extends RecyclerView.Adapter<FeedStringAdapter.My
                         }
                     });
 
-                    holder.buttonSave.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            new AlertDialog.Builder(mContext)
-                                    .setTitle("Save")
-                                    .setMessage("Save to cookbook?")
-                                    .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
+                    DatabaseHandler databaseHandler = new DatabaseHandler(mContext);
+                    List<String> listId = new ArrayList<>();
+                    listId = databaseHandler.getListId();
+                    if (listId.contains(keys.get(position))){
+                        holder.buttonSave.setText("Saved");
+                    }
+                    else {
+                        holder.buttonSave.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                new AlertDialog.Builder(mContext)
+                                        .setTitle("Save")
+                                        .setMessage("Save to cookbook?")
+                                        .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
 
-                                            DatabaseHandler databaseHandler = new DatabaseHandler(mContext);;
-                                            RecipeModel recipeModel =
-                                                    new RecipeModel(
-                                                            keys.get(position),
-                                                            recipe.getName(),
-                                                            recipe.getDescription());
-                                            databaseHandler.addRecipe(recipeModel);
-                                            for (String ingredient : recipe.getIngredients()) {
-                                                databaseHandler.addIngredients(keys.get(position), ingredient);
+                                                DatabaseHandler databaseHandler = new DatabaseHandler(mContext);
+                                                RecipeModel recipeModel =
+                                                        new RecipeModel(
+                                                                keys.get(position),
+                                                                recipe.getName(),
+                                                                recipe.getDescription());
+                                                databaseHandler.addRecipe(recipeModel);
+                                                databaseHandler.addListId(keys.get(position));
+                                                for (String ingredient : recipe.getIngredients()) {
+                                                    databaseHandler.addIngredients(keys.get(position), ingredient);
+                                                }
+                                                for (String direction : recipe.getDirections()) {
+                                                    databaseHandler.addDirections(keys.get(position), direction);
+                                                }
+                                                holder.buttonSave.setText("Saved");
+                                                holder.buttonSave.setClickable(false);
+                                                Toast.makeText(mContext, "Saved " + recipeModel.getRecipeName(), Toast.LENGTH_SHORT).show();
                                             }
-                                            for (String direction : recipe.getDirections()) {
-                                                databaseHandler.addDirections(keys.get(position), direction);
-                                            }
-                                            Toast.makeText(mContext, "Saved " + recipeModel.getRecipeName(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    })
-                                    .setNegativeButton("Cancel", null)
-                                    .show();
-                        }
-                    });
+                                        })
+                                        .setNegativeButton("Cancel", null)
+                                        .show();
+                            }
+                        });
+                    }
 
                 }
             }

@@ -5,26 +5,15 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
-import com.example.scratchapplication.adapter.ProfileViewPagerAdapter;
-
-import com.example.scratchapplication.fragment.OtherProfileFragment;
+import com.example.scratchapplication.fragment.profile.OtherProfileFragment;
 import com.example.scratchapplication.fragment.main.ProfileFragment;
-import com.example.scratchapplication.tablayout.FollowingFragment;
-import com.example.scratchapplication.tablayout.RecipesFragment;
-import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class OtherProfileActivity extends AppCompatActivity {
     private FrameLayout frameLayout;

@@ -1,4 +1,4 @@
-package com.example.scratchapplication.model;
+package com.example.scratchapplication.model.recipe;
 
 import java.util.List;
 

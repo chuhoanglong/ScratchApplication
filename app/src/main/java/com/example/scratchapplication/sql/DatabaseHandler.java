@@ -36,6 +36,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 String.format("CREATE TABLE %s(%s INTEGER PRIMARY KEY, %s TEXT, %s TEXT)",
                         "directions", "id", "rid", "direction");
         db.execSQL(create_directions_table);
+        String create_listid_table =
+                String.format("CREATE TABLE %s(%s INTEGER PRIMARY KEY, %s TEXT)",
+                        "list", "id", "rid");
+        db.execSQL(create_listid_table);
     }
 
     @Override
@@ -46,6 +50,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(drop_ingredients_table);
         String drop_directions_table = String.format("DROP TABLE IF EXISTS %s", "directions");
         db.execSQL(drop_directions_table);
+        String drop_list_table = String.format("DROP TABLE IF EXISTS %s", "list");
+        db.execSQL(drop_list_table);
         onCreate(db);
     }
     public void addRecipe(RecipeModel recipeModel){
@@ -113,6 +119,26 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         while (cursor.isAfterLast()==false) {
             String direction = cursor.getString(2);
             list.add(direction);
+            cursor.moveToNext();
+        }
+        return list;
+    }
+    public void addListId(String rid){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("rid",rid);
+        db.insert("list",null,values);
+        db.close();
+    }
+    public List<String> getListId(){
+        List<String> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM list",null);
+        if (cursor!=null)
+            cursor.moveToFirst();
+        while (cursor.isAfterLast()==false) {
+            String rid = cursor.getString(1);
+            list.add(rid);
             cursor.moveToNext();
         }
         return list;

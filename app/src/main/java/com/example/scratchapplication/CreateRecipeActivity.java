@@ -6,10 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,16 +21,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.scratchapplication.adapter.GalleryAdapter;
 import com.example.scratchapplication.adapter.ListStringAdapter;
-import com.example.scratchapplication.adapter.User;
 import com.example.scratchapplication.dialog.BottomSheetDirections;
-import com.example.scratchapplication.dialog.BottomSheetGallery;
 import com.example.scratchapplication.dialog.BottomSheetInfo;
 import com.example.scratchapplication.dialog.BottomSheetIngredients;
-import com.example.scratchapplication.model.Additional;
-import com.example.scratchapplication.model.RecipeCreate;
-import com.google.android.gms.tasks.Continuation;
+import com.example.scratchapplication.model.recipe.Additional;
+import com.example.scratchapplication.model.recipe.RecipeCreate;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -47,7 +41,6 @@ import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CreateRecipeActivity extends AppCompatActivity

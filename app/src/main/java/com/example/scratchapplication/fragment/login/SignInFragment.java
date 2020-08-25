@@ -1,4 +1,4 @@
-package com.example.scratchapplication.fragment;
+package com.example.scratchapplication.fragment.login;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -19,7 +19,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.scratchapplication.MainActivity;
 import com.example.scratchapplication.R;
-import com.example.scratchapplication.adapter.User;
+import com.example.scratchapplication.model.User;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
