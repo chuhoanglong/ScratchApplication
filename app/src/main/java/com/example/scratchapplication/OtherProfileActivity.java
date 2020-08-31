@@ -21,11 +21,6 @@ public class OtherProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_other_profile);
-        ActionBar actionBar = this.getSupportActionBar();
-        if(actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
         Bundle bundle = getIntent().getExtras();
         String uid = bundle.getString("UID");
         init(uid);

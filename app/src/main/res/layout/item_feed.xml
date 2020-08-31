@@ -10,7 +10,7 @@
         android:layout_height="match_parent">
         <ImageView
             android:id="@+id/image_cover"
-            android:src="@drawable/food1"
+
             android:scaleType="centerCrop"
             android:layout_alignParentTop="true"
             android:layout_width="match_parent"
@@ -39,7 +39,6 @@
                 android:id="@+id/txt_profile_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Profile name"
                 android:textColor="#030F09"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="16dp"
@@ -49,7 +48,6 @@
             android:id="@+id/txt_recipe_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Food Recipe Title"
             android:textColor="@android:color/black"
             android:textSize="20sp"
             android:layout_below="@id/image_cover"
@@ -68,7 +66,6 @@
             android:id="@+id/txt_recipe_desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Food Recipe Description"
             android:layout_below="@id/txt_recipe_name"
             android:layout_margin="16dp"/>
 
