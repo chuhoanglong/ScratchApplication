@@ -13,10 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.scratchapplication.R;
-import com.example.scratchapplication.model.Additional;
+import com.example.scratchapplication.model.recipe.Additional;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-
-import java.util.List;
 
 public class BottomSheetInfo extends BottomSheetDialogFragment {
     private ImageView imageViewClose;

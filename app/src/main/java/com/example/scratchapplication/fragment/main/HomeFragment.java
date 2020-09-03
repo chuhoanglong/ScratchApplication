@@ -1,40 +1,26 @@
 package com.example.scratchapplication.fragment.main;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scratchapplication.CreateRecipeActivity;
 import com.example.scratchapplication.R;
-import com.example.scratchapplication.adapter.FeedAdapter;
-import com.example.scratchapplication.adapter.User;
-import com.example.scratchapplication.model.RecipeCreate;
+import com.example.scratchapplication.adapter.FeedStringAdapter;
+import com.example.scratchapplication.model.User;
 import com.example.scratchapplication.model.home.RecipeFeed;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -111,37 +97,29 @@ public class HomeFragment extends Fragment {
         recyclerView = v.findViewById(R.id.recyclerview_feed);
         LinearLayoutManager layout = new LinearLayoutManager(getContext());
         layout.setReverseLayout(true);
+        layout.setStackFromEnd(true);
         recyclerView.setLayoutManager(layout);
         recyclerView.setHasFixedSize(false);
-        final FeedAdapter adapter = new FeedAdapter(recipeFeedsList,getContext());
-        recyclerView.setAdapter(adapter);
+//        final FeedAdapter adapter = new FeedAdapter(recipeFeedsList,getContext());
+//        recyclerView.setAdapter(adapter);
 
 
         mDatabaseRef = FirebaseDatabase .getInstance().getReference("recipes");
         mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot postSnapshot:snapshot.getChildren()){
-                    RecipeCreate recipe  = postSnapshot.getValue(RecipeCreate.class);
-                    //recipe
-                    RecipeFeed recipeFeed = new RecipeFeed(
-                            postSnapshot.getKey(),
-                            recipe.getpId(),
-                            recipe.getProfileAvatar(),
-                            recipe.getProfileName(),
-                            recipe.getUrlCover().toString(),
-                            recipe.getName(),
-                            recipe.getDescription(),
-                            0,
-                            0,
-                            false,
-                            false);
-                    recipeFeed.setIngredients(recipe.getIngredients());
-                    recipeFeed.setDirections(recipe.getDirections());
-                    recipeFeedsList.add(recipeFeed);
-                    adapter.notifyDataSetChanged();
-                    recyclerView.scrollToPosition(recipeFeedsList.size()-1);
+
+                if (snapshot.exists());
+                {
+                    List<String> keys = new ArrayList<>();
+                    for (DataSnapshot postSnapshot:snapshot.getChildren()){
+                        keys.add(postSnapshot.getKey());
+                    }
+                    FeedStringAdapter adapter = new FeedStringAdapter(keys,getContext());
+                    recyclerView.setAdapter(adapter);
+                    recyclerView.scrollToPosition(keys.size()-1);
                 }
+
 
             }
 

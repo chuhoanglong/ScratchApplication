@@ -1,6 +1,5 @@
-package com.example.scratchapplication.fragment;
+package com.example.scratchapplication.fragment.login;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,9 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.scratchapplication.MainActivity;
 import com.example.scratchapplication.R;
-import com.example.scratchapplication.adapter.User;
+import com.example.scratchapplication.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -27,13 +25,9 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 
 import static android.content.ContentValues.TAG;
-import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
 
 public class SignUpFragment extends Fragment {
 
@@ -117,7 +111,8 @@ public class SignUpFragment extends Fragment {
                             String uid = user.getUid();
 
                             ArrayList followers = new ArrayList();
-                            String avatar = "";
+                            String avatar = "https://kansai-resilience-forum.jp/wp-content/uploads/2019/02/IAFOR-Blank-Avatar-Image-1.jpg";
+                            System.out.println(avatar);
                             if (user.getPhotoUrl() != null){
                                 avatar = user.getPhotoUrl().toString();
                             }

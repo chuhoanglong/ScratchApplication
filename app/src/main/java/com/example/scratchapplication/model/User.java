@@ -1,4 +1,4 @@
-package com.example.scratchapplication.adapter;
+package com.example.scratchapplication.model;
 
 import java.util.ArrayList;
     public class User {
@@ -9,6 +9,13 @@ import java.util.ArrayList;
         public ArrayList followers;
 
         public User() {
+        }
+
+        public User(String userName, String avatar, String address, int likes) {
+            this.userName = userName;
+            this.avatar = avatar;
+            this.address = address;
+            this.likes = likes;
         }
 
         public User(String userName, String avatar, String address, int likes, ArrayList followers){

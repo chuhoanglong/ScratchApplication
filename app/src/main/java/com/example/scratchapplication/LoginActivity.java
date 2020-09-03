@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
 
-import com.example.scratchapplication.fragment.SignInFragment;
+import com.example.scratchapplication.fragment.login.SignInFragment;
 
 public class LoginActivity extends AppCompatActivity {
 

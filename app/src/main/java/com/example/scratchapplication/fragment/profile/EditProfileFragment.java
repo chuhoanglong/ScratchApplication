@@ -1,4 +1,4 @@
-package com.example.scratchapplication.fragment;
+package com.example.scratchapplication.fragment.profile;
 
 import android.os.Bundle;
 

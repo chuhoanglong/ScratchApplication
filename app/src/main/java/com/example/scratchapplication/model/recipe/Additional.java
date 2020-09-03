@@ -1,4 +1,4 @@
-package com.example.scratchapplication.model;
+package com.example.scratchapplication.model.recipe;
 
 public class Additional {
     private String servingTime;

@@ -6,10 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,16 +21,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.scratchapplication.adapter.GalleryAdapter;
 import com.example.scratchapplication.adapter.ListStringAdapter;
-import com.example.scratchapplication.adapter.User;
 import com.example.scratchapplication.dialog.BottomSheetDirections;
-import com.example.scratchapplication.dialog.BottomSheetGallery;
 import com.example.scratchapplication.dialog.BottomSheetInfo;
 import com.example.scratchapplication.dialog.BottomSheetIngredients;
-import com.example.scratchapplication.model.Additional;
-import com.example.scratchapplication.model.RecipeCreate;
-import com.google.android.gms.tasks.Continuation;
+import com.example.scratchapplication.model.recipe.Additional;
+import com.example.scratchapplication.model.recipe.RecipeCreate;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -47,7 +41,6 @@ import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CreateRecipeActivity extends AppCompatActivity
@@ -144,7 +137,9 @@ public class CreateRecipeActivity extends AppCompatActivity
 //        ){
 //            buttonPost.setBackgroundResource(R.drawable.button_visible_background);
 //        }
-        buttonPost.setBackgroundResource(R.drawable.button_visible_background);
+        if (FirebaseAuth.getInstance().getCurrentUser()!=null) {
+            buttonPost.setBackgroundResource(R.drawable.button_visible_background);
+        }
         buttonPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,6 +173,15 @@ public class CreateRecipeActivity extends AppCompatActivity
     }
 
     private void uploadFile() {
+        if(imageCoverUri==null||
+                editTextName.getText().toString().trim().equals("")||
+                editTextDesc.getText().toString().trim().equals("")||
+                recipeCreate.getIngredients()==null||
+                recipeCreate.getDirections()==null
+        ){
+            Toast.makeText(this, "Data is invalid", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (imageCoverUri!=null){
             final StorageReference fileRef = mStorageRef.child(System.currentTimeMillis()+"." + getFileExtension(imageCoverUri));
             mUploadTask = fileRef.putFile(imageCoverUri)
@@ -235,13 +239,6 @@ public class CreateRecipeActivity extends AppCompatActivity
         BottomSheetIngredients bottomSheetIngredients = new BottomSheetIngredients();
         bottomSheetIngredients.show(getSupportFragmentManager(),"ingredients");
     }
-
-//    private void openDialogGallery() {
-//        BottomSheetGallery bottomSheetGallery = new BottomSheetGallery(galleryUri,this);
-//        bottomSheetGallery.show(getSupportFragmentManager(),"gallery");
-//    }
-
-
 
     private void openDialogDirections() {
         BottomSheetDirections bottomSheetDirections = new BottomSheetDirections();

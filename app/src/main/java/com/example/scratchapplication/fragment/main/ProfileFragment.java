@@ -3,7 +3,6 @@ package com.example.scratchapplication.fragment.main;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,16 +11,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scratchapplication.EditProfileActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.SettingsActivity;
 import com.example.scratchapplication.adapter.ProfileViewPagerAdapter;
-import com.example.scratchapplication.adapter.RecipeAdapter;
-import com.example.scratchapplication.adapter.User;
+import com.example.scratchapplication.model.User;
 import com.example.scratchapplication.tablayout.FollowingFragment;
 import com.example.scratchapplication.tablayout.RecipesFragment;
 import com.example.scratchapplication.tablayout.SaveFragment;
@@ -64,7 +60,7 @@ public class ProfileFragment extends Fragment {
     private SaveFragment saveFragment;
 
     private CircleImageView imageViewAvatar;
-    private TextView textViewName,textViewAddress;
+    private TextView textViewName,textViewAddress,textViewCount;
 
 
     private ProfileViewPagerAdapter adapter;
@@ -125,6 +121,8 @@ public class ProfileFragment extends Fragment {
                 User profile = snapshot.getValue(User.class);
                 textViewAddress = v.findViewById(R.id.address);
                 textViewAddress.setText(profile.getAddress());
+                textViewCount = v.findViewById(R.id.txt_count);
+                textViewCount.setText(profile.getLikes()+" like");
             }
 
             @Override
@@ -151,9 +149,9 @@ public class ProfileFragment extends Fragment {
             });
 
         tabLayout = v.findViewById(R.id.Tab_Layout);
-        recipesFragment = RecipesFragment.newInstance(2);
-        saveFragment = SaveFragment.newInstance(2);
-        followingFragment = FollowingFragment.newInstance("");
+        recipesFragment = new RecipesFragment(user.getUid());
+        saveFragment = new SaveFragment();
+        followingFragment = new FollowingFragment(uid);
         tabLayout.setupWithViewPager(viewPager);
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(recipesFragment);
@@ -164,13 +162,6 @@ public class ProfileFragment extends Fragment {
         viewPager.setAdapter(adapter);
         return v;
     }
-
-
-
-
-
-
-
 }
 
 
