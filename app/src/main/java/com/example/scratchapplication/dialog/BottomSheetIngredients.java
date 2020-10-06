@@ -60,7 +60,7 @@ public class BottomSheetIngredients extends BottomSheetDialogFragment {
         @NonNull
         @Override
         public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_ingredient,parent,false);
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_list_text,parent,false);
             return new MyViewHolder(v);
         }
 

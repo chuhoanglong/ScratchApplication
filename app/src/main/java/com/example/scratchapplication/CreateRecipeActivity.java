@@ -18,15 +18,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.scratchapplication.adapter.ListStringAdapter;
-import com.example.scratchapplication.dialog.BottomSheetDirections;
-import com.example.scratchapplication.dialog.BottomSheetInfo;
-import com.example.scratchapplication.dialog.BottomSheetIngredients;
-import com.example.scratchapplication.model.recipe.Additional;
-import com.example.scratchapplication.model.recipe.RecipeCreate;
+import com.example.scratchapplication.adapter.ListText2Adapter;
+import com.example.scratchapplication.api.JsonApi;
+import com.example.scratchapplication.api.RestClient;
+import com.example.scratchapplication.model.Comment;
+import com.example.scratchapplication.model.home.ModelRecipe;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -41,50 +39,61 @@ import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class CreateRecipeActivity extends AppCompatActivity
-        implements BottomSheetIngredients.BottomSheetListener,
-        BottomSheetDirections.BottomSheetListener,
-        BottomSheetInfo.BottomSheetListener{
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class CreateRecipeActivity extends AppCompatActivity{
     private static final int PICK_IMAGE_REQUEST = 1;
     //private static final int PICK_MULTI_IMAGE_REQUEST = 2;
     private ImageView imageViewUploadCover;
     private ImageView imageEditGallery;
     private EditText editTextName;
     private EditText editTextDesc;
-    private Button buttonAddInfo;
+    private EditText editTextIngredients;
+    private EditText editTextDirections;
     private Button buttonAddDirections;
     private Button buttonAddIngredients;
     private Button buttonPost;
 
     private Uri imageCoverUri;
-    private List<Uri> galleryUri;
+    private List<String> ingredients;
+    private List<String> directions;
+    private List<String> usersLike;
+    private List<Comment> comments;
+    private List<String> filters;
 
     private ProgressBar mProgressBar;
     private StorageReference mStorageRef;
     private DatabaseReference mDatabaseRef;
     private StorageTask mUploadTask;
 
-    private RecipeCreate recipeCreate;
+    private ModelRecipe modelRecipePost;
+    private RecyclerView recyclerViewIngredients, recyclerViewDirections;
 
-    private RecyclerView recyclerViewGallery;
-
-    public CreateRecipeActivity(){
-        recipeCreate = new RecipeCreate();
-        //System.out.println(FirebaseAuth.getInstance().getCurrentUser().getUid());
-    }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_recipe);
-        mProgressBar = findViewById(R.id.progress_bar);
-        mProgressBar.setVisibility(View.INVISIBLE);
+
+        //tao model
+        String uId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        ingredients = new ArrayList<>();
+        directions = new ArrayList<>();
+        usersLike = new ArrayList<>();
+        filters = new ArrayList<>();
+        modelRecipePost = new ModelRecipe(uId,"","","",ingredients,directions,0,usersLike,"",
+                "",filters);
+        //
         mStorageRef = FirebaseStorage.getInstance().getReference("covers");
         mDatabaseRef = FirebaseDatabase.getInstance().getReference("recipes");
 
+        //cover
         imageViewUploadCover = findViewById(R.id.image_upload_cover);
         imageViewUploadCover.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,35 +101,48 @@ public class CreateRecipeActivity extends AppCompatActivity
                 openFileChooser();
             }
         });
+        //recyclerview
+        LinearLayoutManager layoutIngredients = new LinearLayoutManager(this);
+        layoutIngredients.setReverseLayout(true);
+        LinearLayoutManager layoutDirections = new LinearLayoutManager(this);
+        layoutIngredients.setReverseLayout(true);
 
-        /*imageEditGallery= findViewById(R.id.image_edit_gallery);
-        imageEditGallery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openDialogGallery();
-            }
-        });*/
+        ListText2Adapter ingredientsAdapter = new ListText2Adapter(ingredients,this);
+        ListText2Adapter directionsAdapter = new ListText2Adapter(directions,this);
 
+        recyclerViewIngredients = findViewById(R.id.rv_ingredients_create);
+        recyclerViewIngredients.setLayoutManager(layoutIngredients);
+        recyclerViewIngredients.setAdapter(ingredientsAdapter);
+
+        recyclerViewDirections = findViewById(R.id.rv_directions_create);
+        recyclerViewDirections.setLayoutManager(layoutDirections);
+        recyclerViewDirections.setAdapter(directionsAdapter);
+        //ingredients
+        editTextIngredients = findViewById(R.id.et_add_ingredients);
         buttonAddIngredients = findViewById(R.id.btn_add_ingredients);
         buttonAddIngredients.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openDialogIngredients();
+                String text = editTextIngredients.getText().toString().trim();
+                if (text.equals(""))
+                    return;
+                ingredients.add(text);
+                editTextIngredients.setText("");
+                ingredientsAdapter.notifyItemInserted(ingredients.size()-1);
             }
         });
-        buttonAddInfo = findViewById(R.id.btn_add_info);
-        buttonAddInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openDialogInfo();
-            }
-        });
-
+        //directions
+        editTextDirections = findViewById(R.id.et_add_directions);
         buttonAddDirections = findViewById(R.id.btn_add_direction);
         buttonAddDirections.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openDialogDirections();
+                String text = editTextDirections.getText().toString().trim();
+                if (text.equals(""))
+                    return;
+                directions.add(text);
+                editTextDirections.setText("");
+                directionsAdapter.notifyItemInserted(directions.size()-1);
             }
         });
 
@@ -129,14 +151,6 @@ public class CreateRecipeActivity extends AppCompatActivity
 
         buttonPost = findViewById(R.id.btn_post);
         //handler
-//        if (mUploadTask!=null&&
-//                !editTextName.getText().toString().trim().equals("")&&
-//                !editTextDesc.getText().toString().trim().equals("")&&
-//                !recipeCreate.getIngredients().isEmpty()&&
-//                !recipeCreate.getDirections().isEmpty()
-//        ){
-//            buttonPost.setBackgroundResource(R.drawable.button_visible_background);
-//        }
         if (FirebaseAuth.getInstance().getCurrentUser()!=null) {
             buttonPost.setBackgroundResource(R.drawable.button_visible_background);
         }
@@ -148,19 +162,21 @@ public class CreateRecipeActivity extends AppCompatActivity
                     Toast.makeText(CreateRecipeActivity.this, "Upload in progress", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    recipeCreate.setName(editTextName.getText().toString());
-                    recipeCreate.setDescription(editTextDesc.getText().toString());
-                    recipeCreate.setpId(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    modelRecipePost.setName(editTextName.getText().toString());
+                    modelRecipePost.setDescription(editTextDesc.getText().toString());
+
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                    recipeCreate.setProfileName(user.getDisplayName());
+                    modelRecipePost.setProfileName(user.getDisplayName());
 
 
                     if(user.getPhotoUrl()!=null) {
-                        recipeCreate.setProfileAvatar(user.getPhotoUrl().toString());
+                        modelRecipePost.setProfileAvatar(user.getPhotoUrl().toString());
                     }
                     else {
-                        recipeCreate.setProfileAvatar("https://kansai-resilience-forum.jp/wp-content/uploads/2019/02/IAFOR-Blank-Avatar-Image-1.jpg");
+                        modelRecipePost.setProfileAvatar("https://kansai-resilience-forum.jp/wp-content/uploads/2019/02/IAFOR-Blank-Avatar-Image-1.jpg");
                     }
+                    modelRecipePost.setIngredients(ingredients);
+                    modelRecipePost.setDirections(directions);
                     uploadFile();
                 }
             }
@@ -176,8 +192,8 @@ public class CreateRecipeActivity extends AppCompatActivity
         if(imageCoverUri==null||
                 editTextName.getText().toString().trim().equals("")||
                 editTextDesc.getText().toString().trim().equals("")||
-                recipeCreate.getIngredients()==null||
-                recipeCreate.getDirections()==null
+                modelRecipePost.getIngredients()==null||
+                modelRecipePost.getDirections()==null
         ){
             Toast.makeText(this, "Data is invalid", Toast.LENGTH_SHORT).show();
             return;
@@ -196,20 +212,38 @@ public class CreateRecipeActivity extends AppCompatActivity
                                     mProgressBar.setProgress(0);
                                 }
                             },500);
-                            Toast.makeText(CreateRecipeActivity.this, "Post successfully", Toast.LENGTH_SHORT).show();
                             if(taskSnapshot.getMetadata()!=null){
                                 if (taskSnapshot.getMetadata().getReference()!=null){
                                     Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
                                     result.addOnSuccessListener(new OnSuccessListener<Uri>() {
                                         @Override
                                         public void onSuccess(Uri uri) {
-                                            recipeCreate.setUrlCover(uri.toString());
+                                            modelRecipePost.setUrlCover(uri.toString());
                                             Log.e("UPLOAD",uri.toString());
+                                            //call firebase
                                             String uploadId = mDatabaseRef.push().getKey();
-                                            mDatabaseRef.child(uploadId).setValue(recipeCreate);
-                                            Intent intent = new Intent(CreateRecipeActivity.this, MainActivity.class);
-                                            startActivity(intent);
-                                            finish();
+                                            mDatabaseRef.child(uploadId).setValue(modelRecipePost);
+                                            //call api
+                                            JsonApi service = RestClient.createService(JsonApi.class);
+                                            Call<ModelRecipe> call = service.postRecipe(modelRecipePost);
+                                            call.enqueue(new Callback<ModelRecipe>() {
+                                                @Override
+                                                public void onResponse(Call<ModelRecipe> call, Response<ModelRecipe> response) {
+                                                    if (!response.isSuccessful()){
+                                                        Log.e("Code","Code: "+response.code());
+                                                        return;
+                                                    }
+                                                    Toast.makeText(CreateRecipeActivity.this, "Post successfully", Toast.LENGTH_SHORT).show();
+                                                    //intent
+                                                    Intent intent = new Intent(CreateRecipeActivity.this, MainActivity.class);
+                                                    startActivity(intent);
+                                                    finish();
+                                                }
+                                                @Override
+                                                public void onFailure(Call<ModelRecipe> call, Throwable t) {
+                                                    Toast.makeText(CreateRecipeActivity.this, "Post failed!", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
                                         }
                                     });
                                 }
@@ -222,33 +256,10 @@ public class CreateRecipeActivity extends AppCompatActivity
                         public void onFailure(@NonNull Exception e) {
                             Toast.makeText(CreateRecipeActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                    })
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
-                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
-                            mProgressBar.setProgress((int)progress);
-                        }
                     });
         }
         else
             Toast.makeText(this, "No file Selected", Toast.LENGTH_SHORT).show();
-    }
-
-    private void openDialogIngredients() {
-        BottomSheetIngredients bottomSheetIngredients = new BottomSheetIngredients();
-        bottomSheetIngredients.show(getSupportFragmentManager(),"ingredients");
-    }
-
-    private void openDialogDirections() {
-        BottomSheetDirections bottomSheetDirections = new BottomSheetDirections();
-        bottomSheetDirections.show(getSupportFragmentManager(), "directions");
-        bottomSheetDirections.setCancelable(false);
-    }
-
-    private void openDialogInfo() {
-        BottomSheetInfo dialogInfo = new BottomSheetInfo();
-        dialogInfo.show(getSupportFragmentManager(), "info");
     }
 
     private void openFileChooser() {
@@ -272,40 +283,5 @@ public class CreateRecipeActivity extends AppCompatActivity
 
             default:
         }
-    }
-
-
-    @Override
-    public void onButtonClickedSaveIngredients(List<String> list) {
-        RecyclerView recyclerViewIngredients = findViewById(R.id.rv_ingredients_create);
-        ListStringAdapter adapter = new ListStringAdapter(list,this);
-        recyclerViewIngredients.setAdapter(adapter);
-        recyclerViewIngredients.setLayoutManager(new LinearLayoutManager(this));
-        recipeCreate.setIngredients(list);
-    }
-
-    @Override
-    public void onButtonClickedSaveDirections(List<String> list) {
-        RecyclerView recyclerViewDirections= findViewById(R.id.rv_directions_create);
-        ListStringAdapter adapter = new ListStringAdapter(list,this);
-        recyclerViewDirections.setAdapter(adapter);
-        recyclerViewDirections.setLayoutManager(new LinearLayoutManager(this));
-        recipeCreate.setDirections(list);
-    }
-
-    @Override
-    public void onButtonClickedSaveInfo(Additional additional) {
-        TextView textViewTime = findViewById(R.id.tv_info_time);
-        TextView textViewNutrition = findViewById(R.id.tv_info_nutrition);
-        TextView textViewTags = findViewById(R.id.tv_info_tags);
-        textViewTime.setPadding(16,0,16,16);
-        textViewNutrition.setPadding(16,0,16,16);
-        textViewTags.setPadding(16,0,16,16);
-        textViewTime.setText("Serving Time:\t"+additional.getServingTime());
-        textViewNutrition.setText("Nutrition:\t"+additional.getNutrition());
-        textViewTags.setText("Tags:\t"+additional.getTags());
-        recipeCreate.setServingTime(additional.getServingTime());
-        recipeCreate.setNutrition(additional.getNutrition());
-        recipeCreate.setTags(additional.getTags());
     }
 }

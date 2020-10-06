@@ -166,7 +166,6 @@ public class FeedStringAdapter extends RecyclerView.Adapter<FeedStringAdapter.My
             });
             textViewRecipeDesc = itemView.findViewById(R.id.txt_recipe_desc);
             textViewLikeCount = itemView.findViewById(R.id.txt_like_count);
-            textViewCmtCount = itemView.findViewById(R.id.txt_cmt_count);
             buttonSave = itemView.findViewById(R.id.btn_save);
 
             textViewProfileName = itemView.findViewById(R.id.txt_profile_name);

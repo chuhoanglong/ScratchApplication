@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.scratchapplication.R;
-import com.example.scratchapplication.adapter.ListStringAdapter;
+import com.example.scratchapplication.adapter.ListTextAdapter;
 
 import java.util.List;
 
@@ -56,7 +56,7 @@ public class IngredientsFragment extends Fragment {
 
         View v = inflater.inflate(R.layout.fragment_ingredients, container, false);
         RecyclerView recyclerView = v.findViewById(R.id.rv_ingredients);
-        ListStringAdapter adapter = new ListStringAdapter(ingredients,context);
+        ListTextAdapter adapter = new ListTextAdapter(ingredients,context);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setHasFixedSize(true);

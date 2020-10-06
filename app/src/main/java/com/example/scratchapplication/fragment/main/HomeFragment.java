@@ -1,30 +1,34 @@
 package com.example.scratchapplication.fragment.main;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scratchapplication.CreateRecipeActivity;
 import com.example.scratchapplication.R;
-import com.example.scratchapplication.adapter.FeedStringAdapter;
-import com.example.scratchapplication.model.User;
-import com.example.scratchapplication.model.home.RecipeFeed;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.example.scratchapplication.adapter.FeedAdapter;
+import com.example.scratchapplication.api.JsonApi;
+import com.example.scratchapplication.api.RestClient;
+import com.example.scratchapplication.model.AllRecipe;
+import com.example.scratchapplication.model.home.ModelRecipe;
+
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
@@ -37,23 +41,14 @@ public class HomeFragment extends Fragment {
     //View
     private RecyclerView recyclerView;
     private Button buttonAdd;
+    private ImageView imageViewFilter;
 
-    private DatabaseReference mDatabaseRef;
-    private List<RecipeFeed> recipeFeedsList;
-    List<User> users;
+    private FeedAdapter adapter;
+
+    private List<ModelRecipe> modelRecipeList;
 
     public HomeFragment() {
-
     }
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static HomeFragment newInstance(String param1, String param2) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
@@ -69,63 +64,42 @@ public class HomeFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
-        recipeFeedsList = new ArrayList<>();
-
-
-//        for (int i = 0; i<10; i++){
-//            recipeFeedsList.add(
-//                    new RecipeFeed(
-//                            i+"",i+"",
-//                            "https://kansai-resilience-forum.jp/wp-content/uploads/2019/02/IAFOR-Blank-Avatar-Image-1.jpg",
-//                            "User "+i,
-//                            "https://www.bbcgoodfood.com/sites/default/files/recipe-collections/collection-image/2013/05/chorizo-mozarella-gnocchi-bake-cropped.jpg",
-//                            "Food "+ i, "Description " +i,
-//                            1, 10,
-//                            false, false
-//                    ));
-//        }
-
-
-
-        //get a reference to recyclerview
         recyclerView = v.findViewById(R.id.recyclerview_feed);
+        modelRecipeList = new ArrayList<>();
+        adapter = new FeedAdapter(container.getContext(),modelRecipeList);
         LinearLayoutManager layout = new LinearLayoutManager(getContext());
         layout.setReverseLayout(true);
         layout.setStackFromEnd(true);
         recyclerView.setLayoutManager(layout);
         recyclerView.setHasFixedSize(false);
-//        final FeedAdapter adapter = new FeedAdapter(recipeFeedsList,getContext());
-//        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
 
+        JsonApi service = RestClient.createService(JsonApi.class);
 
-        mDatabaseRef = FirebaseDatabase .getInstance().getReference("recipes");
-        mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        Call<AllRecipe> call = service.getAllRecipes();
+        call.enqueue(new Callback<AllRecipe>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                if (snapshot.exists());
-                {
-                    List<String> keys = new ArrayList<>();
-                    for (DataSnapshot postSnapshot:snapshot.getChildren()){
-                        keys.add(postSnapshot.getKey());
-                    }
-                    FeedStringAdapter adapter = new FeedStringAdapter(keys,getContext());
-                    recyclerView.setAdapter(adapter);
-                    recyclerView.scrollToPosition(keys.size()-1);
+            public void onResponse(Call<AllRecipe> call, Response<AllRecipe> response) {
+                if (!response.isSuccessful()){
+                    Log.e("Code: ",response.code()+"");
+                    return;
                 }
-
-
+                AllRecipe allRecipe = response.body();
+                modelRecipeList = allRecipe.getData();
+                Log.d("List", modelRecipeList.size()+"");
+                adapter = new FeedAdapter(getContext(),modelRecipeList);
+                recyclerView.setAdapter(adapter);
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
+            public void onFailure(Call<AllRecipe> call, Throwable t) {
+                Log.e("Fail: ",t.getMessage());
             }
         });
         //button add
@@ -140,5 +114,4 @@ public class HomeFragment extends Fragment {
 
         return v;
     }
-
 }
