@@ -1,6 +1,8 @@
 package com.example.scratchapplication.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -105,8 +108,21 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
         holder.buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                api.saveRecipe(new Save(uid,model.getrId()));
+                new AlertDialog.Builder(context)
+                        .setTitle("Save")
+                        .setMessage("Lưu món ăn này?")
+                        .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                                api.saveRecipe(new Save(uid,model.getrId()));
+                                holder.buttonSave.setText("Saved");
+                                holder.buttonSave.setClickable(false);
+                                Toast.makeText(context, "Đã lưu " + model.getName(), Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("Cancel",null)
+                        .show();
             }
         });
         //xem trang cac nhan
