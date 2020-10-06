@@ -3,12 +3,15 @@ package com.example.scratchapplication.fragment.main;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,9 +20,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.scratchapplication.MainActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.ViewRecipeActivity;
+import com.example.scratchapplication.adapter.FeedStringAdapter;
 import com.example.scratchapplication.adapter.SearchAdapter;
 import com.example.scratchapplication.dialog.DialogFilter;
 import com.example.scratchapplication.model.search.SearchRecipe;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import android.content.Context;
 import android.view.GestureDetector;
@@ -40,6 +50,7 @@ public class SearchFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private RecyclerView myList;
 
     //View
     private EditText editTextSearch;
@@ -70,114 +81,45 @@ public class SearchFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_search, container, false);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false);
-        RecyclerView myList = (RecyclerView) v.findViewById(R.id.recyclerview_trending);
 
-        Button button = v.findViewById(R.id.btnFilter);
-        button.setOnClickListener(new View.OnClickListener() {
+        final EditText editTextSearch = v.findViewById(R.id.editTextSearch);
+         myList = v.findViewById(R.id.recyclerview_trending);
+        editTextSearch.setOnKeyListener(new View.OnKeyListener() {
             @Override
-            public void onClick(View v) {
-                openDialog();
-            }
-        });
-
-       final EditText editTextSearch = v.findViewById(R.id.editTextSearch);
-        editTextSearch.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                final int DRAWABLE_LEFT = 0;
-                final int DRAWABLE_TOP = 1;
-
-                final int DRAWABLE_BOTTOM = 3;
-
-
-                if(event.getAction() == MotionEvent.ACTION_UP) {
-                    if(event.getRawX() >= (editTextSearch.getLeft() - editTextSearch.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
-                        // your action here
-                        Toast.makeText(getContext(), "DRAWABLE_LEFT", Toast.LENGTH_SHORT).show();
-                        return true;
-                    }
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_ENTER&&!editTextSearch.getText().toString().trim().equals("")){
+                    Toast.makeText(getContext(), "Searching...", Toast.LENGTH_SHORT).show();
+                    InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
+                    firebaseSearch(editTextSearch.getText().toString().trim());
                 }
-                return false;
+                return true;
             }
         });
-
-        myList.setLayoutManager(layoutManager);
-        //data
-        final List<SearchRecipe> searchRecipes = new ArrayList<>();
-        for (int i = 0;i<10;i++){
-            searchRecipes.add(new SearchRecipe(i+"",
-                    "https://www.bbcgoodfood.com/sites/default/files/recipe-collections/collection-image/2013/05/chorizo-mozarella-gnocchi-bake-cropped.jpg",
-                    "Food " +i));
-        }
-        //setadpter
-        SearchAdapter adapter = new SearchAdapter(searchRecipes,getContext());
-        myList.setAdapter(adapter);
-
-        myList.addOnItemTouchListener(
-                new RecyclerItemClickListener(getContext(), myList ,new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override public void onItemClick(View view, int position) {
-                        // do whatever
-                        Log.e(TAG, "onItemClick: " + position);
-                        Intent i = new Intent(getContext(),ViewRecipeActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("RID",searchRecipes.get(position).getrId());
-                        i.putExtras(bundle);
-                        startActivity(i);
-                    }
-
-                    @Override public void onLongItemClick(View view, int position) {
-                        // do whatever
-                    }
-                })
-        );
         return v;
     }
 
-public void openDialog(){
-    DialogFilter dialogFilter = new DialogFilter();
-    dialogFilter.show(getChildFragmentManager(), "dialog filter");
-}
-static class RecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
-    private OnItemClickListener mListener;
-
-    public interface OnItemClickListener {
-        public void onItemClick(View view, int position);
-
-        public void onLongItemClick(View view, int position);
-    }
-
-    GestureDetector mGestureDetector;
-
-    public RecyclerItemClickListener(Context context, final RecyclerView recyclerView, OnItemClickListener listener) {
-        mListener = listener;
-        mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+    private void firebaseSearch(String textSearch) {
+        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("recipes");
+        Query query = databaseReference.orderByChild("name").startAt(textSearch);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public boolean onSingleTapUp(MotionEvent e) {
-                return true;
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<String> keys = new ArrayList<>();
+                for (DataSnapshot task:snapshot.getChildren()){
+                    keys.add(task.getKey());
+                    Log.e("Key",task.getKey());
+                }
+                FeedStringAdapter adapter = new FeedStringAdapter(keys,getContext());
+                myList.setAdapter(adapter);
+                myList.setLayoutManager(new LinearLayoutManager(getContext()));
+                myList.setHasFixedSize(true);
             }
 
             @Override
-            public void onLongPress(MotionEvent e) {
-                View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
-                if (child != null && mListener != null) {
-                    mListener.onLongItemClick(child, recyclerView.getChildAdapterPosition(child));
-                }
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
-
-    @Override public boolean onInterceptTouchEvent(RecyclerView view, MotionEvent e) {
-        View childView = view.findChildViewUnder(e.getX(), e.getY());
-        if (childView != null && mListener != null && mGestureDetector.onTouchEvent(e)) {
-            mListener.onItemClick(childView, view.getChildAdapterPosition(childView));
-            return true;
-        }
-        return false;
-    }
-
-    @Override public void onTouchEvent(RecyclerView view, MotionEvent motionEvent) { }
-
-    @Override
-    public void onRequestDisallowInterceptTouchEvent (boolean disallowIntercept){}
-}}
+}

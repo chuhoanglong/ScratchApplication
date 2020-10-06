@@ -169,7 +169,9 @@ public class EditProfileActivity extends AppCompatActivity {
                     DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users");
 
                     User u = new User(name, user.getPhotoUrl().toString(), address, 0);
+                    //update table users
                     ref.child(user.getUid()).setValue(u);
+                    //update firebaseuser
                     UserProfileChangeRequest profileChangeRequest;
                     profileChangeRequest = new UserProfileChangeRequest.Builder()
                             .setDisplayName(u.getUserName())

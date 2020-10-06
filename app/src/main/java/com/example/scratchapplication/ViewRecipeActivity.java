@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 
@@ -42,8 +43,8 @@ public class ViewRecipeActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_view_recipe);
 
-        Bundle bundle = getIntent().getExtras();
-        String rId = bundle.getString("RID");
+        Intent intent = getIntent();
+        String rId = intent.getStringExtra("RID");
         init(rId);
     }
 

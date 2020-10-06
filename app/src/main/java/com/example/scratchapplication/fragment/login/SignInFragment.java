@@ -34,6 +34,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -121,9 +122,14 @@ public class SignInFragment extends Fragment {
         buttonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = txtEmailOrUsername.getText().toString();
-                String password = txtPass.getText().toString();
-                signInWidthUser(email,password);
+                String email = txtEmailOrUsername.getText().toString().trim();
+                String password = txtPass.getText().toString().trim();
+                if (!email.equals("")&&!password.equals("")) {
+                    signInWidthUser(email, password);
+                }
+                else {
+                    Toast.makeText(getContext(), "Input is empty", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -153,6 +159,12 @@ public class SignInFragment extends Fragment {
                         }
 
                         // ...
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(), "Lỗi đăng nhập", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

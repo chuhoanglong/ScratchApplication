@@ -16,11 +16,11 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListStringAdapter extends RecyclerView.Adapter<ListStringAdapter.MyViewHolder> {
+public class ListTextAdapter extends RecyclerView.Adapter<ListTextAdapter.MyViewHolder> {
     List<String> listString;
     Context context;
     private List<Integer> drawableStepList;
-    public ListStringAdapter(List<String> listString, Context context){
+    public ListTextAdapter(List<String> listString, Context context){
         this.listString = listString;
         this.context = context;
         drawableStepList = new ArrayList<>();
@@ -38,7 +38,7 @@ public class ListStringAdapter extends RecyclerView.Adapter<ListStringAdapter.My
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_ingredient,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_list_text,parent,false);
         return new MyViewHolder(view);
     }
 
