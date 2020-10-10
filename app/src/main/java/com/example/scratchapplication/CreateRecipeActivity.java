@@ -28,6 +28,8 @@ import com.example.scratchapplication.model.home.ModelRecipe;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -177,6 +179,14 @@ public class CreateRecipeActivity extends AppCompatActivity{
                     }
                     modelRecipePost.setIngredients(ingredients);
                     modelRecipePost.setDirections(directions);
+                    ChipGroup chipGroup = findViewById(R.id.chipgroup_create_recipe);
+                    for (int i = 0; i< chipGroup.getChildCount();i++){
+                        Chip chip = (Chip) chipGroup.getChildAt(i);
+                        if (chip.isChecked()){
+                            filters.add(chip.getText().toString());
+                        }
+                    }
+                    modelRecipePost.setFilters(filters);
                     uploadFile();
                 }
             }

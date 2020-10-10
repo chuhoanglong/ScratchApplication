@@ -1,15 +1,15 @@
 package com.example.scratchapplication.model;
 
 import com.example.scratchapplication.model.home.ModelRecipe;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
-public class AllRecipe {
+public class RecipePojo {
     @SerializedName("data")
-    private List<ModelRecipe> data;
+    @Expose
+    private ModelRecipe modelRecipe;
 
-    public List<ModelRecipe> getData() {
-        return data;
+    public ModelRecipe getModelRecipe() {
+        return modelRecipe;
     }
 }

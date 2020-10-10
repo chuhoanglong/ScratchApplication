@@ -7,8 +7,10 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
+import com.example.scratchapplication.dialog.BottomSheetFilter;
 import com.example.scratchapplication.fragment.main.HomeFragment;
 import com.example.scratchapplication.fragment.main.ProfileFragment;
 import com.example.scratchapplication.fragment.main.SearchFragment;
@@ -16,7 +18,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AppCompatActivity {
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements BottomSheetFilter.BottomSheetFilterListener {
 
     BottomNavigationView bottomNavigation;
     private FirebaseAuth mAuth;
@@ -44,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigation = findViewById(R.id.bottom_navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
         if (savedInstanceState == null){
-            getSupportFragmentManager().beginTransaction().replace(R.id.container, new HomeFragment()).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, new HomeFragment(new ArrayList<>(),false,false)).commit();
             bottomNavigation.setSelectedItemId(R.id.navigation_home);
         }
     }
@@ -53,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    openFragment(HomeFragment.newInstance("", ""));
+                    openFragment(new HomeFragment(new ArrayList<String>(),false,false));
                     break;
                 case R.id.navigation_profile:
                     openFragment(ProfileFragment.newInstance("",""));
@@ -77,5 +83,10 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         finish();
         return;
+    }
+
+    @Override
+    public void onButtonSaveFilterClicked(List<String> listFilter, boolean filterFollow, boolean orderByLike) {
+        openFragment(new HomeFragment(listFilter,filterFollow,orderByLike));
     }
 }

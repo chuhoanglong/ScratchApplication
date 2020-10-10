@@ -2,6 +2,7 @@ package com.example.scratchapplication.model;
 
 public class Comment {
     private String name;
+    private String url;
     private String text;
 
     public Comment(String name, String text) {

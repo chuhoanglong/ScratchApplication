@@ -1,6 +1,7 @@
 package com.example.scratchapplication.fragment.profile;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,13 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.scratchapplication.R;
+import com.example.scratchapplication.adapter.FeedAdapter;
 import com.example.scratchapplication.adapter.ProfileViewPagerAdapter;
+import com.example.scratchapplication.api.JsonApi;
+import com.example.scratchapplication.api.RestClient;
+import com.example.scratchapplication.fragment.Follow;
+import com.example.scratchapplication.model.Profile;
+import com.example.scratchapplication.model.ProfilePojo;
 import com.example.scratchapplication.model.User;
 import com.example.scratchapplication.tablayout.FollowingFragment;
 import com.example.scratchapplication.tablayout.RecipesFragment;
@@ -33,6 +40,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class OtherProfileFragment extends Fragment {
     private TabLayout tabLayout;
@@ -46,6 +56,7 @@ public class OtherProfileFragment extends Fragment {
     private Button buttonFollow;
 
     private String uid;
+    private List<String> myFollowList;
 
     public OtherProfileFragment(String uid){
         this.uid = uid;
@@ -56,87 +67,92 @@ public class OtherProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.fragment_other_profile, container,false);
-
+        JsonApi api = RestClient.createService(JsonApi.class);
+        //button follow
         buttonFollow = v.findViewById(R.id.btn_follow);
-
-        DatabaseReference followRef = FirebaseDatabase.getInstance().getReference("follow");
-        followRef.child(FirebaseAuth.getInstance().getUid()).child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+        String myUid = FirebaseAuth.getInstance().getUid();
+        Call<ProfilePojo> callMyProfile = api.getProfile(myUid);
+        callMyProfile.enqueue(new Callback<ProfilePojo>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    buttonFollow.setText("Following");
+            public void onResponse(Call<ProfilePojo> call, Response<ProfilePojo> response) {
+                if (response.isSuccessful()){
+                    Profile profile = response.body().getProfile();
+                    myFollowList = profile.getFollows();
+                    if (myFollowList.contains(uid)){
+                        buttonFollow.setText("Following");
+                    }else{
+                        buttonFollow.setText("Follow");
+                    }
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(Call<ProfilePojo> call, Throwable t) {
 
             }
         });
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
-        reference.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+        buttonFollow.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    final User user = snapshot.getValue(User.class);
-                    imageViewAvatar = v.findViewById(R.id.iv_other_avatar);
-                    textViewName = v.findViewById(R.id.tv_other_name);
-                    textViewAddress = v.findViewById(R.id.tv_other_address);
-                    textViewCount = v.findViewById(R.id.tv_other_count);
-
-                    Picasso.with(getContext()).load(user.getAvatar()).into(imageViewAvatar);
-                    textViewName.setText(user.getUserName());
-                    textViewAddress.setText(user.getAddress());
-                    textViewCount.setText(user.getLikes()+" likes");
-
-                    buttonFollow.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (buttonFollow.getText().equals("Follow")) {
-                                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("follow");
-                                reference.child(FirebaseAuth.getInstance().getUid()).child(uid).setValue(user)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Toast.makeText(getContext(), "Followed " + user.getUserName(), Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                buttonFollow.setText("Following");
-                            }
-                            else{
-                                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("follow");
-                                reference.child(FirebaseAuth.getInstance().getUid()).child(uid).removeValue()
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Toast.makeText(getContext(), "Unfollowed "+user.getUserName(), Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                buttonFollow.setText("Follow");
-                            }
+            public void onClick(View v) {
+                Call<Follow> callFollow = api.postFollow(new Follow(uid,myUid));
+                callFollow.enqueue(new Callback<Follow>() {
+                    @Override
+                    public void onResponse(Call<Follow> call, Response<Follow> response) {
+                        if (response.isSuccessful()){
+                            String textFollow = buttonFollow.getText().toString().equals("Follow")?"Following":"Follow";
+                            buttonFollow.setText(textFollow);
                         }
-                    });
-                }
-            }
+                        else {
+                            Toast.makeText(getContext(), "Đã xảy ra lỗi, vui lòng thử lại", Toast.LENGTH_SHORT).show();
+                        }
+                    }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
+                    @Override
+                    public void onFailure(Call<Follow> call, Throwable t) {
+                    }
+                });
             }
         });
 
-
+        imageViewAvatar = v.findViewById(R.id.iv_other_avatar);
+        textViewName = v.findViewById(R.id.tv_other_name);
+        textViewAddress = v.findViewById(R.id.tv_other_address);
+        textViewCount = v.findViewById(R.id.tv_other_count);
         viewPager = v.findViewById(R.id.pager_other_profile);
         tabLayout = v.findViewById(R.id.tab_other_profile);
-        recipesFragment = new RecipesFragment(uid);
-        followingFragment = new FollowingFragment(uid);
-        tabLayout.setupWithViewPager(viewPager);
-        List<Fragment> fragments = new ArrayList<>();
-        fragments.add(recipesFragment);
-        fragments.add(followingFragment);
-        List<String> titles = new ArrayList<>(Arrays.asList(TITLES));
-        adapter = new ProfileViewPagerAdapter(getFragmentManager(),0,fragments,titles);
-        viewPager.setAdapter(adapter);
+
+        Call<ProfilePojo> profileCall = api.getProfile(uid);
+        profileCall.enqueue(new Callback<ProfilePojo>() {
+            @Override
+            public void onResponse(Call<ProfilePojo> call, Response<ProfilePojo> response) {
+                if (!response.isSuccessful()){
+                    Log.e("Code profileCall ",response.code()+" "+ call.request().url().toString());
+                    return;
+                }
+                Profile profile = response.body().getProfile();
+
+                Picasso.with(getContext()).load(profile.getAvatar()).into(imageViewAvatar);
+                textViewName.setText(profile.getUserName());
+                textViewAddress.setText(profile.getAddress());
+                String likes = profile.getLikes()>1?" likes":" like";
+                textViewCount.setText(profile.getLikes()+likes);
+
+                recipesFragment = new RecipesFragment(uid);
+                followingFragment = new FollowingFragment(profile.getFollows());
+                tabLayout.setupWithViewPager(viewPager);
+                List<Fragment> fragments = new ArrayList<>();
+                fragments.add(recipesFragment);
+                fragments.add(followingFragment);
+                List<String> titles = new ArrayList<>(Arrays.asList(TITLES));
+                adapter = new ProfileViewPagerAdapter(getFragmentManager(),0,fragments,titles);
+                viewPager.setAdapter(adapter);
+            }
+
+            @Override
+            public void onFailure(Call<ProfilePojo> call, Throwable t) {
+                Log.e("Fail profile call ",t.getMessage());
+            }
+        });
 
         return v;
     }

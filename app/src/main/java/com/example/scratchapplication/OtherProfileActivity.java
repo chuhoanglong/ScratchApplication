@@ -16,6 +16,10 @@ import com.example.scratchapplication.fragment.profile.OtherProfileFragment;
 import com.example.scratchapplication.fragment.main.ProfileFragment;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 public class OtherProfileActivity extends AppCompatActivity {
     private FrameLayout frameLayout;
     @Override

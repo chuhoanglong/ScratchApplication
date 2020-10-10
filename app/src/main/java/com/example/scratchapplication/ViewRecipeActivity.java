@@ -8,12 +8,20 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.example.scratchapplication.adapter.PagerViewRecipeAdapter;
+import com.example.scratchapplication.api.JsonApi;
+import com.example.scratchapplication.api.RestClient;
 import com.example.scratchapplication.fragment.viewrecipe.CookFragment;
 import com.example.scratchapplication.fragment.viewrecipe.CommentsFragment;
 import com.example.scratchapplication.fragment.viewrecipe.IngredientsFragment;
+import com.example.scratchapplication.model.ProfilePojo;
+import com.example.scratchapplication.model.RecipePojo;
+import com.example.scratchapplication.model.home.ModelRecipe;
 import com.example.scratchapplication.model.recipe.RecipeCreate;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.tabs.TabLayout;
@@ -27,6 +35,10 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ViewRecipeActivity extends AppCompatActivity {
     private static final String[] TITLES = new String[]{"Ingredients","How to Cook","Comments"};
@@ -50,44 +62,64 @@ public class ViewRecipeActivity extends AppCompatActivity {
 
     private void init(String id) {
 
-
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("recipes");
-        databaseReference.child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+        JsonApi api = RestClient.createService(JsonApi.class);
+        Call<RecipePojo> call = api.getRecipeDetail(new JsonApi.Rid(id));
+        call.enqueue(new Callback<RecipePojo>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                RecipeCreate recipeCreate = snapshot.getValue(RecipeCreate.class);
-                CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapse_toolbar_layout);
-                collapsingToolbarLayout.setTitle(recipeCreate.getName());
+            public void onResponse(Call<RecipePojo> call, Response<RecipePojo> response) {
+                if (!response.isSuccessful()){
+                    Log.e("Code",response.code()+" "+call.request().url().toString());
+                    return;
+                }
+                ModelRecipe modelRecipe = response.body().getModelRecipe();
+                CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapse_toolbar_layout);
+                collapsingToolbarLayout.setTitle(modelRecipe.getName());
+
                 ImageView imageView = findViewById(R.id.image_cover_collapse);
-                Picasso.with(getApplicationContext()).load(recipeCreate.getUrlCover()).into(imageView);
-                toolbar = findViewById(R.id.toolbar);
+                Picasso.with(getApplicationContext()).load(modelRecipe.getUrlCover()).into(imageView);
+
+
+                toolbar = findViewById(R.id.recipe_toolbar);
+                toolbar.setNavigationIcon(R.drawable.ic_back);
                 setSupportActionBar(toolbar);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setDisplayShowTitleEnabled(true);
+                toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.e("Back","cliked");
+                        finish();
+                    }
+                });
 
                 pager = findViewById(R.id.pager_view_recipe);
                 tabLayout = findViewById(R.id.tabs_view_recipe);
 
-                commentsFragment = CommentsFragment.newInstance(snapshot.getKey(),"");
-                ingredientsFragment = IngredientsFragment.newInstance(recipeCreate.getIngredients(),ViewRecipeActivity.this);
-                cookFragment = CookFragment.newInstance(recipeCreate.getDirections(),ViewRecipeActivity.this);
-
-                tabLayout.setupWithViewPager(pager);
-                List<Fragment> fragments = new ArrayList<>();
-
-                fragments.add(ingredientsFragment);
-                fragments.add(cookFragment);
-                fragments.add(commentsFragment);
-                List<String> titles = new ArrayList<>(Arrays.asList(TITLES));
-
-                pager.setAdapter(new PagerViewRecipeAdapter(getSupportFragmentManager(),0,fragments,titles));
+//                commentsFragment = CommentsFragment.newInstance(snapshot.getKey(),"");
+//                ingredientsFragment = IngredientsFragment.newInstance(recipeCreate.getIngredients(),ViewRecipeActivity.this);
+//                cookFragment = CookFragment.newInstance(recipeCreate.getDirections(),ViewRecipeActivity.this);
+//
+//                tabLayout.setupWithViewPager(pager);
+//                List<Fragment> fragments = new ArrayList<>();
+//
+//                fragments.add(ingredientsFragment);
+//                fragments.add(cookFragment);
+//                fragments.add(commentsFragment);
+//                List<String> titles = new ArrayList<>(Arrays.asList(TITLES));
+//
+//                pager.setAdapter(new PagerViewRecipeAdapter(getSupportFragmentManager(),0,fragments,titles));
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(Call<RecipePojo> call, Throwable t) {
 
             }
         });
 
+    }
 
-
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return true;
     }
 }
