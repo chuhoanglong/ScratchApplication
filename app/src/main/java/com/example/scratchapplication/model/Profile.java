@@ -12,9 +12,7 @@ public class Profile {
     @SerializedName("saves")
     @Expose
     private List<String> saves = null;
-    @SerializedName("_id")
-    @Expose
-    private String id;
+
     @SerializedName("address")
     @Expose
     private String address;
@@ -35,11 +33,10 @@ public class Profile {
     }
 
     public Profile(List<String> follows, List<String> saves,
-                   String id, String address, String avatar,
+                    String address, String avatar,
                    Integer likes, String userName, String userId) {
         this.follows = follows;
         this.saves = saves;
-        this.id = id;
         this.address = address;
         this.avatar = avatar;
         this.likes = likes;
@@ -63,13 +60,6 @@ public class Profile {
         this.saves = saves;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getAddress() {
         return address;

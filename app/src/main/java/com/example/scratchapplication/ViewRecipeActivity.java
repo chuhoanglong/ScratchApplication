@@ -95,19 +95,19 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 pager = findViewById(R.id.pager_view_recipe);
                 tabLayout = findViewById(R.id.tabs_view_recipe);
 
-//                commentsFragment = CommentsFragment.newInstance(snapshot.getKey(),"");
-//                ingredientsFragment = IngredientsFragment.newInstance(recipeCreate.getIngredients(),ViewRecipeActivity.this);
-//                cookFragment = CookFragment.newInstance(recipeCreate.getDirections(),ViewRecipeActivity.this);
-//
-//                tabLayout.setupWithViewPager(pager);
-//                List<Fragment> fragments = new ArrayList<>();
-//
-//                fragments.add(ingredientsFragment);
-//                fragments.add(cookFragment);
-//                fragments.add(commentsFragment);
-//                List<String> titles = new ArrayList<>(Arrays.asList(TITLES));
-//
-//                pager.setAdapter(new PagerViewRecipeAdapter(getSupportFragmentManager(),0,fragments,titles));
+                commentsFragment = new CommentsFragment(modelRecipe.getrId(),modelRecipe.getDataComment());
+                ingredientsFragment = IngredientsFragment.newInstance(modelRecipe.getIngredients(),ViewRecipeActivity.this);
+                cookFragment = CookFragment.newInstance(modelRecipe.getDirections(),ViewRecipeActivity.this);
+
+                tabLayout.setupWithViewPager(pager);
+                List<Fragment> fragments = new ArrayList<>();
+
+                fragments.add(ingredientsFragment);
+                fragments.add(cookFragment);
+                fragments.add(commentsFragment);
+                List<String> titles = new ArrayList<>(Arrays.asList(TITLES));
+
+                pager.setAdapter(new PagerViewRecipeAdapter(getSupportFragmentManager(),0,fragments,titles));
             }
 
             @Override

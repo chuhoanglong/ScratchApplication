@@ -15,6 +15,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.scratchapplication.R;
+import com.example.scratchapplication.api.JsonApi;
+import com.example.scratchapplication.api.RestClient;
+import com.example.scratchapplication.model.Profile;
 import com.example.scratchapplication.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -26,6 +29,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static android.content.ContentValues.TAG;
 
@@ -120,6 +127,25 @@ public class SignUpFragment extends Fragment {
                             FirebaseDatabase database = FirebaseDatabase.getInstance();
                             DatabaseReference myRef = database.getReference("users");
                             myRef.child(uid).setValue(dataUser);
+                            //Add profile to nodejs
+                            Profile profile = new Profile(new ArrayList<String>(),new ArrayList<String>(),"",avatar,0,name,uid);
+                            JsonApi api = RestClient.createService(JsonApi.class);
+                            retrofit2.Call<Profile> call = api.addProfile(profile);
+                            call.enqueue(new Callback<Profile>() {
+                                @Override
+                                public void onResponse(Call<Profile> call, Response<Profile> response) {
+                                    if (!response.isSuccessful()){
+                                        Log.e("Code_add_user",response.code()+"");
+                                        return;
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<Profile> call, Throwable t) {
+
+                                }
+                            });
+                            //
                             getActivity().getSupportFragmentManager()
                                         .beginTransaction()
                                         .replace(R.id.login_container, new SignInFragment())

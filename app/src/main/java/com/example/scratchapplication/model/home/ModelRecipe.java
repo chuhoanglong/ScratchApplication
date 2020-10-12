@@ -45,6 +45,9 @@ public class ModelRecipe implements Comparator<ModelRecipe> {
     @SerializedName("filters")
     @Expose
     private List<String> filters;
+    @SerializedName("dataComment")
+    @Expose
+    private List<Comment> dataComment;
 
     public ModelRecipe() {
     }
@@ -63,6 +66,10 @@ public class ModelRecipe implements Comparator<ModelRecipe> {
         this.profileAvatar = profileAvatar;
         this.profileName = profileName;
         this.filters = filters;
+    }
+
+    public List<Comment> getDataComment() {
+        return dataComment;
     }
 
     public String getrId() {

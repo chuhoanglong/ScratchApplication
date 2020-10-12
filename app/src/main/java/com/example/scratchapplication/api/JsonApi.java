@@ -1,8 +1,10 @@
 package com.example.scratchapplication.api;
 
 import com.example.scratchapplication.fragment.Follow;
+import com.example.scratchapplication.model.Comment;
 import com.example.scratchapplication.model.ListRecipes;
 import com.example.scratchapplication.model.Like;
+import com.example.scratchapplication.model.Profile;
 import com.example.scratchapplication.model.ProfilePojo;
 import com.example.scratchapplication.model.RecipePojo;
 import com.example.scratchapplication.model.Save;
@@ -23,8 +25,6 @@ public interface JsonApi {
     @GET("home/recipes")
     Call<ListRecipes> getAllRecipes();
     @POST("home/recipes")
-    Call<ModelRecipe> getRecipe(@Body String rId);
-    @POST("home/recipes")
     Call<ModelRecipe> postRecipe(@Body ModelRecipe modelRecipe);
     @POST("home/recipes/like")
     Call<Like> postLike(@Body Like like);
@@ -38,6 +38,10 @@ public interface JsonApi {
     Call<ListRecipes> getProfileRecipes(@Query("uId")String uid);
     @POST("home/recipes/follow")
     Call<Follow> postFollow(@Body Follow follow);
+    @POST("home/recipes/comment")
+    Call<Comment> postComment(@Body Comment comment);
+    @POST("profile/user/add")
+    Call<Profile> addProfile(@Body Profile profile);
 
     class Rid {
         @SerializedName("rId")
