@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,10 @@ import android.widget.TextView;
 
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.ViewRecipeActivity;
+import com.example.scratchapplication.api.JsonApi;
+import com.example.scratchapplication.api.RestClient;
+import com.example.scratchapplication.model.ListRecipes;
+import com.example.scratchapplication.model.home.ModelRecipe;
 import com.example.scratchapplication.model.recipe.RecipeCreate;
 import com.example.scratchapplication.model.profile.MyProfileRecipe;
 import com.google.firebase.database.DataSnapshot;
@@ -28,13 +33,15 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 /**
  * A fragment representing a list of Items.
  */
 public class RecipesFragment extends Fragment {
 
-
-    List<MyProfileRecipe> mRecipeItems;
     private RecyclerView recyclerView;
     private String uid;
 
@@ -58,11 +65,31 @@ public class RecipesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_recipes_list, container, false);
 
         // Set the adapter
+        JsonApi api = RestClient.createService(JsonApi.class);
 
         recyclerView = view.findViewById(R.id.list);
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
         recyclerView.setHasFixedSize(true);
 
+        Call<ListRecipes> call = api.getProfileRecipes(uid);
+        call.enqueue(new Callback<ListRecipes>() {
+            @Override
+            public void onResponse(Call<ListRecipes> call, Response<ListRecipes> response) {
+                if (response.isSuccessful()){
+                    List<ModelRecipe> modelRecipes = response.body().getData();
+                    recyclerView.setAdapter(new MyRecipeAdapter(modelRecipes));
+                }
+                else {
+                    Log.e("Code",response.code()+" "+call.request().url().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ListRecipes> call, Throwable t) {
+
+            }
+        });
+/*
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("recipes");
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -86,16 +113,17 @@ public class RecipesFragment extends Fragment {
 
             }
         });
+ */
 
         return view;
     }
     class MyRecipeAdapter extends RecyclerView.Adapter<MyRecipeAdapter.MyViewHolder> {
-        List<RecipeCreate> recipes;
-        List<String> keys;
-        public MyRecipeAdapter(List<RecipeCreate> recipes,List<String> keys){
-            this.recipes = recipes;
-            this.keys = keys;
+        private List<ModelRecipe> modelRecipes;
+
+        public MyRecipeAdapter(List<ModelRecipe> modelRecipes) {
+            this.modelRecipes = modelRecipes;
         }
+
         @NonNull
         @Override
         public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -105,17 +133,15 @@ public class RecipesFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
-            final RecipeCreate recipe = recipes.get(position);
-            Picasso.with(getContext()).load(recipe.getUrlCover()).into(holder.imageView);
-            holder.textView.setText(recipe.getName());
+            ModelRecipe modelRecipe = modelRecipes.get(position);
+            Picasso.with(getContext()).load(modelRecipe.getUrlCover()).into(holder.imageView);
+            holder.textView.setText(modelRecipe.getName());
 
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(getContext(), ViewRecipeActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("RID", keys.get(position));
-                    intent.putExtras(bundle);
+                    intent.putExtra("RID",modelRecipe.getrId());
                     getContext().startActivity(intent);
                 }
             });
@@ -123,7 +149,7 @@ public class RecipesFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return recipes.size();
+            return modelRecipes.size();
         }
 
         class MyViewHolder extends RecyclerView.ViewHolder {

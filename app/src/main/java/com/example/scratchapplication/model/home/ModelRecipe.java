@@ -5,9 +5,10 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 
+import java.util.Comparator;
 import java.util.List;
 
-public class ModelRecipe {
+public class ModelRecipe implements Comparator<ModelRecipe> {
     @SerializedName("rId")
     @Expose
     private String rId;
@@ -44,7 +45,12 @@ public class ModelRecipe {
     @SerializedName("filters")
     @Expose
     private List<String> filters;
+    @SerializedName("dataComment")
+    @Expose
+    private List<Comment> dataComment;
 
+    public ModelRecipe() {
+    }
 
     public ModelRecipe(String uId, String name, String description, String urlCover,
                        List<String> ingredients, List<String> directions, int like, List<String> usersLike,
@@ -60,6 +66,10 @@ public class ModelRecipe {
         this.profileAvatar = profileAvatar;
         this.profileName = profileName;
         this.filters = filters;
+    }
+
+    public List<Comment> getDataComment() {
+        return dataComment;
     }
 
     public String getrId() {
@@ -152,5 +162,10 @@ public class ModelRecipe {
 
     public void setFilters(List<String> filter) {
         this.filters = filter;
+    }
+
+    @Override
+    public int compare(ModelRecipe o1, ModelRecipe o2) {
+        return o1.getUsersLike().size() - o2.getUsersLike().size();
     }
 }

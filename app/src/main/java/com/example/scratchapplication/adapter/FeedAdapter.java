@@ -28,6 +28,7 @@ import com.example.scratchapplication.model.home.ModelRecipe;
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
+import java.io.Serializable;
 import java.util.List;
 
 import retrofit2.Call;
@@ -38,10 +39,19 @@ import retrofit2.Response;
 public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> {
     private Context context;
     private List<ModelRecipe> list;
+    private String myUid;
+    private List<String> followedList;
+    private List<String> savedList;
+    private List<String> filter;
+    private boolean filterFollow;
+    private boolean orderByLike;
 
-    public FeedAdapter(Context context, List<ModelRecipe> list) {
+    public FeedAdapter(Context context, List<ModelRecipe> list, String myUid, List<String> followedList, List<String> savedList) {
         this.context = context;
         this.list = list;
+        this.myUid = myUid;
+        this.followedList = followedList;
+        this.savedList = savedList;
     }
 
     @NonNull
@@ -62,7 +72,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
         Picasso.with(context).load(model.getUrlCover()).into(holder.imageViewCover);
         //like count
         holder.textViewLikeCount.setText(String.valueOf(model.getLike()));
-        if (model.getUsersLike().contains(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+        if (model.getUsersLike().contains(myUid)){
             holder.imageViewLike.setImageResource(R.drawable.ic_liked);
         }
         else {
@@ -71,24 +81,24 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
         String txtLike = model.getUsersLike().size()>1?" likes":" like";
         holder.textViewLikeCount.setText(model.getUsersLike().size()+ txtLike);
 
+
         JsonApi api = RestClient.createService(JsonApi.class);
         //like
         holder.imageViewLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                Log.d("UID", uid);
-                if (model.getUsersLike().contains(uid)){
+                Log.d("UID", myUid);
+                if (model.getUsersLike().contains(myUid)){
                     Picasso.with(context).load(R.drawable.ic_liked).into(holder.imageViewLike);
-                    model.getUsersLike().remove(uid);
+                    model.getUsersLike().remove(myUid);
                 }
                 else {
                     Picasso.with(context).load(R.drawable.ic_like).into(holder.imageViewLike);
-                    model.getUsersLike().add(uid);
+                    model.getUsersLike().add(myUid);
                 }
                 holder.textViewLikeCount.setText(model.getUsersLike().size()+"");
                 notifyItemChanged(position);
-                Like like = new Like(model.getrId(),uid);
+                Like like = new Like(model.getrId(),myUid);
                 Call<Like> call = api.postLike(like);
                 call.enqueue(new Callback<Like>() {
                     @Override
@@ -105,26 +115,43 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
             }
         });
         //save
-        holder.buttonSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new AlertDialog.Builder(context)
-                        .setTitle("Save")
-                        .setMessage("Lưu món ăn này?")
-                        .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                                api.saveRecipe(new Save(uid,model.getrId()));
-                                holder.buttonSave.setText("Saved");
-                                holder.buttonSave.setClickable(false);
-                                Toast.makeText(context, "Đã lưu " + model.getName(), Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .setNegativeButton("Cancel",null)
-                        .show();
-            }
-        });
+        if (savedList.contains(model.getrId())){
+            holder.buttonSave.setClickable(false);
+            holder.buttonSave.setText("Saved");
+        }
+        else {
+            holder.buttonSave.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new AlertDialog.Builder(context)
+                            .setTitle("Save")
+                            .setMessage("Lưu món ăn này?")
+                            .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Call<Save> call = api.saveRecipe(new Save(myUid, model.getrId()));
+                                    call.enqueue(new Callback<Save>() {
+                                        @Override
+                                        public void onResponse(Call<Save> call, Response<Save> response) {
+                                            if (response.isSuccessful()) {
+                                                holder.buttonSave.setText("Saved");
+                                                holder.buttonSave.setClickable(false);
+                                                Toast.makeText(context, "Đã lưu " + model.getName(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(Call<Save> call, Throwable t) {
+
+                                        }
+                                    });
+                                }
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                }
+            });
+        }
         //xem trang cac nhan
         holder.layoutTittle.setOnClickListener(new View.OnClickListener() {
             @Override

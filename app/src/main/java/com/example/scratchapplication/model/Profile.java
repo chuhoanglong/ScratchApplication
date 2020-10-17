@@ -1,4 +1,4 @@
-package com.example.scratchapplication;
+package com.example.scratchapplication.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -12,9 +12,7 @@ public class Profile {
     @SerializedName("saves")
     @Expose
     private List<String> saves = null;
-    @SerializedName("_id")
-    @Expose
-    private String id;
+
     @SerializedName("address")
     @Expose
     private String address;
@@ -30,6 +28,21 @@ public class Profile {
     @SerializedName("userId")
     @Expose
     private String userId;
+
+    public Profile() {
+    }
+
+    public Profile(List<String> follows, List<String> saves,
+                    String address, String avatar,
+                   Integer likes, String userName, String userId) {
+        this.follows = follows;
+        this.saves = saves;
+        this.address = address;
+        this.avatar = avatar;
+        this.likes = likes;
+        this.userName = userName;
+        this.userId = userId;
+    }
 
     public List<String> getFollows() {
         return follows;
@@ -47,13 +60,6 @@ public class Profile {
         this.saves = saves;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getAddress() {
         return address;

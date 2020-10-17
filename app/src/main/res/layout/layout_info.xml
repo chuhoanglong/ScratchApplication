@@ -28,6 +28,7 @@
                     android:layout_centerVertical="true"/>
 
                 <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipgroup_create_recipe"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/title_info">

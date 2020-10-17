@@ -16,6 +16,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scratchapplication.OtherProfileActivity;
 import com.example.scratchapplication.R;
+import com.example.scratchapplication.api.JsonApi;
+import com.example.scratchapplication.api.RestClient;
+import com.example.scratchapplication.model.Profile;
+import com.example.scratchapplication.model.ProfilePojo;
 import com.example.scratchapplication.model.User;
 import com.example.scratchapplication.model.profile.FollowingList;
 import com.google.firebase.database.DataSnapshot;
@@ -29,17 +33,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class FollowingFragment extends Fragment {
     // TODO: Customize parameter argument names
     // TODO: Customize parameters
     private static final String ARG_PARAM1 = "param1";
-    List<FollowingList> mFollowingList;
+    List<String> mFollowingList;
     RecyclerView recyclerView;
     private String uid;
 
-    public FollowingFragment(String uid){
-        this.uid =uid;
+    public FollowingFragment(List<String> followingList){
+        this.mFollowingList = followingList;
     }
 
     @Override
@@ -57,6 +64,8 @@ public class FollowingFragment extends Fragment {
         recyclerView = view.findViewById(R.id.following_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setHasFixedSize(true);
+
+        /*
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("follow");
         reference.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -76,13 +85,15 @@ public class FollowingFragment extends Fragment {
 
             }
         });
+         */
+
         return view;
     }
     class FolllowingAdapter extends RecyclerView.Adapter<FolllowingAdapter.MyViewHolder> {
-        List<String> keys;
+        List<String> followingList;
 
-        public FolllowingAdapter(List<String> keys){
-            this.keys = keys;
+        public FolllowingAdapter(List<String> followingList){
+            this.followingList = followingList;
 
         }
         @NonNull
@@ -94,7 +105,36 @@ public class FollowingFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
+            String uid = followingList.get(position);
+            JsonApi api = RestClient.createService(JsonApi.class);
+            Call<ProfilePojo> call = api.getProfile(uid);
+            call.enqueue(new Callback<ProfilePojo>() {
+                @Override
+                public void onResponse(Call<ProfilePojo> call, Response<ProfilePojo> response) {
+                    if (response.isSuccessful()){
+                        Profile profile = response.body().getProfile();
+                        Picasso.with(getContext()).load(profile.getAvatar()).into(holder.avatar);
+                        holder.textViewName.setText(profile.getUserName());
+                        holder.textViewAddress.setText(profile.getAddress());
+                        String likes = profile.getLikes()>1?"likes":"like";
+                        holder.textViewCount.setText(profile.getLikes()+" "+likes);
+                        holder.layout.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(getContext(), OtherProfileActivity.class);
+                                intent.putExtra("UID",uid);
+                                getContext().startActivity(intent);
+                            }
+                        });
+                    }
+                }
 
+                @Override
+                public void onFailure(Call<ProfilePojo> call, Throwable t) {
+
+                }
+            });
+/*
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference("follow");
             ref.child(uid).child(keys.get(position)).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -124,11 +164,13 @@ public class FollowingFragment extends Fragment {
 
                 }
             });
+
+ */
         }
 
         @Override
         public int getItemCount() {
-            return keys.size();
+            return followingList.size();
         }
 
         class MyViewHolder extends RecyclerView.ViewHolder {
@@ -141,7 +183,6 @@ public class FollowingFragment extends Fragment {
                 textViewName = itemView.findViewById(R.id.following_name);
                 textViewAddress = itemView.findViewById(R.id.following_address);
                 textViewCount = itemView.findViewById(R.id.following_count);
-                textViewCount.setText("1 follower");
                 layout = itemView.findViewById(R.id.layout_follow_item);
             }
         }
