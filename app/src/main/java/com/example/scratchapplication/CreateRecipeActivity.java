@@ -68,7 +68,7 @@ public class CreateRecipeActivity extends AppCompatActivity{
     private List<Comment> comments;
     private List<String> filters;
 
-    private ProgressBar mProgressBar;
+    //private ProgressBar mProgressBar;
     private StorageReference mStorageRef;
     private DatabaseReference mDatabaseRef;
     private StorageTask mUploadTask;
@@ -218,8 +218,6 @@ public class CreateRecipeActivity extends AppCompatActivity{
                             handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mProgressBar.setVisibility(View.VISIBLE);
-                                    mProgressBar.setProgress(0);
                                 }
                             },500);
                             if(taskSnapshot.getMetadata()!=null){

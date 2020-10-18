@@ -1,6 +1,5 @@
 package com.example.scratchapplication.fragment.main;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -8,22 +7,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.scratchapplication.MainActivity;
 import com.example.scratchapplication.R;
-import com.example.scratchapplication.ViewRecipeActivity;
-import com.example.scratchapplication.adapter.FeedStringAdapter;
-import com.example.scratchapplication.adapter.SearchAdapter;
-import com.example.scratchapplication.dialog.DialogFilter;
-import com.example.scratchapplication.model.search.SearchRecipe;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,15 +23,10 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import android.content.Context;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.content.ContentValues.TAG;
 
 public class SearchFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
@@ -110,8 +96,7 @@ public class SearchFragment extends Fragment {
                     keys.add(task.getKey());
                     Log.e("Key",task.getKey());
                 }
-                FeedStringAdapter adapter = new FeedStringAdapter(keys,getContext());
-                myList.setAdapter(adapter);
+
                 myList.setLayoutManager(new LinearLayoutManager(getContext()));
                 myList.setHasFixedSize(true);
             }
