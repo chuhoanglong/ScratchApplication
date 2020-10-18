@@ -29,7 +29,7 @@ public class WebServiceRepository {
 
     public LiveData<List<ModelRecipe>> providesWebservice(){
         final MutableLiveData<List<ModelRecipe>> data = new MutableLiveData<>();
-        String response = "";
+        Log.e("fetching","fetching");
         try {
             JsonApi service = RestClient.createService(JsonApi.class);
             service.getAllRecipes().enqueue(new Callback<ListRecipes>() {
@@ -42,12 +42,13 @@ public class WebServiceRepository {
                     webserviceResponseList = response.body().getData();
                     data.setValue(webserviceResponseList);
                     RecipeRoomDBRepository roomDBRepository = new RecipeRoomDBRepository(application);
-                    roomDBRepository.insertRecipes(webserviceResponseList);
+                    if (webserviceResponseList.size()>0)
+                        roomDBRepository.insertRecipes(webserviceResponseList);
                 }
 
                 @Override
                 public void onFailure(Call<ListRecipes> call, Throwable t) {
-
+                    Log.e("failWSR", t.getMessage());
                 }
             });
         }catch (Exception e)

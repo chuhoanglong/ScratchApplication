@@ -66,12 +66,10 @@ public class HomeFragment extends Fragment {
         this.listFilter = listFilter;
         this.filterFollow = filterFollow;
         this.orderByLike = orderByLike;
-        Log.e("FILTER", this.listFilter.size()+" "+this.filterFollow+" "+this.orderByLike);
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        recipesViewModel = ViewModelProviders.of(getActivity()).get(RecipesViewModel.class);
     }
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
@@ -79,90 +77,17 @@ public class HomeFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
         recyclerView = v.findViewById(R.id.recyclerview_feed);
-        //adapter
-        //modelRecipeList = new ArrayList<>();
         String uid =FirebaseAuth.getInstance().getCurrentUser().getUid();
         adapter = new FeedAdapter(container.getContext(),new ArrayList<>(),uid,new ArrayList<>(),new ArrayList<>());
         //layout
         LinearLayoutManager layout = new LinearLayoutManager(getContext());
-        //layout.setReverseLayout(true);
-        //layout.setStackFromEnd(true);
+
         //set rv
         recyclerView.setLayoutManager(layout);
         recyclerView.setHasFixedSize(false);
         recyclerView.setAdapter(adapter);
-
-//        JsonApi service = RestClient.createService(JsonApi.class);
-//        //call recipes data
-//        Call<ListRecipes> call = service.getAllRecipes();
-//        call.enqueue(new Callback<ListRecipes>() {
-//            @Override
-//            public void onResponse(Call<ListRecipes> call, Response<ListRecipes> response) {
-//                if (!response.isSuccessful()){
-//                    Log.e("Code recipes call ",response.code()+"");
-//                    return;
-//                }
-//                ListRecipes allRecipe = response.body();
-//                modelRecipeList = allRecipe.getData();
-//                adapter = new FeedAdapter(getContext(),modelRecipeList,uid,new ArrayList<>(),new ArrayList<>());
-//                recyclerView.setAdapter(adapter);
-//                //call profile data
-//                Call<ProfilePojo> profileCall = service.getProfile(uid);
-//                profileCall.enqueue(new Callback<ProfilePojo>() {
-//                    @Override
-//                    public void onResponse(Call<ProfilePojo> call, Response<ProfilePojo> response) {
-//                        if (!response.isSuccessful()){
-//                            Log.e("Code profileCall ",response.code()+" "+ call.request().url().toString());
-//                            return;
-//                        }
-//                        Profile profile = response.body().getProfile();
-//                        //sap xep
-//                        if (orderByLike){
-//                            Collections.sort(modelRecipeList,new ModelRecipe());
-//                        }
-//                        //loc theo doi
-//                        if (filterFollow){
-//                            if (profile.getFollows().size()==0){
-//                                Toast.makeText(getContext(), "Hiện tại bạn chưa follow người dùng nào", Toast.LENGTH_SHORT).show();
-//                                filterFollow = false;
-//                            }else {
-//                                Iterator<ModelRecipe> iterator = modelRecipeList.iterator();
-//                                while (iterator.hasNext()){
-//                                    if (!profile.getFollows().contains(iterator.next().getUid())){
-//                                        iterator.remove();
-//                                    }
-//                                }
-//                            }
-//                        }
-//                        //loc chu de
-//                        if (listFilter.size()>0){
-//                            Iterator<ModelRecipe> iterator = modelRecipeList.iterator();
-//                            while (iterator.hasNext()) {
-//                                boolean check = false;
-//                                for (String filter : listFilter) {
-//                                    if (iterator.next().getFilters().contains(filter))
-//                                        check = true;
-//                                }
-//                                if (!check)
-//                                    iterator.remove();
-//                            }
-//                        }
-//                        Log.e("FeedListSize", modelRecipeList.size()+"");
-//                        adapter = new FeedAdapter(getContext(),modelRecipeList,uid,profile.getFollows(),profile.getSaves());
-//                        recyclerView.setAdapter(adapter);
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<ProfilePojo> call, Throwable t) {
-//                        Log.e("Fail profile call ",t.getMessage());
-//                    }
-//                });
-//            }
-//            @Override
-//            public void onFailure(Call<ListRecipes> call, Throwable t) {
-//                Log.e("Fail recipes call: ",t.getMessage());
-//            }
-//        });
+        //recipesViewModel = new RecipesViewModel()
+        recipesViewModel = ViewModelProviders.of(getActivity()).get(RecipesViewModel.class);
         recipesViewModel.getAllRecipes().observe(getActivity(), new Observer<List<ModelRecipe>>() {
             @Override
             public void onChanged(List<ModelRecipe> modelRecipes) {

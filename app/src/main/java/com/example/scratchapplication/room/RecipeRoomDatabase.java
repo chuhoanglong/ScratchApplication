@@ -16,24 +16,16 @@ public abstract class RecipeRoomDatabase extends RoomDatabase {
 
     private static RecipeRoomDatabase INSTANCE;
 
-    static RecipeRoomDatabase getDatabase(final Context context){
+    public static synchronized RecipeRoomDatabase getDatabase(Context context){
         if (INSTANCE == null){
             synchronized (RecipeRoomDatabase.class){
                 if (INSTANCE == null){
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),RecipeRoomDatabase.class,"recipe_databse")
-                                                    .addCallback(roomDatabaseCallBack)
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),RecipeRoomDatabase.class,"recipe_database")
+                                                    .fallbackToDestructiveMigration()
                                                     .build();
                 }
             }
         }
         return INSTANCE;
     }
-
-    private static Callback roomDatabaseCallBack = new Callback() {
-        @Override
-        public void onOpen(@NonNull SupportSQLiteDatabase db) {
-            super.onOpen(db);
-            new PopulateDbAsync(INSTANCE).execute();
-        }
-    };
 }

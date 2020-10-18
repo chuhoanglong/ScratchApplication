@@ -14,17 +14,19 @@ public class RecipesViewModel extends AndroidViewModel {
     private RecipeRoomDBRepository recipeRoomDBRepository;
     private LiveData<List<ModelRecipe>> mAllRecipes;
     private LiveData<ModelRecipe> mRecipe;
-    WebServiceRepository webServiceRepository;
-    private final LiveData<List<ModelRecipe>> retroObservable;
+    private WebServiceRepository webServiceRepository;
+    private  LiveData<List<ModelRecipe>> retroObservable;
     public RecipesViewModel(Application application){
         super(application);
         recipeRoomDBRepository = new RecipeRoomDBRepository(application);
         webServiceRepository = new WebServiceRepository(application);
         retroObservable = webServiceRepository.providesWebservice();
         mAllRecipes = recipeRoomDBRepository.getAllRecipes();
-
     }
 
+    public void insert(List<ModelRecipe> modelRecipes){
+        recipeRoomDBRepository.insertRecipes(modelRecipes);
+    }
     public LiveData<List<ModelRecipe>> getAllRecipes(){
         return mAllRecipes;
     }
