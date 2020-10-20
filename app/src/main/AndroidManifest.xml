@@ -15,7 +15,9 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/NoActionBar">
-        <activity android:name=".RecipeSqlActivity"></activity>
+        <activity android:name=".ViewMessageActivity"></activity>
+        <activity android:name=".AllMessageActivity" />
+        <activity android:name=".RecipeSqlActivity" />
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"

@@ -4,11 +4,13 @@ import com.example.scratchapplication.fragment.Follow;
 import com.example.scratchapplication.model.Comment;
 import com.example.scratchapplication.model.ListRecipes;
 import com.example.scratchapplication.model.Like;
+import com.example.scratchapplication.model.Message;
 import com.example.scratchapplication.model.Profile;
 import com.example.scratchapplication.model.ProfilePojo;
 import com.example.scratchapplication.model.RecipePojo;
 import com.example.scratchapplication.model.Save;
 import com.example.scratchapplication.model.home.ModelRecipe;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -42,6 +44,8 @@ public interface JsonApi {
     Call<Comment> postComment(@Body Comment comment);
     @POST("profile/user/add")
     Call<Profile> addProfile(@Body Profile profile);
+    @POST("chat/select_user")
+    Call<MessagesPojo> chat(@Body JsonObject jsonObject);
 
     class Rid {
         @SerializedName("rId")
@@ -52,4 +56,43 @@ public interface JsonApi {
             this.rId = rId;
         }
     }
+    class ChatPojo{
+        @SerializedName("uId")
+        @Expose
+        private String uid;
+        @SerializedName("uIdReceive")
+        @Expose
+        private String uidReceive;
+
+        public ChatPojo(String uid, String uidReceive) {
+            this.uid = uid;
+            this.uidReceive = uidReceive;
+        }
+    }
+    class MessagesPojo{
+        @SerializedName("data")
+        @Expose
+        private DataMessages dataMessages;
+
+        public DataMessages getDataMessages() {
+            return dataMessages;
+        }
+    }
+    class DataMessages{
+        @SerializedName("messages")
+        @Expose
+        private List<Message> messages;
+        @SerializedName("idMessage")
+        @Expose
+        private String idMessage;
+
+        public List<Message> getMessages() {
+            return messages;
+        }
+
+        public String getIdMessage() {
+            return idMessage;
+        }
+    }
+
 }

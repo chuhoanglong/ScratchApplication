@@ -1,4 +1,4 @@
-package com.example.scratchapplication.room;
+package com.example.scratchapplication.api;
 
 import android.app.Application;
 import android.util.Log;
@@ -10,6 +10,7 @@ import com.example.scratchapplication.api.JsonApi;
 import com.example.scratchapplication.api.RestClient;
 import com.example.scratchapplication.model.ListRecipes;
 import com.example.scratchapplication.model.home.ModelRecipe;
+import com.example.scratchapplication.room.RecipeRoomDBRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,6 @@ public class WebServiceRepository {
 
     public LiveData<List<ModelRecipe>> providesWebservice(){
         final MutableLiveData<List<ModelRecipe>> data = new MutableLiveData<>();
-        Log.e("fetching","fetching");
         try {
             JsonApi service = RestClient.createService(JsonApi.class);
             service.getAllRecipes().enqueue(new Callback<ListRecipes>() {

@@ -6,23 +6,35 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
+import com.example.scratchapplication.model.Profile;
 import com.example.scratchapplication.model.home.ModelRecipe;
 
 import java.util.List;
 
 public class RecipeRoomDBRepository {
     private RecipeDao recipeDao;
+    private ProfileDao profileDao;
     LiveData<List<ModelRecipe>> mAllRecipes;
     LiveData<ModelRecipe> mRecipe;
+    LiveData<Profile> mProfile;
 
     public RecipeRoomDBRepository(Application application){
         RecipeRoomDatabase db = RecipeRoomDatabase.getDatabase(application);
         recipeDao = db.recipeDao();
         mAllRecipes = recipeDao.getAllRecipes();
+
+    }
+
+    public LiveData<Profile> getProfileById(String id){
+        mProfile = profileDao.getProfileById(id);
+        return mProfile;
+    }
+
+    public void insertProfiles(List<Profile> profiles){
+        new InsertProfileAsyncTask(profileDao).execute(profiles);
     }
 
     public LiveData<List<ModelRecipe>> getAllRecipes(){
-        //Log.e("getdata", mAllRecipes.getValue().size()+"");
         return mAllRecipes;
     }
     public LiveData<ModelRecipe> getRecipeById(String rId){
@@ -44,7 +56,19 @@ public class RecipeRoomDBRepository {
         @Override
         protected Void doInBackground(List<ModelRecipe>... lists) {
             mAsynctaskDao.insertRecipes(lists[0]);
-            Log.e("insert_dao", lists[0].size()+"");
+            return null;
+        }
+    }
+    private static class InsertProfileAsyncTask extends AsyncTask<List<Profile>, Void, Void>{
+        private ProfileDao mAsyncTaskDao;
+
+        InsertProfileAsyncTask(ProfileDao mAsyncTaskDao) {
+            this.mAsyncTaskDao = mAsyncTaskDao;
+        }
+
+        @Override
+        protected Void doInBackground(List<Profile>... lists) {
+            mAsyncTaskDao.insertProfiles(lists[0]);
             return null;
         }
     }

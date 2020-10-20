@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.scratchapplication.AllMessageActivity;
 import com.example.scratchapplication.CreateRecipeActivity;
 import com.example.scratchapplication.MainActivity;
 import com.example.scratchapplication.R;
@@ -53,6 +54,7 @@ public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
     private Button buttonAdd;
     private ImageView imageViewFilter;
+    private ImageView imageViewAllMessages;
 
     private FeedAdapter adapter;
 
@@ -76,6 +78,15 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
+        imageViewAllMessages = v.findViewById(R.id.image_messages);
+        imageViewAllMessages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), AllMessageActivity.class);
+                startActivity(intent);
+            }
+        });
+
         recyclerView = v.findViewById(R.id.recyclerview_feed);
         String uid =FirebaseAuth.getInstance().getCurrentUser().getUid();
         adapter = new FeedAdapter(container.getContext(),new ArrayList<>(),uid,new ArrayList<>(),new ArrayList<>());
@@ -91,7 +102,6 @@ public class HomeFragment extends Fragment {
         recipesViewModel.getAllRecipes().observe(getActivity(), new Observer<List<ModelRecipe>>() {
             @Override
             public void onChanged(List<ModelRecipe> modelRecipes) {
-                Log.e("observer",modelRecipes.size()+"");
                 if (modelRecipes.size()>0){
                     //call profile data
                     JsonApi service = RestClient.createService(JsonApi.class);
@@ -137,7 +147,6 @@ public class HomeFragment extends Fragment {
                                         iterator.remove();
                                 }
                             }
-                            Log.e("FeedListSize", modelRecipes.size()+"");
                             adapter = new FeedAdapter(getContext(),list,uid,profile.getFollows(),profile.getSaves());
                             recyclerView.setAdapter(adapter);
                         }
@@ -145,6 +154,7 @@ public class HomeFragment extends Fragment {
                         @Override
                         public void onFailure(Call<ProfilePojo> call, Throwable t) {
                             Log.e("Fail profile call ",t.getMessage());
+                            Toast.makeText(getContext(), "Không có kết nối internet", Toast.LENGTH_SHORT).show();
                             adapter = new FeedAdapter(getContext(),modelRecipes,uid,new ArrayList<>(),new ArrayList<>());
                             recyclerView.setAdapter(adapter);
                         }

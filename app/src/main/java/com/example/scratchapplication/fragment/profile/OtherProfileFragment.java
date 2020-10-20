@@ -1,11 +1,13 @@
 package com.example.scratchapplication.fragment.profile;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.scratchapplication.R;
+import com.example.scratchapplication.ViewMessageActivity;
 import com.example.scratchapplication.adapter.FeedAdapter;
 import com.example.scratchapplication.adapter.ProfileViewPagerAdapter;
 import com.example.scratchapplication.api.JsonApi;
@@ -33,13 +36,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.JsonObject;
 import com.squareup.picasso.Picasso;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.socket.client.IO;
+import io.socket.client.Socket;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -58,15 +65,57 @@ public class OtherProfileFragment extends Fragment {
     private String uid;
     private List<String> myFollowList;
 
+    private ImageButton imageButtonChat, imageButtonCall;
+
     public OtherProfileFragment(String uid){
         this.uid = uid;
     }
 
     private static final String[] TITLES = new String[]{"Recipes","Following"};
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.fragment_other_profile, container,false);
+
+        imageButtonChat = v.findViewById(R.id.btn_chat);
+        imageButtonCall = v.findViewById(R.id.btn_call);
+
+        imageButtonChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                JsonApi service = RestClient.createService(JsonApi.class);
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("uId",FirebaseAuth.getInstance().getUid());
+                jsonObject.addProperty("uIdReceive",uid);
+                Call<JsonApi.MessagesPojo> call = service.chat(jsonObject);
+                call.enqueue(new Callback<JsonApi.MessagesPojo>() {
+                    @Override
+                    public void onResponse(Call<JsonApi.MessagesPojo> call, Response<JsonApi.MessagesPojo> response) {
+                        if (!response.isSuccessful()){
+                            Log.e("Code",response.code()+"");
+                            return;
+                        }
+                        if (response.body().getDataMessages()==null){
+                            Log.e(uid,"new chat");
+                        }
+                        else {
+                            Log.e(uid,"old chat");
+                        }
+                        Intent intent = new Intent(getActivity(), ViewMessageActivity.class);
+                        intent.putExtra("idReceive", uid);
+                        getActivity().startActivity(intent);
+                    }
+
+                    @Override
+                    public void onFailure(Call<JsonApi.MessagesPojo> call, Throwable t) {
+
+                    }
+                });
+            }
+        });
+
         JsonApi api = RestClient.createService(JsonApi.class);
         //button follow
         buttonFollow = v.findViewById(R.id.btn_follow);

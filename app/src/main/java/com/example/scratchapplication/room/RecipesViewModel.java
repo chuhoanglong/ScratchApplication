@@ -5,6 +5,7 @@ import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import com.example.scratchapplication.api.WebServiceRepository;
 import com.example.scratchapplication.model.home.ModelRecipe;
 
 import java.util.List;
@@ -24,9 +25,6 @@ public class RecipesViewModel extends AndroidViewModel {
         mAllRecipes = recipeRoomDBRepository.getAllRecipes();
     }
 
-    public void insert(List<ModelRecipe> modelRecipes){
-        recipeRoomDBRepository.insertRecipes(modelRecipes);
-    }
     public LiveData<List<ModelRecipe>> getAllRecipes(){
         return mAllRecipes;
     }
