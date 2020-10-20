@@ -26,6 +26,7 @@ import com.example.scratchapplication.model.Like;
 import com.example.scratchapplication.model.Save;
 import com.example.scratchapplication.model.home.ModelRecipe;
 import com.google.firebase.auth.FirebaseAuth;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.Serializable;
@@ -66,10 +67,10 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
 
         ModelRecipe model = list.get(position);
         holder.textViewProfileName.setText(model.getProfileName());
-        Picasso.with(context).load(model.getProfileAvatar()).into(holder.imageViewAvatar);
+        Picasso.with(context).load(model.getProfileAvatar()).networkPolicy(NetworkPolicy.OFFLINE).into(holder.imageViewAvatar);
         holder.textViewRecipeName.setText(model.getName());
         holder.textViewRecipeDesc.setText(model.getDescription());
-        Picasso.with(context).load(model.getUrlCover()).into(holder.imageViewCover);
+        Picasso.with(context).load(model.getUrlCover()).networkPolicy(NetworkPolicy.OFFLINE).into(holder.imageViewCover);
         //like count
         holder.textViewLikeCount.setText(String.valueOf(model.getLike()));
         if (model.getUsersLike().contains(myUid)){
@@ -98,7 +99,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
                 }
                 holder.textViewLikeCount.setText(model.getUsersLike().size()+"");
                 notifyItemChanged(position);
-                Like like = new Like(model.getrId(),myUid);
+                Like like = new Like(model.getRid(),myUid);
                 Call<Like> call = api.postLike(like);
                 call.enqueue(new Callback<Like>() {
                     @Override
@@ -115,7 +116,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
             }
         });
         //save
-        if (savedList.contains(model.getrId())){
+        if (savedList.contains(model.getRid())){
             holder.buttonSave.setClickable(false);
             holder.buttonSave.setText("Saved");
         }
@@ -129,7 +130,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
                             .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Call<Save> call = api.saveRecipe(new Save(myUid, model.getrId()));
+                                    Call<Save> call = api.saveRecipe(new Save(myUid, model.getRid()));
                                     call.enqueue(new Callback<Save>() {
                                         @Override
                                         public void onResponse(Call<Save> call, Response<Save> response) {
@@ -157,7 +158,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, OtherProfileActivity.class);
-                intent.putExtra("UID",model.getuId());
+                intent.putExtra("UID",model.getUid());
                 context.startActivity(intent);
             }
         });
@@ -172,7 +173,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, ViewRecipeActivity.class);
-                intent.putExtra("RID",model.getrId());
+                intent.putExtra("RID",model.getRid());
                 context.startActivity(intent);
             }
         };

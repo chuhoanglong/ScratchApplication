@@ -80,6 +80,7 @@ public class BottomSheetFilter extends BottomSheetDialogFragment {
                     filterFollow = true;
                 if (chipOrderByLike.isChecked())
                     orderByLike = true;
+                Log.e("Check", filterFollow +""+ orderByLike);
                 mListener.onButtonSaveFilterClicked(listFilter,filterFollow,orderByLike);
                 dismiss();
             }

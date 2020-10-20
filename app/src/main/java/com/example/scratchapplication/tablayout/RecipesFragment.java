@@ -141,7 +141,7 @@ public class RecipesFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(getContext(), ViewRecipeActivity.class);
-                    intent.putExtra("RID",modelRecipe.getrId());
+                    intent.putExtra("RID",modelRecipe.getRid());
                     getContext().startActivity(intent);
                 }
             });

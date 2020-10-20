@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -68,7 +69,7 @@ public class CreateRecipeActivity extends AppCompatActivity{
     private List<Comment> comments;
     private List<String> filters;
 
-    private ProgressBar mProgressBar;
+    private ProgressDialog progressDialog;
     private StorageReference mStorageRef;
     private DatabaseReference mDatabaseRef;
     private StorageTask mUploadTask;
@@ -82,7 +83,7 @@ public class CreateRecipeActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_recipe);
-
+        progressDialog = new ProgressDialog(this);
         //tao model
         String uId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         ingredients = new ArrayList<>();
@@ -209,6 +210,8 @@ public class CreateRecipeActivity extends AppCompatActivity{
             return;
         }
         if (imageCoverUri!=null){
+            progressDialog.setMessage("Đang tải lên...");
+            progressDialog.show();
             final StorageReference fileRef = mStorageRef.child(System.currentTimeMillis()+"." + getFileExtension(imageCoverUri));
             mUploadTask = fileRef.putFile(imageCoverUri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -218,8 +221,6 @@ public class CreateRecipeActivity extends AppCompatActivity{
                             handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mProgressBar.setVisibility(View.VISIBLE);
-                                    mProgressBar.setProgress(0);
                                 }
                             },500);
                             if(taskSnapshot.getMetadata()!=null){
@@ -243,6 +244,7 @@ public class CreateRecipeActivity extends AppCompatActivity{
                                                         Log.e("Code","Code: "+response.code());
                                                         return;
                                                     }
+                                                    progressDialog.dismiss();
                                                     Toast.makeText(CreateRecipeActivity.this, "Post successfully", Toast.LENGTH_SHORT).show();
                                                     //intent
                                                     Intent intent = new Intent(CreateRecipeActivity.this, MainActivity.class);
@@ -252,6 +254,7 @@ public class CreateRecipeActivity extends AppCompatActivity{
                                                 @Override
                                                 public void onFailure(Call<ModelRecipe> call, Throwable t) {
                                                     Toast.makeText(CreateRecipeActivity.this, "Post failed!", Toast.LENGTH_SHORT).show();
+                                                    progressDialog.dismiss();
                                                 }
                                             });
                                         }

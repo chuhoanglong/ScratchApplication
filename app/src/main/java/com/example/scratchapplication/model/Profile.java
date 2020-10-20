@@ -1,30 +1,53 @@
 package com.example.scratchapplication.model;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+
+import com.example.scratchapplication.room.DataConverter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
+@Entity(tableName = "profiles")
 public class Profile {
+    @TypeConverters(DataConverter.class)
+    @ColumnInfo(name = "follows")
     @SerializedName("follows")
     @Expose
     private List<String> follows = null;
+    @TypeConverters(DataConverter.class)
+    @ColumnInfo(name = "saves")
     @SerializedName("saves")
     @Expose
     private List<String> saves = null;
 
+    @ColumnInfo(name = "address")
     @SerializedName("address")
     @Expose
     private String address;
+
+    @ColumnInfo(name = "avatar")
+    @NonNull
     @SerializedName("avatar")
     @Expose
     private String avatar;
+    @ColumnInfo(name = "likes")
     @SerializedName("likes")
     @Expose
     private Integer likes;
+
+    @ColumnInfo(name = "userName")
     @SerializedName("userName")
     @Expose
     private String userName;
+
+    @PrimaryKey
+    @NonNull
+    @ColumnInfo(name = "userId")
     @SerializedName("userId")
     @Expose
     private String userId;
