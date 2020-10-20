@@ -5,6 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RestClient {
     private static final String BASE_URL = "https://scratch-backend-app.herokuapp.com/api/";
+    private static final String BASE_URL_TEST = "https://127.0.0.1:8080/api/";
 
     private static Retrofit.Builder builder = new Retrofit.Builder()
             .baseUrl(BASE_URL)

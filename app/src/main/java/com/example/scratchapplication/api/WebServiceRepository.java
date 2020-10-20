@@ -39,6 +39,7 @@ public class WebServiceRepository {
                         Log.e("Code",response.code()+"");
                         return;
                     }
+                    Log.e("connect","connected");
                     webserviceResponseList = response.body().getData();
                     data.setValue(webserviceResponseList);
                     RecipeRoomDBRepository roomDBRepository = new RecipeRoomDBRepository(application);

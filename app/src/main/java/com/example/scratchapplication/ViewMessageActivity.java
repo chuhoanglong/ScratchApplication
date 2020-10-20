@@ -20,6 +20,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,11 +49,21 @@ public class ViewMessageActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String idReceive = intent.getStringExtra("idReceive");
-
+        // truyen id nguoi dung len ma
+        // co phai truyen id nguoi nhận đâu
         socket = WebSocket.getInstance();
         socket.connect();
-        socket.emit("EnterUser", idReceive);
-
+        JsonObject enterUser = new JsonObject();
+        enterUser.addProperty("uId", myId);
+        Gson gson = new Gson();
+        String json = gson.toJson(enterUser);
+        try {
+            JSONObject obj = new JSONObject(json);
+            socket.emit("EnterUser", obj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        
         editTextChat = findViewById(R.id.edt_chatbox);
         buttonChat = findViewById(R.id.btn_chatbox_send);
 
@@ -66,7 +79,6 @@ public class ViewMessageActivity extends AppCompatActivity {
                     Log.e("callChat", response.code()+" "+call.request().url().toString());
                     return;
                 }
-
                 recyclerViewMessage = findViewById(R.id.rv_message_list);
                 recyclerViewMessage.setLayoutManager(new LinearLayoutManager(ViewMessageActivity.this));
                 List<Message> messageList = response.body().getDataMessages().getMessages();
@@ -86,8 +98,13 @@ public class ViewMessageActivity extends AppCompatActivity {
                             data.addProperty("idMessage",response.body().getDataMessages().getIdMessage());
                             Gson gson = new Gson();
                             String json = gson.toJson(data);
-                            Log.e("rawJson", json);
-                            socket.emit("MessageNews",json);
+                            try {
+                                JSONObject obj = new JSONObject(json);
+                                Log.e("rawJson", json);
+                                socket.emit("MessageNews",obj);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 });
