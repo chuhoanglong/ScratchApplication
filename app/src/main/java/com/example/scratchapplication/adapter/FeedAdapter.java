@@ -174,6 +174,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
             public void onClick(View v) {
                 Intent intent = new Intent(context, ViewRecipeActivity.class);
                 intent.putExtra("RID",model.getRid());
+                intent.putExtra("UID",model.getUid());
                 context.startActivity(intent);
             }
         };

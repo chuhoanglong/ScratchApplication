@@ -17,7 +17,9 @@ import com.example.scratchapplication.EditProfileActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.SettingsActivity;
 import com.example.scratchapplication.adapter.ProfileViewPagerAdapter;
+import com.example.scratchapplication.model.Profile;
 import com.example.scratchapplication.model.User;
+import com.example.scratchapplication.room.ProfileViewModel;
 import com.example.scratchapplication.tablayout.FollowingFragment;
 import com.example.scratchapplication.tablayout.RecipesFragment;
 import com.example.scratchapplication.tablayout.SaveFragment;
@@ -31,6 +33,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 
 import java.util.ArrayList;
@@ -102,34 +106,37 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         final View v = inflater.inflate(R.layout.fragment_profile, container, false);
         viewPager = v.findViewById(R.id.pager_recipe);
-
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String uid = user.getUid();
-        String name = user.getDisplayName();
-        Uri avatar = user.getPhotoUrl();
         imageViewAvatar = v.findViewById(R.id.avatar);
         textViewName = v.findViewById(R.id.name);
-        Picasso.with(getContext())
-                .load(avatar)
-                .into(imageViewAvatar);
-        textViewName.setText(name);
-
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
-        reference.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+        textViewAddress = v.findViewById(R.id.address);
+        textViewCount = v.findViewById(R.id.txt_count);
+        tabLayout = v.findViewById(R.id.Tab_Layout);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String uid = user.getUid();
+        ProfileViewModel profileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
+        profileViewModel.getProfileById(uid).observe(getActivity(), new Observer<Profile>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User profile = snapshot.getValue(User.class);
-                textViewAddress = v.findViewById(R.id.address);
+            public void onChanged(Profile profile) {
+                Picasso.with(getContext())
+                        .load(profile.getAvatar())
+                        .into(imageViewAvatar);
+                textViewName.setText(profile.getUserName());
                 textViewAddress.setText(profile.getAddress());
-                textViewCount = v.findViewById(R.id.txt_count);
-                textViewCount.setText(profile.getLikes()+" like");
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
+                textViewCount.setText(profile.getLikes()+" likes");
+                recipesFragment = new RecipesFragment(user.getUid());
+                saveFragment = new SaveFragment(profile.getSaves());
+                followingFragment = new FollowingFragment(profile.getFollows());
+                tabLayout.setupWithViewPager(viewPager);
+                List<Fragment> fragments = new ArrayList<>();
+                fragments.add(recipesFragment);
+                fragments.add(saveFragment);
+                fragments.add(followingFragment);
+                List<String> titles = new ArrayList<>(Arrays.asList(TITLES));
+                adapter = new ProfileViewPagerAdapter(getActivity().getSupportFragmentManager(),0,fragments,titles);
+                viewPager.setAdapter(adapter);
             }
         });
+
         button = v.findViewById(R.id.settings);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -138,7 +145,6 @@ public class ProfileFragment extends Fragment {
                     startActivity(intent);
                 }
             });
-
         imageView = v.findViewById(R.id.edit_profile);
 
             imageView.setOnClickListener(new View.OnClickListener() {
@@ -147,19 +153,6 @@ public class ProfileFragment extends Fragment {
                     startActivity(new Intent(getActivity(), EditProfileActivity.class));
                 }
             });
-
-        tabLayout = v.findViewById(R.id.Tab_Layout);
-        recipesFragment = new RecipesFragment(user.getUid());
-        saveFragment = new SaveFragment();
-        followingFragment = new FollowingFragment(new ArrayList<>());
-        tabLayout.setupWithViewPager(viewPager);
-        List<Fragment> fragments = new ArrayList<>();
-        fragments.add(recipesFragment);
-        fragments.add(saveFragment);
-        fragments.add(followingFragment);
-        List<String> titles = new ArrayList<>(Arrays.asList(TITLES));
-        adapter = new ProfileViewPagerAdapter(getActivity().getSupportFragmentManager(),0,fragments,titles);
-        viewPager.setAdapter(adapter);
         return v;
     }
 }

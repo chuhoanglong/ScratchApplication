@@ -1,10 +1,13 @@
 package com.example.scratchapplication.tablayout;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,6 +26,8 @@ import com.example.scratchapplication.model.ListRecipes;
 import com.example.scratchapplication.model.home.ModelRecipe;
 import com.example.scratchapplication.model.recipe.RecipeCreate;
 import com.example.scratchapplication.model.profile.MyProfileRecipe;
+import com.example.scratchapplication.room.RecipesViewModel;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -70,58 +75,30 @@ public class RecipesFragment extends Fragment {
         recyclerView = view.findViewById(R.id.list);
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
         recyclerView.setHasFixedSize(true);
-
-        Call<ListRecipes> call = api.getProfileRecipes(uid);
-        call.enqueue(new Callback<ListRecipes>() {
+        RecipesViewModel recipesViewModel = ViewModelProviders.of(getActivity()).get(RecipesViewModel.class);
+        recipesViewModel.getAllRecipes().observe(getActivity(), new Observer<List<ModelRecipe>>() {
             @Override
-            public void onResponse(Call<ListRecipes> call, Response<ListRecipes> response) {
-                if (response.isSuccessful()){
-                    List<ModelRecipe> modelRecipes = response.body().getData();
-                    recyclerView.setAdapter(new MyRecipeAdapter(modelRecipes));
-                }
-                else {
-                    Log.e("Code",response.code()+" "+call.request().url().toString());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ListRecipes> call, Throwable t) {
-
-            }
-        });
-/*
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("recipes");
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    List<RecipeCreate> recipes = new ArrayList<>();
-                    List<String> keys = new ArrayList<>();
-                    for (DataSnapshot d:snapshot.getChildren()){
-                        RecipeCreate recipe = d.getValue(RecipeCreate.class);
-                        if (recipe.getpId().equals(uid)) {
-                            keys.add(d.getKey());
-                            recipes.add(recipe);
-                        }
+            public void onChanged(List<ModelRecipe> modelRecipes) {
+                List<ModelRecipe> ownRecipes = new ArrayList<>();
+                for (ModelRecipe modelRecipe:modelRecipes){
+                    if (modelRecipe.getUid().equals(uid)){
+                        ownRecipes.add(modelRecipe);
                     }
-                    recyclerView.setAdapter(new MyRecipeAdapter(recipes,keys));
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+                recyclerView.setAdapter(new MyRecipeAdapter(ownRecipes,getContext()));
 
             }
         });
- */
 
         return view;
     }
-    class MyRecipeAdapter extends RecyclerView.Adapter<MyRecipeAdapter.MyViewHolder> {
+    static class MyRecipeAdapter extends RecyclerView.Adapter<MyRecipeAdapter.MyViewHolder> {
         private List<ModelRecipe> modelRecipes;
+        private Context context;
 
-        public MyRecipeAdapter(List<ModelRecipe> modelRecipes) {
+        public MyRecipeAdapter(List<ModelRecipe> modelRecipes, Context context) {
             this.modelRecipes = modelRecipes;
+            this.context = context;
         }
 
         @NonNull
@@ -134,15 +111,16 @@ public class RecipesFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
             ModelRecipe modelRecipe = modelRecipes.get(position);
-            Picasso.with(getContext()).load(modelRecipe.getUrlCover()).into(holder.imageView);
+            Picasso.with(context).load(modelRecipe.getUrlCover()).into(holder.imageView);
             holder.textView.setText(modelRecipe.getName());
 
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(getContext(), ViewRecipeActivity.class);
+                    Intent intent = new Intent(context, ViewRecipeActivity.class);
                     intent.putExtra("RID",modelRecipe.getRid());
-                    getContext().startActivity(intent);
+                    intent.putExtra("UID", FirebaseAuth.getInstance().getUid());
+                    context.startActivity(intent);
                 }
             });
         }

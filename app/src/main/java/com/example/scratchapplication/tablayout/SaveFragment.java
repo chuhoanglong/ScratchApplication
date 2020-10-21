@@ -1,5 +1,6 @@
 package com.example.scratchapplication.tablayout;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,11 +10,15 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.model.home.ModelRecipe;
+import com.example.scratchapplication.room.RecipesViewModel;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,9 +28,10 @@ public class SaveFragment extends Fragment implements Serializable{
 
     private RecyclerView recyclerView;
     private List<ModelRecipe> recipes;
+    private List<String> saves;
 
-    public SaveFragment(){
-
+    public SaveFragment(List<String> saves){
+        this.saves = saves;
     }
 
     @Override
@@ -40,63 +46,22 @@ public class SaveFragment extends Fragment implements Serializable{
         //DatabaseHandler handler = new DatabaseHandler(getContext());
         recipes = new ArrayList<>();
         //recipes = handler.getAllRecipes();
-        SaveAdapter saveAdapter = new SaveAdapter();
         recyclerView = view.findViewById(R.id.rv_save);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(saveAdapter);
-        return view;
-    }
-    class SaveAdapter extends RecyclerView.Adapter<SaveAdapter.MyViewHolder> {
-        @NonNull
-        @Override
-        public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_save,parent,false);
-            return new MyViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-            //final RecipeModel recipe = recipes.get(position);
-
-//            holder.textViewName.setText(recipe.getRecipeName());
-//            holder.textViewDesc.setText(recipe.getRecipeDesc());
-//            holder.layout.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    DatabaseHandler data = new DatabaseHandler(getContext());
-//
-//                    List<String> directions = new ArrayList<>();
-//                    directions = data.getDirectionsList(recipe.getRid());
-//
-//                    List<String> ingredients = new ArrayList<>();
-//                    ingredients = data.getIngredientsList(recipe.getRid());
-//
-//                    Intent intent = new Intent(getContext(), RecipeSqlActivity.class);
-//                    intent.putExtra("NAME",recipe.getRecipeName());
-//                    intent.putExtra("DESC",recipe.getRecipeDesc());
-//                    intent.putExtra("LIST_INGREDIENTS", (Serializable) ingredients);
-//                    intent.putExtra("LIST_DIRECTIONS",(Serializable) directions);
-//                    getContext().startActivity(intent);
-//                }
-//            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return recipes.size();
-        }
-
-        class MyViewHolder extends RecyclerView.ViewHolder {
-            TextView textViewName,textViewDesc;
-            LinearLayout layout;
-            public MyViewHolder(@NonNull View itemView) {
-                super(itemView);
-                layout = itemView.findViewById(R.id.layout_save);
-                textViewName = itemView.findViewById(R.id.save_name);
-                textViewDesc = itemView.findViewById(R.id.save_desc);
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        RecipesViewModel recipesViewModel = ViewModelProviders.of(getActivity()).get(RecipesViewModel.class);
+        recipesViewModel.getAllRecipes().observe(getActivity(), new Observer<List<ModelRecipe>>() {
+            @Override
+            public void onChanged(List<ModelRecipe> modelRecipes) {
+                for (ModelRecipe modelRecipe:modelRecipes){
+                    if (saves.contains(modelRecipe.getRid())){
+                        recipes.add(modelRecipe);
+                        recyclerView.setAdapter(new RecipesFragment.MyRecipeAdapter(recipes,getContext()));
+                    }
+                }
             }
-        }
+        });
+        return view;
     }
 }
 

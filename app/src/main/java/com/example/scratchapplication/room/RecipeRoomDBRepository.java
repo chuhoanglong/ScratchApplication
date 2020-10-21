@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.example.scratchapplication.model.Profile;
 import com.example.scratchapplication.model.home.ModelRecipe;
@@ -21,8 +22,8 @@ public class RecipeRoomDBRepository {
     public RecipeRoomDBRepository(Application application){
         RecipeRoomDatabase db = RecipeRoomDatabase.getDatabase(application);
         recipeDao = db.recipeDao();
+        profileDao = db.profileDao();
         mAllRecipes = recipeDao.getAllRecipes();
-
     }
 
     public LiveData<Profile> getProfileById(String id){
@@ -30,8 +31,8 @@ public class RecipeRoomDBRepository {
         return mProfile;
     }
 
-    public void insertProfiles(List<Profile> profiles){
-        new InsertProfileAsyncTask(profileDao).execute(profiles);
+    public void insertProfile(Profile profile){
+        new InsertProfileAsyncTask(profileDao).execute(profile);
     }
 
     public LiveData<List<ModelRecipe>> getAllRecipes(){
@@ -59,7 +60,7 @@ public class RecipeRoomDBRepository {
             return null;
         }
     }
-    private static class InsertProfileAsyncTask extends AsyncTask<List<Profile>, Void, Void>{
+    private static class InsertProfileAsyncTask extends AsyncTask<Profile, Void, Void>{
         private ProfileDao mAsyncTaskDao;
 
         InsertProfileAsyncTask(ProfileDao mAsyncTaskDao) {
@@ -67,8 +68,8 @@ public class RecipeRoomDBRepository {
         }
 
         @Override
-        protected Void doInBackground(List<Profile>... lists) {
-            mAsyncTaskDao.insertProfiles(lists[0]);
+        protected Void doInBackground(Profile... profiles) {
+            mAsyncTaskDao.insertProfile(profiles[0]);
             return null;
         }
     }

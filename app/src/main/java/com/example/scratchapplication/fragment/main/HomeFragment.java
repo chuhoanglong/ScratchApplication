@@ -1,6 +1,7 @@
 package com.example.scratchapplication.fragment.main;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
@@ -25,12 +27,14 @@ import com.example.scratchapplication.MainActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.adapter.FeedAdapter;
 import com.example.scratchapplication.api.JsonApi;
+import com.example.scratchapplication.api.ProfileServiceRepository;
 import com.example.scratchapplication.api.RestClient;
 import com.example.scratchapplication.dialog.BottomSheetFilter;
 import com.example.scratchapplication.model.ListRecipes;
 import com.example.scratchapplication.model.Profile;
 import com.example.scratchapplication.model.ProfilePojo;
 import com.example.scratchapplication.model.home.ModelRecipe;
+import com.example.scratchapplication.room.ProfileViewModel;
 import com.example.scratchapplication.room.RecipesViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -63,6 +67,7 @@ public class HomeFragment extends Fragment {
     private boolean filterFollow,orderByLike;
 
     private RecipesViewModel recipesViewModel;
+    private ProfileViewModel profileViewModel;
 
     public HomeFragment(List<String> listFilter,boolean filterFollow, boolean orderByLike) {
         this.listFilter = listFilter;
@@ -98,65 +103,54 @@ public class HomeFragment extends Fragment {
         recyclerView.setHasFixedSize(false);
         recyclerView.setAdapter(adapter);
         //recipesViewModel = new RecipesViewModel()
-        recipesViewModel = ViewModelProviders.of(getActivity()).get(RecipesViewModel.class);
         recipesViewModel.getAllRecipes().observe(getActivity(), new Observer<List<ModelRecipe>>() {
             @Override
             public void onChanged(List<ModelRecipe> modelRecipes) {
                 if (modelRecipes.size()>0){
-                    //call profile data
-                    JsonApi service = RestClient.createService(JsonApi.class);
-                    Call<ProfilePojo> profileCall = service.getProfile(uid);
-                    profileCall.enqueue(new Callback<ProfilePojo>() {
+                    profileViewModel.getProfileById(FirebaseAuth.getInstance().getUid()).observe(getActivity(), new Observer<Profile>() {
                         @Override
-                        public void onResponse(Call<ProfilePojo> call, Response<ProfilePojo> response) {
-                            if (!response.isSuccessful()){
-                                Log.e("Code profileCall ",response.code()+" "+ call.request().url().toString());
-                                return;
-                            }
-                            List<ModelRecipe> list = new ArrayList<>(modelRecipes);
-                            Profile profile = response.body().getProfile();
-                            //sap xep
-                            if (orderByLike){
-                                Collections.sort(list,new ModelRecipe());
-                            }
-                            else list = new ArrayList<>(modelRecipes);
-                            //loc theo doi
-                            if (filterFollow){
-                                if (profile.getFollows().size()==0){
-                                    Toast.makeText(getContext(), "Hiện tại bạn chưa follow người dùng nào", Toast.LENGTH_SHORT).show();
-                                    filterFollow = false;
-                                }else {
-                                    Iterator<ModelRecipe> iterator = list.iterator();
-                                    while (iterator.hasNext()){
-                                        if (!profile.getFollows().contains(iterator.next().getUid())){
-                                            iterator.remove();
+                        public void onChanged(Profile profile) {
+                            if (profile != null){
+                                List<ModelRecipe> list = new ArrayList<>(modelRecipes);
+                                //sap xep
+                                if (orderByLike){
+                                    Collections.sort(list,new ModelRecipe());
+                                }
+                                else list = new ArrayList<>(modelRecipes);
+                                //loc theo doi
+                                if (filterFollow){
+                                    if (profile.getFollows().size()==0){
+                                        Toast.makeText(getContext(), "Hiện tại bạn chưa follow người dùng nào", Toast.LENGTH_SHORT).show();
+                                        filterFollow = false;
+                                    }else {
+                                        Iterator<ModelRecipe> iterator = list.iterator();
+                                        while (iterator.hasNext()){
+                                            if (!profile.getFollows().contains(iterator.next().getUid())){
+                                                iterator.remove();
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            //loc chu de
-                            if (listFilter.size()>0){
-                                Iterator<ModelRecipe> iterator = list.iterator();
-                                while (iterator.hasNext()) {
-                                    boolean check = false;
-                                    for (String filter : listFilter) {
-                                        if (iterator.next().getFilters().contains(filter))
-                                            check = true;
+                                //loc chu de
+                                if (listFilter.size()>0){
+                                    Iterator<ModelRecipe> iterator = list.iterator();
+                                    while (iterator.hasNext()) {
+                                        boolean check = false;
+                                        for (String filter : listFilter) {
+                                            if (iterator.next().getFilters().contains(filter))
+                                                check = true;
+                                        }
+                                        if (!check)
+                                            iterator.remove();
                                     }
-                                    if (!check)
-                                        iterator.remove();
                                 }
+                                adapter = new FeedAdapter(getContext(),list,uid,profile.getFollows(),profile.getSaves());
+                                recyclerView.setAdapter(adapter);
                             }
-                            adapter = new FeedAdapter(getContext(),list,uid,profile.getFollows(),profile.getSaves());
-                            recyclerView.setAdapter(adapter);
-                        }
-
-                        @Override
-                        public void onFailure(Call<ProfilePojo> call, Throwable t) {
-                            Log.e("Fail profile call ",t.getMessage());
-                            Toast.makeText(getContext(), "Không có kết nối internet", Toast.LENGTH_SHORT).show();
-                            adapter = new FeedAdapter(getContext(),modelRecipes,uid,new ArrayList<>(),new ArrayList<>());
-                            recyclerView.setAdapter(adapter);
+                            else {
+                                adapter = new FeedAdapter(getContext(),modelRecipes,uid,new ArrayList<>(),new ArrayList<>());
+                                recyclerView.setAdapter(adapter);
+                            }
                         }
                     });
 //                    adapter = new FeedAdapter(getContext(),modelRecipes,uid,new ArrayList<>(),new ArrayList<>());
@@ -185,4 +179,13 @@ public class HomeFragment extends Fragment {
 
         return v;
     }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        Log.e("attach","on");
+        recipesViewModel = ViewModelProviders.of(getActivity()).get(RecipesViewModel.class);
+        profileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
+    }
+
 }
