@@ -13,7 +13,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.scratchapplication.R;
@@ -26,6 +29,7 @@ import com.example.scratchapplication.fragment.Follow;
 import com.example.scratchapplication.model.Profile;
 import com.example.scratchapplication.model.ProfilePojo;
 import com.example.scratchapplication.model.User;
+import com.example.scratchapplication.room.ProfileViewModel;
 import com.example.scratchapplication.tablayout.FollowingFragment;
 import com.example.scratchapplication.tablayout.RecipesFragment;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -66,6 +70,7 @@ public class OtherProfileFragment extends Fragment {
     private List<String> myFollowList;
 
     private ImageButton imageButtonChat, imageButtonCall;
+    private Toolbar toolbar;
 
     public OtherProfileFragment(String uid){
         this.uid = uid;
@@ -78,43 +83,15 @@ public class OtherProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.fragment_other_profile, container,false);
 
-        imageButtonChat = v.findViewById(R.id.btn_chat);
-        imageButtonCall = v.findViewById(R.id.btn_call);
-
-        imageButtonChat.setOnClickListener(new View.OnClickListener() {
+        toolbar = v.findViewById(R.id.profile_toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                JsonApi service = RestClient.createService(JsonApi.class);
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("uId",FirebaseAuth.getInstance().getUid());
-                jsonObject.addProperty("uIdReceive",uid);
-                Call<JsonApi.MessagesPojo> call = service.chat(jsonObject);
-                call.enqueue(new Callback<JsonApi.MessagesPojo>() {
-                    @Override
-                    public void onResponse(Call<JsonApi.MessagesPojo> call, Response<JsonApi.MessagesPojo> response) {
-                        if (!response.isSuccessful()){
-                            Log.e("Code",response.code()+"");
-                            return;
-                        }
-                        if (response.body().getDataMessages()==null){
-                            Log.e(uid,"new chat");
-                        }
-                        else {
-                            Log.e(uid,"old chat");
-                        }
-                        Intent intent = new Intent(getActivity(), ViewMessageActivity.class);
-                        intent.putExtra("idReceive", uid);
-                        getActivity().startActivity(intent);
-                    }
-
-                    @Override
-                    public void onFailure(Call<JsonApi.MessagesPojo> call, Throwable t) {
-
-                    }
-                });
+                getActivity().onBackPressed();
             }
         });
+        imageButtonChat = v.findViewById(R.id.btn_chat);
+        imageButtonCall = v.findViewById(R.id.btn_call);
 
         JsonApi api = RestClient.createService(JsonApi.class);
         //button follow
@@ -132,6 +109,41 @@ public class OtherProfileFragment extends Fragment {
                     }else{
                         buttonFollow.setText("Follow");
                     }
+                    imageButtonChat.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            JsonApi service = RestClient.createService(JsonApi.class);
+                            JsonObject jsonObject = new JsonObject();
+                            jsonObject.addProperty("uId",FirebaseAuth.getInstance().getUid());
+                            jsonObject.addProperty("uIdReceive",uid);
+                            Call<JsonApi.MessagesPojo> call = service.chat(jsonObject);
+                            call.enqueue(new Callback<JsonApi.MessagesPojo>() {
+                                @Override
+                                public void onResponse(Call<JsonApi.MessagesPojo> call, Response<JsonApi.MessagesPojo> response) {
+                                    if (!response.isSuccessful()){
+                                        Log.e("Code",response.code()+"");
+                                        return;
+                                    }
+                                    if (response.body().getDataMessages()==null){
+                                        Log.e(uid,FirebaseAuth.getInstance().getUid()+" new chat "+ uid);
+                                    }
+                                    else {
+                                        Log.e(uid,"old chat");
+                                    }
+                                    Intent intent = new Intent(getActivity(), ViewMessageActivity.class);
+                                    intent.putExtra("idReceive", uid);
+                                    intent.putExtra("AVATAR",profile.getAvatar());
+                                    getActivity().startActivity(intent);
+                                }
+
+                                @Override
+                                public void onFailure(Call<JsonApi.MessagesPojo> call, Throwable t) {
+
+                                }
+                            });
+                        }
+                    });
                 }
             }
 

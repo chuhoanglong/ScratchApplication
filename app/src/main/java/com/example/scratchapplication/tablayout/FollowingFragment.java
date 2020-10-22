@@ -64,28 +64,9 @@ public class FollowingFragment extends Fragment {
         recyclerView = view.findViewById(R.id.following_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setHasFixedSize(true);
+        FolllowingAdapter adapter = new FolllowingAdapter(mFollowingList);
+        recyclerView.setAdapter(adapter);
 
-        /*
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("follow");
-        reference.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    List<String> keys = new ArrayList<>();
-                    for (DataSnapshot d:snapshot.getChildren()){
-                        keys.add(d.getKey());
-                    }
-                    FolllowingAdapter adapter = new FolllowingAdapter(keys);
-                    recyclerView.setAdapter(adapter);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-         */
 
         return view;
     }
@@ -113,19 +94,21 @@ public class FollowingFragment extends Fragment {
                 public void onResponse(Call<ProfilePojo> call, Response<ProfilePojo> response) {
                     if (response.isSuccessful()){
                         Profile profile = response.body().getProfile();
-                        Picasso.with(getContext()).load(profile.getAvatar()).into(holder.avatar);
-                        holder.textViewName.setText(profile.getUserName());
-                        holder.textViewAddress.setText(profile.getAddress());
-                        String likes = profile.getLikes()>1?"likes":"like";
-                        holder.textViewCount.setText(profile.getLikes()+" "+likes);
-                        holder.layout.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent intent = new Intent(getContext(), OtherProfileActivity.class);
-                                intent.putExtra("UID",uid);
-                                getContext().startActivity(intent);
-                            }
-                        });
+                        if (!profile.getUserName().equals("")) {
+                            Picasso.with(getContext()).load(profile.getAvatar()).into(holder.avatar);
+                            holder.textViewName.setText(profile.getUserName());
+                            holder.textViewAddress.setText(profile.getAddress());
+                            String likes = profile.getLikes() > 1 ? "likes" : "like";
+                            holder.textViewCount.setText(profile.getLikes() + " " + likes);
+                            holder.layout.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent(getContext(), OtherProfileActivity.class);
+                                    intent.putExtra("UID", uid);
+                                    getContext().startActivity(intent);
+                                }
+                            });
+                        }
                     }
                 }
 
@@ -134,38 +117,6 @@ public class FollowingFragment extends Fragment {
 
                 }
             });
-/*
-            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("follow");
-            ref.child(uid).child(keys.get(position)).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull final DataSnapshot snapshot) {
-                    if (snapshot.exists()){
-
-                        User profile = snapshot.getValue(User.class);
-                        Picasso.with(getContext()).load(profile.getAvatar()).into(holder.avatar);
-                        holder.textViewName.setText(profile.getUserName());
-                        holder.textViewAddress.setText(profile.getAddress());
-                        holder.layout.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent intent = new Intent(getContext(), OtherProfileActivity.class);
-                                Bundle bundle = new Bundle();
-                                bundle.putString("UID", snapshot.getKey());
-                                intent.putExtras(bundle);
-                                getContext().startActivity(intent);
-                            }
-                        });
-
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-
- */
         }
 
         @Override

@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -21,18 +22,12 @@ import com.example.scratchapplication.api.RestClient;
 import com.example.scratchapplication.fragment.viewrecipe.CookFragment;
 import com.example.scratchapplication.fragment.viewrecipe.CommentsFragment;
 import com.example.scratchapplication.fragment.viewrecipe.IngredientsFragment;
-import com.example.scratchapplication.model.ProfilePojo;
 import com.example.scratchapplication.model.RecipePojo;
 import com.example.scratchapplication.model.home.ModelRecipe;
-import com.example.scratchapplication.model.recipe.RecipeCreate;
 import com.example.scratchapplication.room.RecipesViewModel;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -52,6 +47,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
     private IngredientsFragment ingredientsFragment;
     private CookFragment cookFragment;
     private RecipesViewModel recipesViewModel;
+    private String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +57,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
         recipesViewModel = ViewModelProviders.of(this).get(RecipesViewModel.class);
         Intent intent = getIntent();
         String rId = intent.getStringExtra("RID");
+        uid = intent.getStringExtra("UID");
         init(rId);
     }
 
@@ -88,8 +85,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.e("Back","cliked");
-                        finish();
+                        onBackPressed();
                     }
                 });
                 pager = findViewById(R.id.pager_view_recipe);
@@ -120,8 +116,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Log.e("Back","cliked");
-                                finish();
+                                onBackPressed();
                             }
                         });
                         pager = findViewById(R.id.pager_view_recipe);
@@ -147,6 +142,23 @@ public class ViewRecipeActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.recipe_toolbar,menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId()==R.id.item_toolbar_profile){
+            Intent intent = new Intent(ViewRecipeActivity.this, OtherProfileActivity.class);
+            intent.putExtra("UID",uid);
+            startActivity(intent);
+        }
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
     }
 }

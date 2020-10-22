@@ -13,7 +13,8 @@ import com.example.scratchapplication.model.home.ModelRecipe;
 
 @Database(entities = {ModelRecipe.class,Profile.class},version = 2)
 public abstract class RecipeRoomDatabase extends RoomDatabase {
-    public  abstract RecipeDao recipeDao();
+    public abstract RecipeDao recipeDao();
+    public abstract ProfileDao profileDao();
 
     private static RecipeRoomDatabase INSTANCE;
 

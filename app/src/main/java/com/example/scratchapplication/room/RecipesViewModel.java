@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
 import com.example.scratchapplication.api.WebServiceRepository;
+import com.example.scratchapplication.model.Profile;
 import com.example.scratchapplication.model.home.ModelRecipe;
 
 import java.util.List;
@@ -16,15 +17,14 @@ public class RecipesViewModel extends AndroidViewModel {
     private LiveData<List<ModelRecipe>> mAllRecipes;
     private LiveData<ModelRecipe> mRecipe;
     private WebServiceRepository webServiceRepository;
-    private  LiveData<List<ModelRecipe>> retroObservable;
+    private LiveData<List<ModelRecipe>> retroObservable;
     public RecipesViewModel(Application application){
         super(application);
         recipeRoomDBRepository = new RecipeRoomDBRepository(application);
         webServiceRepository = new WebServiceRepository(application);
-        retroObservable = webServiceRepository.providesWebservice();
         mAllRecipes = recipeRoomDBRepository.getAllRecipes();
+        retroObservable = webServiceRepository.providesWebservice();
     }
-
     public LiveData<List<ModelRecipe>> getAllRecipes(){
         return mAllRecipes;
     }

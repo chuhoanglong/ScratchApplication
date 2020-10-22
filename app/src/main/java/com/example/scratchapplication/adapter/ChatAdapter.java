@@ -105,4 +105,8 @@ public class ChatAdapter extends RecyclerView.Adapter {
             textViewMessage.setText(message.getMessage());
         }
     }
+    public void addMessage(Message message){
+        mMessageList.add(message);
+        notifyItemInserted(mMessageList.size()-1);
+    }
 }
