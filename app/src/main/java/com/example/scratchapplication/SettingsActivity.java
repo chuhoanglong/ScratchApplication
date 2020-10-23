@@ -12,7 +12,14 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.scratchapplication.api.RestClient;
+import com.example.scratchapplication.api.TokenApi;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.JsonObject;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -40,8 +47,21 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         }
         switch (id) {
             case R.id.action_logout:
+                TokenApi service = RestClient.createService(TokenApi.class);
+                JsonObject obj = new JsonObject();
+                obj.addProperty("uId",FirebaseAuth.getInstance().getUid());
+                service.deleteToken(obj).enqueue(new Callback<JsonObject>() {
+                    @Override
+                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<JsonObject> call, Throwable t) {
+
+                    }
+                });
                 FirebaseAuth.getInstance().signOut();
-                getApplicationContext().deleteDatabase("recipe");
                 Intent newIncome = new Intent(this, LoginActivity.class);
                 this.startActivity(newIncome);
                 finish();
