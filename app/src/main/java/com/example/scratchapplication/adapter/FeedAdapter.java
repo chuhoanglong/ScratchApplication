@@ -75,10 +75,12 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ModelRecipe model = list.get(position);
         holder.textViewProfileName.setText(model.getProfileName());
-        Picasso.with(context).load(model.getProfileAvatar()).into(holder.imageViewAvatar);
+        Picasso.with(context).load(model.getProfileAvatar());
+        Picasso.with(context).load(model.getProfileAvatar()).networkPolicy(NetworkPolicy.OFFLINE).into(holder.imageViewAvatar);
         holder.textViewRecipeName.setText(model.getName());
         holder.textViewRecipeDesc.setText(model.getDescription());
-        Picasso.with(context).load(model.getUrlCover()).into(holder.imageViewCover);
+        Picasso.with(context).load(model.getUrlCover());
+        Picasso.with(context).load(model.getUrlCover()).networkPolicy(NetworkPolicy.OFFLINE).into(holder.imageViewCover);
         //like count
         holder.textViewLikeCount.setText(String.valueOf(model.getLike()));
         if (model.getUsersLike().contains(myUid)){
