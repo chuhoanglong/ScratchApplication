@@ -38,6 +38,7 @@
         android:layout_margin="8dp"
         android:hint="Search"
         android:drawableLeft="@drawable/search_icon"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_chat_profile_list"
         android:layout_width="match_parent"

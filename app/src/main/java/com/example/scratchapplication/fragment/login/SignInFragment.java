@@ -3,6 +3,7 @@ package com.example.scratchapplication.fragment.login;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.KeyguardManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -86,6 +87,7 @@ public class SignInFragment extends Fragment {
     private LinearLayout buttonSignInGoogle;
     private FirebaseAuth mAuth;
     private FirebaseUser user;
+    private ProgressDialog dialog;
     public static final int SAVE_CREDENTIALS_REQUEST_CODE = 1;
     private static final int LOGIN_WITH_CREDENTIALS_REQUEST_CODE = 2;
 
@@ -111,6 +113,8 @@ public class SignInFragment extends Fragment {
                 String usernameString = usernameEditText.getText().toString().trim();
                 String passwordString = passwordEditText.getText().toString().trim();
                 if (!usernameString.equals("")&&!passwordString.equals("")) {
+                    dialog.setMessage("Đang đăng nhập...");
+                    dialog.show();
                     signInWithUser(usernameString, passwordString);
                 }
                 else {
@@ -137,6 +141,7 @@ public class SignInFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_login,container,false);
         v.findViewById(R.id.btn_signin).setOnClickListener(loginOncLickListener);
         signUp = v.findViewById(R.id.idSignUp);
+        dialog= new ProgressDialog(getContext());
         buttonSignInFB = v.findViewById(R.id.btn_signin_fb);
         buttonSignInGoogle = v.findViewById(R.id.btn_signin_google);
         passwordEditText = v.findViewById(R.id.txtPass);
@@ -304,6 +309,7 @@ public class SignInFragment extends Fragment {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            dialog.dismiss();
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
