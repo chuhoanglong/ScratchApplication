@@ -1,13 +1,23 @@
 package com.example.scratchapplication.fragment.login;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import android.security.keystore.UserNotAuthenticatedException;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,6 +25,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.example.scratchapplication.MainActivity;
@@ -24,14 +35,10 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -45,25 +52,76 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+
 import static android.content.ContentValues.TAG;
 
+@RequiresApi(api = Build.VERSION_CODES.M)
 public class SignInFragment extends Fragment {
     private Button buttonSignIn;
     private TextView signUp;
-    private EditText txtEmailOrUsername;
-    private EditText txtPass;
+    private EditText usernameEditText;
+    private EditText passwordEditText;
     private TextView textError;
     private LinearLayout buttonSignInFB;
     private LinearLayout buttonSignInGoogle;
     private FirebaseAuth mAuth;
     private FirebaseUser user;
-    private GoogleSignInClient googleSignInClient;
-    private final static int RC_SIGN_IN = 123;
+    public static final int SAVE_CREDENTIALS_REQUEST_CODE = 1;
+    private static final int LOGIN_WITH_CREDENTIALS_REQUEST_CODE = 2;
 
-    LoginButton loginButton;
+    public static final int AUTHENTICATION_DURATION_SECONDS = 30;
+
+    public static final String KEY_NAME = "key";
+
+    public static final String TRANSFORMATION = KeyProperties.KEY_ALGORITHM_AES + "/" + KeyProperties.BLOCK_MODE_CBC + "/"
+            + KeyProperties.ENCRYPTION_PADDING_PKCS7;
+    public static final String CHARSET_NAME = "UTF-8";
+    public static final String STORAGE_FILE_NAME = "credentials";
+    public static final String ANDROID_KEY_STORE = "AndroidKeyStore";
+    private KeyguardManager keyguardManager;
+    private CheckBox saveCredentials;
+    private LinearLayout loginWithFingerprint;
+    private final static int RC_SIGN_IN = 123;
+    private View.OnClickListener loginOncLickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (saveCredentials.isChecked()) {
+                saveCredentialsAndLogin();
+            } else {
+                String usernameString = usernameEditText.getText().toString().trim();
+                String passwordString = passwordEditText.getText().toString().trim();
+                if (!usernameString.equals("")&&!passwordString.equals("")) {
+                    signInWithUser(usernameString, passwordString);
+                }
+                else {
+                    Toast.makeText(getContext(), "Input is empty", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    };
+
+    private View.OnClickListener loginWithFingerPrintOncLickListener = v -> loginWithFingerprint();
+
     CallbackManager callbackManager = CallbackManager.Factory.create();
 
     @Override
@@ -77,16 +135,21 @@ public class SignInFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_login,container,false);
-        buttonSignIn = v.findViewById(R.id.btn_signin);
+        v.findViewById(R.id.btn_signin).setOnClickListener(loginOncLickListener);
         signUp = v.findViewById(R.id.idSignUp);
         buttonSignInFB = v.findViewById(R.id.btn_signin_fb);
         buttonSignInGoogle = v.findViewById(R.id.btn_signin_google);
-        txtPass = v.findViewById(R.id.txtPass);
-        txtEmailOrUsername = v.findViewById(R.id.txtEmailOrUsername);
+        passwordEditText = v.findViewById(R.id.txtPass);
+        usernameEditText = v.findViewById(R.id.txtEmailOrUsername);
         textError = v.findViewById(R.id.textError);
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
-        if (user  == null){
+        keyguardManager = (KeyguardManager) getActivity().getSystemService(Context.KEYGUARD_SERVICE);
+        saveCredentials =  v.findViewById(R.id.saveCredentials);
+        loginWithFingerprint = v.findViewById(R.id.loginWithFingerprint);
+        loginWithFingerprint.setOnClickListener(loginWithFingerPrintOncLickListener);
+
+       /* if (user  == null){
             FacebookSdk.sdkInitialize(getContext());
             loginButton =  v.findViewById(R.id.login_button);
             callbackManager = CallbackManager.Factory.create();
@@ -109,7 +172,7 @@ public class SignInFragment extends Fragment {
 
         }else{
             updateUI(user);
-        }
+        }*/
 
 
         buttonSignInFB.setOnClickListener(new View.OnClickListener() {
@@ -119,19 +182,6 @@ public class SignInFragment extends Fragment {
             }
         });
 
-        buttonSignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String email = txtEmailOrUsername.getText().toString().trim();
-                String password = txtPass.getText().toString().trim();
-                if (!email.equals("")&&!password.equals("")) {
-                    signInWidthUser(email, password);
-                }
-                else {
-                    Toast.makeText(getContext(), "Input is empty", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
 
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,7 +192,110 @@ public class SignInFragment extends Fragment {
         return v;
     }
 
-    private void signInWidthUser(String email, String password) {
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!keyguardManager.isKeyguardSecure()) {
+            Toast.makeText(getContext(),
+                    "Secure lock screen hasn't set up. Go to 'Settings -> Security -> Screenlock' to set up a lock screen",
+                    Toast.LENGTH_LONG).show();
+        }
+        saveCredentials.setEnabled(keyguardManager.isKeyguardSecure());
+        loginWithFingerprint.setEnabled(keyguardManager.isKeyguardSecure());
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void saveCredentialsAndLogin() {
+        try {
+            // encrypt the password
+            String passwordString = passwordEditText.getText().toString();
+            SecretKey secretKey = createKey();
+            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] encryptionIv = cipher.getIV();
+            byte[] passwordBytes = passwordString.getBytes(CHARSET_NAME);
+            byte[] encryptedPasswordBytes = cipher.doFinal(passwordBytes);
+            String encryptedPassword = Base64.encodeToString(encryptedPasswordBytes, Base64.DEFAULT);
+
+            // store the login data in the shared preferences
+            // only the password is encrypted, IV used for the encryption is stored
+            String usernameString = usernameEditText.getText().toString();
+            SharedPreferences.Editor editor = getActivity().getSharedPreferences(STORAGE_FILE_NAME, Activity.MODE_PRIVATE).edit();
+            editor.putString("username", usernameString);
+            editor.putString("password", encryptedPassword);
+            editor.putString("encryptionIv", Base64.encodeToString(encryptionIv, Base64.DEFAULT));
+            editor.apply();
+
+            signInWithUser(usernameString, passwordString);
+        } catch (UserNotAuthenticatedException e) {
+            showAuthenticationScreen(SAVE_CREDENTIALS_REQUEST_CODE);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | InvalidKeyException
+                | BadPaddingException | UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void loginWithFingerprint() {
+        try {
+            // load login data from shared preferences (
+            // only the password is encrypted, IV used for the encryption is loaded from shared preferences
+            SharedPreferences sharedPreferences = getContext().getSharedPreferences(STORAGE_FILE_NAME, Activity.MODE_PRIVATE);
+            String username = sharedPreferences.getString("username", null);
+            if (username == null) {
+                Toast.makeText(getContext(), "You must first login with password and check Remember Me.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            String base64EncryptedPassword = sharedPreferences.getString("password", null);
+            String base64EncryptionIv = sharedPreferences.getString("encryptionIv", null);
+            byte[] encryptionIv = Base64.decode(base64EncryptionIv, Base64.DEFAULT);
+            byte[] encryptedPassword = Base64.decode(base64EncryptedPassword, Base64.DEFAULT);
+
+            // decrypt the password
+            KeyStore keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
+            keyStore.load(null);
+            SecretKey secretKey = (SecretKey) keyStore.getKey(KEY_NAME, null);
+            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(encryptionIv));
+            byte[] passwordBytes = cipher.doFinal(encryptedPassword);
+            String password = new String(passwordBytes, CHARSET_NAME);
+
+            // use the login data
+            signInWithUser(username, password);
+        } catch (UserNotAuthenticatedException e) {
+            showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | InvalidKeyException
+                | BadPaddingException | InvalidAlgorithmParameterException
+                | UnrecoverableKeyException | KeyStoreException | CertificateException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private SecretKey createKey() {
+        try {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEY_STORE);
+            keyGenerator.init(new KeyGenParameterSpec.Builder(KEY_NAME,
+                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                    .setUserAuthenticationRequired(true)
+                    .setUserAuthenticationValidityDurationSeconds(AUTHENTICATION_DURATION_SECONDS)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                    .build());
+            return keyGenerator.generateKey();
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException e) {
+            throw new RuntimeException("Failed to create a symmetric key", e);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void showAuthenticationScreen(int requestCode) {
+        Intent intent = keyguardManager.createConfirmDeviceCredentialIntent("Fingerprint Authentication", "Verify it's you");
+        if (intent != null) {
+            startActivityForResult(intent, requestCode);
+        }
+    }
+
+    private void signInWithUser(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
@@ -169,7 +322,7 @@ public class SignInFragment extends Fragment {
                 });
     }
 
-    private void createRequest() {
+    /*private void createRequest() {
         GoogleSignInOptions gso =  new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -182,8 +335,9 @@ public class SignInFragment extends Fragment {
     private void signInGoogle() {
         Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent,RC_SIGN_IN);
-    }
+    }*/
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -201,6 +355,15 @@ public class SignInFragment extends Fragment {
             }
         }else {
             callbackManager.onActivityResult(requestCode, resultCode, data);
+        }
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == SAVE_CREDENTIALS_REQUEST_CODE) {
+                saveCredentialsAndLogin();
+            } else if (requestCode == LOGIN_WITH_CREDENTIALS_REQUEST_CODE) {
+                loginWithFingerprint();
+            }
+        } else {
+            Toast.makeText(getContext(), "Confirming credentials failed", Toast.LENGTH_SHORT).show();
         }
     }
 
