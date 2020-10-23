@@ -6,6 +6,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
@@ -33,6 +34,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import android.content.Context;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -86,12 +88,10 @@ public class SearchFragment extends Fragment {
         recipesViewModel = ViewModelProviders.of(getActivity()).get(RecipesViewModel.class);
         final EditText editTextSearch = v.findViewById(R.id.editTextSearch);
         myList = v.findViewById(R.id.recyclerview_trending);
-        editTextSearch.setOnKeyListener(new View.OnKeyListener() {
+        editTextSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_ENTER&&!editTextSearch.getText().toString().trim().equals("")){
-                    InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH&&!editTextSearch.getText().toString().trim().equals("")) {
                     recipesViewModel.getAllRecipes().observe(getActivity(), new Observer<List<ModelRecipe>>() {
                         @Override
                         public void onChanged(List<ModelRecipe> modelRecipes) {
@@ -103,6 +103,10 @@ public class SearchFragment extends Fragment {
                                     continue;
                                 }
                                 if (m.getDescription().contains(textSearch)) {
+                                    newList.add(m);
+                                    continue;
+                                }
+                                if (m.getProfileName().contains(textSearch)){
                                     newList.add(m);
                                     continue;
                                 }
@@ -141,8 +145,9 @@ public class SearchFragment extends Fragment {
                             }
                         }
                     });
+                    return true;
                 }
-                return true;
+                return false;
             }
         });
         return v;

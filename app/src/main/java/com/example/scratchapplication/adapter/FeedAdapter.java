@@ -15,16 +15,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.scratchapplication.MainActivity;
 import com.example.scratchapplication.OtherProfileActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.ViewRecipeActivity;
 import com.example.scratchapplication.api.JsonApi;
 import com.example.scratchapplication.api.RestClient;
 import com.example.scratchapplication.model.Like;
+import com.example.scratchapplication.model.Profile;
 import com.example.scratchapplication.model.Save;
 import com.example.scratchapplication.model.home.ModelRecipe;
+import com.example.scratchapplication.room.ProfileViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
@@ -46,6 +53,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
     private List<String> filter;
     private boolean filterFollow;
     private boolean orderByLike;
+    private ProfileViewModel profileViewModel;
 
     public FeedAdapter(Context context, List<ModelRecipe> list, String myUid, List<String> followedList, List<String> savedList) {
         this.context = context;
@@ -53,6 +61,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
         this.myUid = myUid;
         this.followedList = followedList;
         this.savedList = savedList;
+        profileViewModel = ViewModelProviders.of((FragmentActivity) context).get(ProfileViewModel.class);
     }
 
     @NonNull
@@ -64,7 +73,6 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-
         ModelRecipe model = list.get(position);
         holder.textViewProfileName.setText(model.getProfileName());
         Picasso.with(context).load(model.getProfileAvatar()).networkPolicy(NetworkPolicy.OFFLINE).into(holder.imageViewAvatar);
