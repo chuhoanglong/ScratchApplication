@@ -34,4 +34,7 @@
     <string name="login_failed">"Login failed"</string>
     <string name="facebook_app_id">295997144789675</string>
     <string name="fb_login_protocol_scheme">fb295997144789675</string>
+    <string name="prompt_info_title">Fingerprint Authentication</string>
+    <string name="prompt_info_subtitle">Please login to get access</string>
+    <string name="prompt_info_use_app_password">Use app password</string>
 </resources>
