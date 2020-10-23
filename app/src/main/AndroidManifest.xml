@@ -15,7 +15,13 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/NoActionBar">
-        <activity android:name=".ViewMessageActivity"></activity>
+        <service
+            android:name=".gcm.MyServiceCloudMessage">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <activity android:name=".ViewMessageActivity" />
         <activity android:name=".AllMessageActivity" />
         <activity android:name=".RecipeSqlActivity" />
 
