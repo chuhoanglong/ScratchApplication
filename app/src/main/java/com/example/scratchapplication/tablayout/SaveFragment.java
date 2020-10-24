@@ -55,14 +55,8 @@ public class SaveFragment extends Fragment implements Serializable{
             public void onChanged(List<ModelRecipe> modelRecipes) {
                 for (ModelRecipe modelRecipe:modelRecipes){
                     if (saves.contains(modelRecipe.getRid())){
-                        boolean check = true;
-                        for (ModelRecipe recipe:recipes){
-                            if (recipe.getRid().equals(modelRecipe.getRid())){
-                                check = false;
-                                break;
-                            }
-                        }
-                        if (check)
+
+                        if (!recipes.contains(modelRecipe))
                             recipes.add(modelRecipe);
                         recyclerView.setAdapter(new RecipesFragment.MyRecipeAdapter(recipes,getContext()));
                     }
