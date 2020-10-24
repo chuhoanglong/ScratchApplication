@@ -19,12 +19,14 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.scratchapplication.MainActivity;
 import com.example.scratchapplication.R;
+import com.example.scratchapplication.ViewMessageActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.nio.channels.Channel;
 
 public class MyServiceCloudMessage extends FirebaseMessagingService {
+    private PendingIntent pendingIntent;
     @Override
     public void onNewToken(@NonNull String s) {
         Log.e("new token", s);
@@ -33,17 +35,31 @@ public class MyServiceCloudMessage extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         if (remoteMessage.getNotification()!=null){
-            Log.e("notification", remoteMessage.getNotification().getBody());
+            String uid ="";
+            if (remoteMessage.getData().size()>0) {
+                uid = remoteMessage.getData().get("uId");
+            }
+            Log.e("noti", uid);
             String title = remoteMessage.getNotification().getTitle();
             String body = remoteMessage.getNotification().getBody();
-            sendNotification(title, body);
+            sendNotification(uid,title, body);
         }
     }
 
-    private void sendNotification(String title,String body) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+    private void sendNotification(String uid,String title,String body) {
+        Intent intentMain = new Intent(this, MainActivity.class);
+        intentMain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent intentMessage = new Intent(this, ViewMessageActivity.class);
+        intentMessage.putExtra("idReceive", uid);
+        intentMessage.putExtra("AVATAR","");
+        intentMain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        switch (title.toLowerCase()){
+            case "message":
+                 pendingIntent = PendingIntent.getActivity(this, 0, intentMessage, PendingIntent.FLAG_ONE_SHOT);
+                 break;
+            default:
+                 pendingIntent = PendingIntent.getActivity(this, 0, intentMain, PendingIntent.FLAG_ONE_SHOT);
+        }
 
         String channelId = "";
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);

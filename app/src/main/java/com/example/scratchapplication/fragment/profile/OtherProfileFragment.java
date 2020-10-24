@@ -126,7 +126,7 @@ public class OtherProfileFragment extends Fragment {
                                         return;
                                     }
                                     if (response.body().getDataMessages()==null){
-                                        Log.e(uid,FirebaseAuth.getInstance().getUid()+" new chat "+ uid);
+                                        Log.e(uid," new chat "+ uid);
                                     }
                                     else {
                                         Log.e(uid,"old chat");

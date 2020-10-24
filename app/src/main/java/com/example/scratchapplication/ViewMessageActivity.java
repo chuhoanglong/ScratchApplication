@@ -110,7 +110,7 @@ public class ViewMessageActivity extends AppCompatActivity {
                 recyclerViewMessage.setLayoutManager(new LinearLayoutManager(ViewMessageActivity.this));
                 JsonApi.DataMessages dataMessages = response.body().getDataMessages();
                 List<Message> messageList = new ArrayList<>();
-                if (dataMessages.getMessages() != null)
+                if (dataMessages!=null &&dataMessages.getMessages() != null)
                     messageList = response.body().getDataMessages().getMessages();
                 adapter = new ChatAdapter(messageList, ViewMessageActivity.this, avatar);
                 recyclerViewMessage.setAdapter(adapter);
@@ -156,16 +156,8 @@ public class ViewMessageActivity extends AppCompatActivity {
                             String json = gson.toJson(data);
                             try {
                                 JSONObject obj = new JSONObject(json);
-                                Log.e("rawJson", json);
                                 socket.emit("MessageNews",obj);
                                 Message message = new Message(text,myId,idReceive, new Long(0));
-                                //adapter.addMessage(message);
-                                recyclerViewMessage.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        recyclerViewMessage.smoothScrollToPosition(adapter.getItemCount()-1);
-                                    }
-                                });
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
