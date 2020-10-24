@@ -102,60 +102,27 @@ public class HomeFragment extends Fragment {
         recyclerView.setLayoutManager(layout);
         recyclerView.setHasFixedSize(false);
         recyclerView.setAdapter(adapter);
-        //recipesViewModel = new RecipesViewModel()
-        recipesViewModel.getAllRecipes().observe(getActivity(), new Observer<List<ModelRecipe>>() {
+        JsonApi service = RestClient.createService(JsonApi.class);
+        service.getAllRecipes().enqueue(new Callback<ListRecipes>() {
             @Override
-            public void onChanged(List<ModelRecipe> modelRecipes) {
-                if (modelRecipes.size()>0){
-                    profileViewModel.getProfileById(FirebaseAuth.getInstance().getUid()).observe(getActivity(), new Observer<Profile>() {
-                        @Override
-                        public void onChanged(Profile profile) {
-                            if (profile != null){
-                                List<ModelRecipe> list = new ArrayList<>(modelRecipes);
-                                //sap xep
-                                if (orderByLike){
-                                    Collections.sort(list,new ModelRecipe());
-                                }
-                                else list = new ArrayList<>(modelRecipes);
-                                //loc theo doi
-                                if (filterFollow){
-                                    if (profile.getFollows().size()==0){
-                                        Toast.makeText(getContext(), "Hiện tại bạn chưa follow người dùng nào", Toast.LENGTH_SHORT).show();
-                                        filterFollow = false;
-                                    }else {
-                                        Iterator<ModelRecipe> iterator = list.iterator();
-                                        while (iterator.hasNext()){
-                                            if (!profile.getFollows().contains(iterator.next().getUid())){
-                                                iterator.remove();
-                                            }
-                                        }
-                                    }
-                                }
-                                //loc chu de
-                                if (listFilter.size()>0){
-                                    Iterator<ModelRecipe> iterator = list.iterator();
-                                    while (iterator.hasNext()) {
-                                        boolean check = false;
-                                        for (String filter : listFilter) {
-                                            if (iterator.next().getFilters().contains(filter))
-                                                check = true;
-                                        }
-                                        if (!check)
-                                            iterator.remove();
-                                    }
-                                }
-                                adapter = new FeedAdapter(getContext(),list,uid,profile.getFollows(),profile.getSaves());
-                                recyclerView.setAdapter(adapter);
-                            }
-                            else {
-                                adapter = new FeedAdapter(getContext(),modelRecipes,uid,new ArrayList<>(),new ArrayList<>());
-                                recyclerView.setAdapter(adapter);
-                            }
-                        }
-                    });
-//                    adapter = new FeedAdapter(getContext(),modelRecipes,uid,new ArrayList<>(),new ArrayList<>());
-//                    recyclerView.setAdapter(adapter);
+            public void onResponse(Call<ListRecipes> call, Response<ListRecipes> response) {
+                if (response.isSuccessful()){
+                    List<ModelRecipe> modelRecipes = response.body().getData();
+                    updateUI(modelRecipes,uid);
                 }
+            }
+
+            @Override
+            public void onFailure(Call<ListRecipes> call, Throwable t) {
+                Toast.makeText(getContext(), "Không có kết nối internet", Toast.LENGTH_SHORT).show();
+                recipesViewModel.getAllRecipes().observe(getActivity(), new Observer<List<ModelRecipe>>() {
+                    @Override
+                    public void onChanged(List<ModelRecipe> modelRecipes) {
+                        if (modelRecipes.size()>0){
+                            updateUI(modelRecipes,uid);
+                        }
+                    }
+                });
             }
         });
         //button add
@@ -178,6 +145,54 @@ public class HomeFragment extends Fragment {
         });
 
         return v;
+    }
+    private void updateUI(List<ModelRecipe> modelRecipes,String uid){
+        profileViewModel.getProfileById(uid).observe(getActivity(), new Observer<Profile>() {
+            @Override
+            public void onChanged(Profile profile) {
+                if (profile != null){
+                    List<ModelRecipe> list = new ArrayList<>(modelRecipes);
+                    //sap xep
+                    if (orderByLike){
+                        Collections.sort(list,new ModelRecipe());
+                    }
+                    else list = new ArrayList<>(modelRecipes);
+                    //loc theo doi
+                    if (filterFollow){
+                        if (profile.getFollows().size()==0){
+                            Toast.makeText(getContext(), "Hiện tại bạn chưa follow người dùng nào", Toast.LENGTH_SHORT).show();
+                            filterFollow = false;
+                        }else {
+                            Iterator<ModelRecipe> iterator = list.iterator();
+                            while (iterator.hasNext()){
+                                if (!profile.getFollows().contains(iterator.next().getUid())){
+                                    iterator.remove();
+                                }
+                            }
+                        }
+                    }
+                    //loc chu de
+                    if (listFilter.size()>0){
+                        Iterator<ModelRecipe> iterator = list.iterator();
+                        while (iterator.hasNext()) {
+                            boolean check = false;
+                            for (String filter : listFilter) {
+                                if (iterator.next().getFilters().contains(filter))
+                                    check = true;
+                            }
+                            if (!check)
+                                iterator.remove();
+                        }
+                    }
+                    adapter = new FeedAdapter(getContext(),list,uid,profile.getFollows(),profile.getSaves());
+                    recyclerView.setAdapter(adapter);
+                }
+                else {
+                    adapter = new FeedAdapter(getContext(),modelRecipes,uid,new ArrayList<>(),new ArrayList<>());
+                    recyclerView.setAdapter(adapter);
+                }
+            }
+        });
     }
 
     @Override

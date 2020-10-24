@@ -8,6 +8,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,7 +21,9 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.scratchapplication.model.ChatLog;
 import com.example.scratchapplication.socketio.WebSocket;
@@ -49,11 +52,11 @@ public class AllMessageActivity extends AppCompatActivity {
     private ChatLogAdapter adapter;
     private Toolbar toolbar;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_message);
-
         //toolbar
         toolbar = findViewById(R.id.all_messages_toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -62,6 +65,9 @@ public class AllMessageActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading messages...");
+        progressDialog.show();
         //socket
         socket = WebSocket.getInstance();
         socket.connect();
@@ -110,6 +116,10 @@ public class AllMessageActivity extends AppCompatActivity {
                             }
                         }
                         Collections.sort(chatLogs,new ChatLog());
+                        if (chatLogs.size()==0){
+                            Toast.makeText(AllMessageActivity.this, "0 message is retrieved", Toast.LENGTH_SHORT).show();
+                        }
+                        progressDialog.dismiss();
                         recyclerViewChatLog = findViewById(R.id.rv_chat_profile_list);
                         recyclerViewChatLog.setLayoutManager(new LinearLayoutManager(AllMessageActivity.this));
                         adapter = new ChatLogAdapter(chatLogs);
