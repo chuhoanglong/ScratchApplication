@@ -4,7 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
+import androidx.fragment.app.FragmentActivity;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragment;
 import androidx.preference.PreferenceManager;
+import androidx.preference.PreferenceScreen;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
