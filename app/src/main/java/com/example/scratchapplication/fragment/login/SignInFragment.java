@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.security.keystore.UserNotAuthenticatedException;
@@ -17,7 +19,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -27,8 +28,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.scratchapplication.ForgotPasswordActivity;
 import com.example.scratchapplication.MainActivity;
 import com.example.scratchapplication.R;
 import com.example.scratchapplication.model.User;
@@ -65,6 +70,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.Executor;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -78,55 +84,51 @@ import static android.content.ContentValues.TAG;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class SignInFragment extends Fragment {
-    private Button buttonSignIn;
+    public static final int AUTHENTICATION_DURATION_SECONDS = 2;
+    public static final String KEY_NAME = "key";
+    public static final String TRANSFORMATION = KeyProperties.KEY_ALGORITHM_AES + "/" + KeyProperties.BLOCK_MODE_CBC + "/"
+            + KeyProperties.ENCRYPTION_PADDING_PKCS7;
+    public static final String CHARSET_NAME = "UTF-8";
+    public static final String STORAGE_FILE_NAME = "credentials";
+    public static final String ANDROID_KEY_STORE = "AndroidKeyStore";
+    private final static int RC_SIGN_IN = 123;
+    CallbackManager callbackManager = CallbackManager.Factory.create();
     private TextView signUp;
     private EditText usernameEditText;
     private EditText passwordEditText;
+    private TextView forgotPass;
     private TextView textError;
     private LinearLayout buttonSignInFB;
     private LinearLayout buttonSignInGoogle;
     private FirebaseAuth mAuth;
     private FirebaseUser user;
     private ProgressDialog dialog;
-    public static final int SAVE_CREDENTIALS_REQUEST_CODE = 1;
-    private static final int LOGIN_WITH_CREDENTIALS_REQUEST_CODE = 2;
-
-    public static final int AUTHENTICATION_DURATION_SECONDS = 30;
-
-    public static final String KEY_NAME = "key";
-
-    public static final String TRANSFORMATION = KeyProperties.KEY_ALGORITHM_AES + "/" + KeyProperties.BLOCK_MODE_CBC + "/"
-            + KeyProperties.ENCRYPTION_PADDING_PKCS7;
-    public static final String CHARSET_NAME = "UTF-8";
-    public static final String STORAGE_FILE_NAME = "credentials";
-    public static final String ANDROID_KEY_STORE = "AndroidKeyStore";
     private KeyguardManager keyguardManager;
     private CheckBox saveCredentials;
     private LinearLayout loginWithFingerprint;
-    private final static int RC_SIGN_IN = 123;
+    private BiometricPrompt.PromptInfo promptInfo;
     private View.OnClickListener loginOncLickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (saveCredentials.isChecked()) {
-                saveCredentialsAndLogin();
+            String usernameString = usernameEditText.getText().toString().trim();
+            String passwordString = passwordEditText.getText().toString().trim();
+            if (saveCredentials.isChecked() && !usernameString.equals("") && !passwordString.equals("")) {
+
+               saveCredentialsAndLogin();
+
             } else {
-                String usernameString = usernameEditText.getText().toString().trim();
-                String passwordString = passwordEditText.getText().toString().trim();
-                if (!usernameString.equals("")&&!passwordString.equals("")) {
-                    dialog.setMessage("Đang đăng nhập...");
+
+                if (!usernameString.equals("") && !passwordString.equals("")) {
+                    dialog.setMessage("Logging in...");
                     dialog.show();
                     signInWithUser(usernameString, passwordString);
-                }
-                else {
+                } else {
                     Toast.makeText(getContext(), "Input is empty", Toast.LENGTH_SHORT).show();
                 }
             }
         }
     };
 
-    private View.OnClickListener loginWithFingerPrintOncLickListener = v -> loginWithFingerprint();
-
-    CallbackManager callbackManager = CallbackManager.Factory.create();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -138,21 +140,24 @@ public class SignInFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_login,container,false);
+        View v = inflater.inflate(R.layout.fragment_login, container, false);
         v.findViewById(R.id.btn_signin).setOnClickListener(loginOncLickListener);
         signUp = v.findViewById(R.id.idSignUp);
-        dialog= new ProgressDialog(getContext());
+        dialog = new ProgressDialog(getContext());
         buttonSignInFB = v.findViewById(R.id.btn_signin_fb);
         buttonSignInGoogle = v.findViewById(R.id.btn_signin_google);
         passwordEditText = v.findViewById(R.id.txtPass);
         usernameEditText = v.findViewById(R.id.txtEmailOrUsername);
+        forgotPass = v.findViewById(R.id.tvForgotPass);
         textError = v.findViewById(R.id.textError);
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         keyguardManager = (KeyguardManager) getActivity().getSystemService(Context.KEYGUARD_SERVICE);
-        saveCredentials =  v.findViewById(R.id.saveCredentials);
+        saveCredentials = v.findViewById(R.id.saveCredentials);
         loginWithFingerprint = v.findViewById(R.id.loginWithFingerprint);
-        loginWithFingerprint.setOnClickListener(loginWithFingerPrintOncLickListener);
+
+
+
 
        /* if (user  == null){
             FacebookSdk.sdkInitialize(getContext());
@@ -178,12 +183,27 @@ public class SignInFragment extends Fragment {
         }else{
             updateUI(user);
         }*/
+        forgotPass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getContext(), ForgotPasswordActivity.class));
+            }
+        });
 
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Fingerprint authentication ")
+                .setSubtitle("Verify it's you")
+                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_WEAK | BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                .build();
+
+        loginWithFingerprint.setOnClickListener(v1 ->{
+            loginWithFingerprint();
+        });
 
         buttonSignInFB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LoginManager.getInstance().logInWithReadPermissions(getActivity(), Arrays.asList("public_profile", "email","phone_number"));
+                LoginManager.getInstance().logInWithReadPermissions(getActivity(), Arrays.asList("public_profile", "email", "phone_number"));
             }
         });
 
@@ -191,12 +211,83 @@ public class SignInFragment extends Fragment {
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.login_container,new SignUpFragment()).commit();
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.login_container, new SignUpFragment()).commit();
             }
         });
         return v;
     }
 
+    private BiometricPrompt.AuthenticationCallback getAuthenticationCallback() {
+        // Callback for biometric authentication result
+        return new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                Log.e(TAG, "Error code: " + errorCode + "error String: " + errString);
+                super.onAuthenticationError(errorCode, errString);
+
+                Toast.makeText(getContext(), "Fingerprint "+errString,
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                Log.i(TAG, "onAuthenticationSucceeded");
+                super.onAuthenticationSucceeded(result);
+                loginWithFingerprint();
+            }
+
+        @Override
+        public void onAuthenticationFailed () {
+            super.onAuthenticationFailed();
+            Toast.makeText(getContext(), "Authentication failed",
+                    Toast.LENGTH_SHORT)
+                    .show();
+        }
+    };
+}
+    private BiometricPrompt.AuthenticationCallback getAuthenticationCallback1() {
+        // Callback for biometric authentication result
+        return new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                Log.e(TAG, "Error code: " + errorCode + "error String: " + errString);
+                super.onAuthenticationError(errorCode, errString);
+
+                Toast.makeText(getContext(), "Fingerprint "+errString,
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                Log.i(TAG, "onAuthenticationSucceeded");
+                super.onAuthenticationSucceeded(result);
+                saveCredentialsAndLogin();
+            }
+
+            @Override
+            public void onAuthenticationFailed () {
+                super.onAuthenticationFailed();
+                Toast.makeText(getContext(), "Authentication failed",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        };
+    }
+
+    private Executor getMainThreadExecutor() {
+        return new MainThreadExecutor();
+    }
+
+    private static class MainThreadExecutor implements Executor {
+        private final Handler handler = new Handler(Looper.getMainLooper());
+
+        @Override
+        public void execute(@NonNull Runnable r) {
+            handler.post(r);
+        }
+    }
     @Override
     public void onResume() {
         super.onResume();
@@ -207,41 +298,46 @@ public class SignInFragment extends Fragment {
         }
         saveCredentials.setEnabled(keyguardManager.isKeyguardSecure());
         loginWithFingerprint.setEnabled(keyguardManager.isKeyguardSecure());
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void saveCredentialsAndLogin() {
-        try {
-            // encrypt the password
-            String passwordString = passwordEditText.getText().toString();
-            SecretKey secretKey = createKey();
-            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            byte[] encryptionIv = cipher.getIV();
-            byte[] passwordBytes = passwordString.getBytes(CHARSET_NAME);
-            byte[] encryptedPasswordBytes = cipher.doFinal(passwordBytes);
-            String encryptedPassword = Base64.encodeToString(encryptedPasswordBytes, Base64.DEFAULT);
+        if (canAuthenticateWithStrongBiometrics()) {
+            try {
+                // encrypt the password
+                String passwordString = passwordEditText.getText().toString();
+                SecretKey secretKey = createKey();
+                Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+                cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+                byte[] encryptionIv = cipher.getIV();
+                byte[] passwordBytes = passwordString.getBytes(CHARSET_NAME);
+                byte[] encryptedPasswordBytes = cipher.doFinal(passwordBytes);
+                String encryptedPassword = Base64.encodeToString(encryptedPasswordBytes, Base64.DEFAULT);
 
-            // store the login data in the shared preferences
-            // only the password is encrypted, IV used for the encryption is stored
-            String usernameString = usernameEditText.getText().toString();
-            SharedPreferences.Editor editor = getActivity().getSharedPreferences(STORAGE_FILE_NAME, Activity.MODE_PRIVATE).edit();
-            editor.putString("username", usernameString);
-            editor.putString("password", encryptedPassword);
-            editor.putString("encryptionIv", Base64.encodeToString(encryptionIv, Base64.DEFAULT));
-            editor.apply();
-
-            signInWithUser(usernameString, passwordString);
-        } catch (UserNotAuthenticatedException e) {
-            showAuthenticationScreen(SAVE_CREDENTIALS_REQUEST_CODE);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | InvalidKeyException
-                | BadPaddingException | UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+                // store the login data in the shared preferences
+                // only the password is encrypted, IV used for the encryption is stored
+                String usernameString = usernameEditText.getText().toString();
+                SharedPreferences.Editor editor = getActivity().getSharedPreferences(STORAGE_FILE_NAME, Activity.MODE_PRIVATE).edit();
+                editor.putString("username", usernameString);
+                editor.putString("password", encryptedPassword);
+                editor.putString("encryptionIv", Base64.encodeToString(encryptionIv, Base64.DEFAULT));
+                editor.apply();
+                dialog.setMessage("Logging in...");
+                dialog.show();
+                signInWithUser(usernameString, passwordString);
+            } catch (UserNotAuthenticatedException e) {
+                showBiometricPrompt1();
+            } catch (NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | InvalidKeyException
+                    | BadPaddingException | UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void loginWithFingerprint() {
+        if(canAuthenticateWithStrongBiometrics()){
         try {
             // load login data from shared preferences (
             // only the password is encrypted, IV used for the encryption is loaded from shared preferences
@@ -264,17 +360,20 @@ public class SignInFragment extends Fragment {
             cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(encryptionIv));
             byte[] passwordBytes = cipher.doFinal(encryptedPassword);
             String password = new String(passwordBytes, CHARSET_NAME);
-
-            // use the login data
+            dialog.setMessage("Logging in...");
+            dialog.show();
             signInWithUser(username, password);
         } catch (UserNotAuthenticatedException e) {
-            showAuthenticationScreen(LOGIN_WITH_CREDENTIALS_REQUEST_CODE);
+            showBiometricPrompt();
+
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | InvalidKeyException
                 | BadPaddingException | InvalidAlgorithmParameterException
                 | UnrecoverableKeyException | KeyStoreException | CertificateException | IOException e) {
             throw new RuntimeException(e);
         }
-    }
+
+    }}
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     private SecretKey createKey() {
         try {
@@ -291,13 +390,21 @@ public class SignInFragment extends Fragment {
             throw new RuntimeException("Failed to create a symmetric key", e);
         }
     }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void showAuthenticationScreen(int requestCode) {
-        Intent intent = keyguardManager.createConfirmDeviceCredentialIntent("Fingerprint Authentication", "Verify it's you");
-        if (intent != null) {
-            startActivityForResult(intent, requestCode);
+    private void showBiometricPrompt() {
+         BiometricPrompt.AuthenticationCallback authenticationCallback = getAuthenticationCallback();
+            BiometricPrompt biometricPrompt = new BiometricPrompt(this, getMainThreadExecutor(), authenticationCallback);
+            biometricPrompt.authenticate(promptInfo);
         }
+
+    private void showBiometricPrompt1() {
+        BiometricPrompt.AuthenticationCallback authenticationCallback = getAuthenticationCallback1();
+        BiometricPrompt biometricPrompt = new BiometricPrompt(this, getMainThreadExecutor(), authenticationCallback);
+        biometricPrompt.authenticate(promptInfo);
+    }
+
+    private boolean canAuthenticateWithStrongBiometrics() {
+        return BiometricManager.from(getContext())
+                .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK | BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS;
     }
 
     private void signInWithUser(String email, String password) {
@@ -362,15 +469,7 @@ public class SignInFragment extends Fragment {
         }else {
             callbackManager.onActivityResult(requestCode, resultCode, data);
         }
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == SAVE_CREDENTIALS_REQUEST_CODE) {
-                saveCredentialsAndLogin();
-            } else if (requestCode == LOGIN_WITH_CREDENTIALS_REQUEST_CODE) {
-                loginWithFingerprint();
-            }
-        } else {
-            Toast.makeText(getContext(), "Confirming credentials failed", Toast.LENGTH_SHORT).show();
-        }
+
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
