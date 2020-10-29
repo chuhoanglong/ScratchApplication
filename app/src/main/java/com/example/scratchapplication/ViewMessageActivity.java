@@ -39,6 +39,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ViewMessageActivity extends AppCompatActivity {
+    public static String idChat = "";
     private RecyclerView recyclerViewMessage;
     private ChatAdapter adapter;
 
@@ -61,6 +62,7 @@ public class ViewMessageActivity extends AppCompatActivity {
         });
         Intent intent = getIntent();
         String idReceive = intent.getStringExtra("idReceive");
+        idChat = idReceive;
         String avatar = intent.getStringExtra("AVATAR");
         // truyen id nguoi dung len ma
         // co phai truyen id nguoi nhận đâu
@@ -182,6 +184,7 @@ public class ViewMessageActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        idChat ="";
         socket.disconnect();
     }
 }

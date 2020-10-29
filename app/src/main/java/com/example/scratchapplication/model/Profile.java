@@ -67,6 +67,13 @@ public class Profile {
         this.userId = userId;
     }
 
+    public Profile(String address, @NonNull String avatar, String userName, @NonNull String userId) {
+        this.address = address;
+        this.avatar = avatar;
+        this.userName = userName;
+        this.userId = userId;
+    }
+
     public List<String> getFollows() {
         return follows;
     }

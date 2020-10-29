@@ -46,6 +46,8 @@ public interface JsonApi {
     Call<Profile> addProfile(@Body Profile profile);
     @POST("chat/select_user")
     Call<MessagesPojo> chat(@Body JsonObject jsonObject);
+    @POST("profile/update_info")
+    Call<Profile> updateProfile(@Body Profile profile);
 
     class Rid {
         @SerializedName("rId")

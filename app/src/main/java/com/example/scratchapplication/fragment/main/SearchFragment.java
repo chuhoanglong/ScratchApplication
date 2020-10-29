@@ -92,35 +92,45 @@ public class SearchFragment extends Fragment {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH&&!editTextSearch.getText().toString().trim().equals("")) {
+                    List<ModelRecipe> newList = new ArrayList<>();
                     recipesViewModel.getAllRecipes().observe(getActivity(), new Observer<List<ModelRecipe>>() {
                         @Override
                         public void onChanged(List<ModelRecipe> modelRecipes) {
                             String textSearch =editTextSearch.getText().toString().trim();
-                            List<ModelRecipe> newList = new ArrayList<>();
                             for (ModelRecipe m:modelRecipes){
-                                if (m.getName().contains(textSearch)) {
+                                if (m.getName().toLowerCase().contains(textSearch.toLowerCase())) {
                                     newList.add(m);
-                                    continue;
                                 }
-                                if (m.getDescription().contains(textSearch)) {
+                            }
+                            for (ModelRecipe m:modelRecipes){
+                                if (!newList.contains(m)&&m.getDescription().toLowerCase().contains(textSearch.toLowerCase())) {
                                     newList.add(m);
-                                    continue;
                                 }
-                                if (m.getProfileName().contains(textSearch)){
+                            }
+                            for (ModelRecipe m:modelRecipes){
+                                if (!newList.contains(m)&&m.getProfileName().toLowerCase().contains(textSearch.toLowerCase())){
                                     newList.add(m);
-                                    continue;
+                                    Log.e("search","add"+m.getProfileName());
                                 }
-                                if (m.getFilters().contains(textSearch)) {
+                            }
+                            for (ModelRecipe m:modelRecipes){
+                                List<String> filters = new ArrayList<>();
+                                for (int k = 0; k<m.getFilters().size();k++){
+                                    filters.add(m.getFilters().get(k).toLowerCase());
+                                }
+                                if (!newList.contains(m)&&filters.contains(textSearch)) {
                                     newList.add(m);
-                                    continue;
                                 }
+                            }
+                            for (ModelRecipe m:modelRecipes){
                                 for (String text:m.getIngredients()){
-                                    if (text.contains(textSearch)) {
+                                    if (!newList.contains(m)&&text.toLowerCase().contains(textSearch.toLowerCase())) {
                                         newList.add(m);
                                         break;
                                     }
                                 }
                             }
+                            Log.e("list search",newList.size()+"");
                             if (newList.size()==0)
                                 Toast.makeText(getContext(), "Không có kết quả tìm kiếm phù hợp", Toast.LENGTH_SHORT).show();
                             else{
@@ -139,7 +149,6 @@ public class SearchFragment extends Fragment {
                                     public void onFailure(Call<ProfilePojo> call, Throwable t) {
                                         FeedAdapter adapter = new FeedAdapter(getContext(),newList,uid,new ArrayList<>(),new ArrayList<>());
                                         myList.setAdapter(adapter);
-
                                     }
                                 });
                             }
