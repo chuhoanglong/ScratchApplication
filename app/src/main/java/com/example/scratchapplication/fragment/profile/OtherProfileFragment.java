@@ -71,6 +71,7 @@ public class OtherProfileFragment extends Fragment {
 
     private ImageButton imageButtonChat, imageButtonCall;
     private Toolbar toolbar;
+    private ProfileViewModel profileViewModel;
 
     public OtherProfileFragment(String uid){
         this.uid = uid;
@@ -97,6 +98,7 @@ public class OtherProfileFragment extends Fragment {
         //button follow
         buttonFollow = v.findViewById(R.id.btn_follow);
         String myUid = FirebaseAuth.getInstance().getUid();
+
         Call<ProfilePojo> callMyProfile = api.getProfile(myUid);
         callMyProfile.enqueue(new Callback<ProfilePojo>() {
             @Override
@@ -139,7 +141,6 @@ public class OtherProfileFragment extends Fragment {
 
                                 @Override
                                 public void onFailure(Call<JsonApi.MessagesPojo> call, Throwable t) {
-
                                 }
                             });
                         }
@@ -149,7 +150,8 @@ public class OtherProfileFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ProfilePojo> call, Throwable t) {
-
+                Toast.makeText(getContext(), "Không có kết nối internet", Toast.LENGTH_SHORT).show();
+                getActivity().finish();
             }
         });
         buttonFollow.setOnClickListener(new View.OnClickListener() {
