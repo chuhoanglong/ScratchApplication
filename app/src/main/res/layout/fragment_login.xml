@@ -87,26 +87,15 @@
             android:inputType="textEmailAddress"
             />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            >
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Password"
                 android:textSize="16dp"
                 />
-            <TextView
-                android:id="@+id/idForgotPass"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Forgot password?"
-                android:gravity="right"
-                android:textColor="#606060"
-                />
-        </LinearLayout>
+
+
         <EditText
             android:id="@+id/txtPass"
             android:layout_width="match_parent"
@@ -116,6 +105,11 @@
             android:textSize="14dp"
             android:inputType="textPassword"
             />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        >
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -127,6 +121,16 @@
             android:layout_marginRight="15dp"
             android:layout_marginEnd="15dp"
             android:checked="false" />
+        <TextView
+            android:id="@+id/tvForgotPass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Forgot password?"
+            android:gravity="right"
+            android:textSize="15dp"
+            android:textColor="#F45959"
+            />
+    </LinearLayout>
         <Button
             android:id="@+id/btn_signin"
             android:layout_width="match_parent"
