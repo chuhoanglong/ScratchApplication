@@ -9,6 +9,7 @@ import com.example.scratchapplication.model.Profile;
 import com.example.scratchapplication.model.ProfilePojo;
 import com.example.scratchapplication.model.RecipePojo;
 import com.example.scratchapplication.model.Save;
+import com.example.scratchapplication.model.UpdatePojo;
 import com.example.scratchapplication.model.home.ModelRecipe;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
@@ -46,6 +47,8 @@ public interface JsonApi {
     Call<Profile> addProfile(@Body Profile profile);
     @POST("chat/select_user")
     Call<MessagesPojo> chat(@Body JsonObject jsonObject);
+    @POST("profile/update_info")
+    Call<UpdatePojo> updateProfile(@Body UpdatePojo profile);
 
     class Rid {
         @SerializedName("rId")

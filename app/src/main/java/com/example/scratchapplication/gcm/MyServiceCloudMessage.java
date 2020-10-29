@@ -55,10 +55,10 @@ public class MyServiceCloudMessage extends FirebaseMessagingService {
         intentMain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         switch (title.toLowerCase()){
             case "message":
-                 pendingIntent = PendingIntent.getActivity(this, 0, intentMessage, PendingIntent.FLAG_ONE_SHOT);
+                 pendingIntent = PendingIntent.getActivity(this, 0, intentMessage, PendingIntent.FLAG_CANCEL_CURRENT);
                  break;
             default:
-                 pendingIntent = PendingIntent.getActivity(this, 0, intentMain, PendingIntent.FLAG_ONE_SHOT);
+                 pendingIntent = PendingIntent.getActivity(this, 0, intentMain, PendingIntent.FLAG_CANCEL_CURRENT);
         }
 
         String channelId = "";
@@ -81,6 +81,7 @@ public class MyServiceCloudMessage extends FirebaseMessagingService {
             );
             notificationManager.createNotificationChannel(channel);
         }
-        notificationManager.notify(0,notificationBuilder.build());
+        if (!ViewMessageActivity.idChat.equals(uid))
+            notificationManager.notify(0,notificationBuilder.build());
     }
 }

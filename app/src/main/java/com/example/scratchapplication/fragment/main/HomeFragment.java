@@ -36,6 +36,7 @@ import com.example.scratchapplication.model.ProfilePojo;
 import com.example.scratchapplication.model.home.ModelRecipe;
 import com.example.scratchapplication.room.ProfileViewModel;
 import com.example.scratchapplication.room.RecipesViewModel;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
 
@@ -61,6 +62,7 @@ public class HomeFragment extends Fragment {
     private ImageView imageViewAllMessages;
 
     private FeedAdapter adapter;
+    private ShimmerFrameLayout shimmerFrameLayout;
 
     //private List<ModelRecipe> modelRecipeList;
     private List<String> listFilter;
@@ -82,7 +84,8 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_home, container, false);
-
+        shimmerFrameLayout = v.findViewById(R.id.shimmer);
+        shimmerFrameLayout.startShimmerAnimation();
         imageViewAllMessages = v.findViewById(R.id.image_messages);
         imageViewAllMessages.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,10 +187,14 @@ public class HomeFragment extends Fragment {
                                 iterator.remove();
                         }
                     }
+                    shimmerFrameLayout.stopShimmerAnimation();
+                    shimmerFrameLayout.setVisibility(View.GONE);
                     adapter = new FeedAdapter(getContext(),list,uid,profile.getFollows(),profile.getSaves());
                     recyclerView.setAdapter(adapter);
                 }
                 else {
+                    shimmerFrameLayout.stopShimmerAnimation();
+                    shimmerFrameLayout.setVisibility(View.GONE);
                     adapter = new FeedAdapter(getContext(),modelRecipes,uid,new ArrayList<>(),new ArrayList<>());
                     recyclerView.setAdapter(adapter);
                 }
@@ -203,4 +210,15 @@ public class HomeFragment extends Fragment {
         profileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        shimmerFrameLayout.startShimmerAnimation();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        shimmerFrameLayout.stopShimmerAnimation();
+    }
 }

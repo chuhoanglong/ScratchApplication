@@ -22,6 +22,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.preference.PreferenceManager;
 
+import com.example.scratchapplication.api.JsonApi;
+import com.example.scratchapplication.api.RestClient;
+import com.example.scratchapplication.model.Profile;
+import com.example.scratchapplication.model.ProfilePojo;
+import com.example.scratchapplication.model.UpdatePojo;
 import com.example.scratchapplication.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -49,6 +54,9 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class EditProfileActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
@@ -68,6 +76,7 @@ public class EditProfileActivity extends AppCompatActivity {
         if(actionBar != null){
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        String uid = FirebaseAuth.getInstance().getUid();
         mStorageRef = FirebaseStorage.getInstance().getReference("avatar");
         mDatabaseRef = FirebaseDatabase.getInstance().getReference("users");
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -86,16 +95,18 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         });
         buttonEdit = findViewById(R.id.btn_edit);
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
-        reference.child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        JsonApi api = RestClient.createService(JsonApi.class);
+        api.getProfile(uid).enqueue(new Callback<ProfilePojo>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User profile = snapshot.getValue(User.class);
-                editTextAddress.setText(profile.getAddress());
+            public void onResponse(Call<ProfilePojo> call, Response<ProfilePojo> response) {
+                if (response.isSuccessful()){
+                    Profile profile = response.body().getProfile();
+                    editTextAddress.setText(profile.getAddress());
+                }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(Call<ProfilePojo> call, Throwable t) {
 
             }
         });
@@ -106,6 +117,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 final String name = editTextName.getText().toString().trim();
                 final String email = editTextEmail.getText().toString().trim();
                 final String address = editTextAddress.getText().toString().trim();
+                JsonApi service = RestClient.createService(JsonApi.class);
 
                 if (name.equals("")||email.equals("")||address.equals("")){
                     Toast.makeText(EditProfileActivity.this, "Invalid data input", Toast.LENGTH_SHORT).show();
@@ -127,37 +139,46 @@ public class EditProfileActivity extends AppCompatActivity {
                                                 public void onSuccess(Uri uri) {
                                                     DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users");
 
-                                                    User u = new User(name, uri.toString(), address, 0);
-                                                    ref.child(user.getUid()).setValue(u);
-                                                    UserProfileChangeRequest profileChangeRequest;
-                                                    profileChangeRequest = new UserProfileChangeRequest.Builder()
-                                                            .setDisplayName(u.getUserName())
-                                                            .setPhotoUri(Uri.parse(uri.toString()))
-                                                            .build();
+                                                    UpdatePojo profile = new UpdatePojo(name, address,uri.toString(),uid);
+                                                    service.updateProfile(profile).enqueue(new Callback<UpdatePojo>() {
+                                                        @Override
+                                                        public void onResponse(Call<UpdatePojo> call, Response<UpdatePojo> response) {
+                                                            if (response.isSuccessful()){
+                                                                UserProfileChangeRequest profileChangeRequest;
+                                                                profileChangeRequest = new UserProfileChangeRequest.Builder()
+                                                                        .setDisplayName(name)
+                                                                        .setPhotoUri(Uri.parse(uri.toString()))
+                                                                        .build();
 
-                                                    user.updateEmail(email)
-                                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                @Override
-                                                                public void onComplete(@NonNull Task<Void> task) {
-                                                                    Log.d("EMAIL", "User email address updated.");
-                                                                }
-                                                            })
-                                                            .addOnFailureListener(new OnFailureListener() {
-                                                                @Override
-                                                                public void onFailure(@NonNull Exception e) {
-                                                                    return;
-                                                                }
-                                                            });
-                                                    user.updateProfile(profileChangeRequest)
-                                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                @Override
-                                                                public void onComplete(@NonNull Task<Void> task) {
-                                                                    if (task.isSuccessful()) {
-                                                                        Log.d("UPDATEPROFILE", "User profile updated.");
-                                                                    }
-                                                                }
-                                                            });
-                                                    finish();
+                                                                user.updateEmail(email)
+                                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                                Log.d("EMAIL", "User email address updated.");
+                                                                            }
+                                                                        })
+                                                                        .addOnFailureListener(new OnFailureListener() {
+                                                                            @Override
+                                                                            public void onFailure(@NonNull Exception e) {
+                                                                                return;
+                                                                            }
+                                                                        });
+                                                                user.updateProfile(profileChangeRequest)
+                                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                                if (task.isSuccessful()) {
+                                                                                    Log.d("UPDATEPROFILE", "User profile updated.");
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                finish();
+                                                            }
+                                                        }
+                                                        @Override
+                                                        public void onFailure(Call<UpdatePojo> call, Throwable t) {
+                                                        }
+                                                    });
                                                 }
                                             });
                                         }
@@ -166,44 +187,52 @@ public class EditProfileActivity extends AppCompatActivity {
                             });
                 }
                 else {
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users");
+                    UpdatePojo profile = new UpdatePojo(name, address,user.getPhotoUrl().toString(),uid);
+                    service.updateProfile(profile).enqueue(new Callback<UpdatePojo>() {
+                        @Override
+                        public void onResponse(Call<UpdatePojo> call, Response<UpdatePojo> response) {
+                            if (response.isSuccessful()){
+                                //update firebaseuser
+                                UserProfileChangeRequest profileChangeRequest;
+                                profileChangeRequest = new UserProfileChangeRequest.Builder()
+                                        .setDisplayName(name)
+                                        .build();
 
-                    User u = new User(name, user.getPhotoUrl().toString(), address, 0);
-                    //update table users
-                    ref.child(user.getUid()).setValue(u);
-                    //update firebaseuser
-                    UserProfileChangeRequest profileChangeRequest;
-                    profileChangeRequest = new UserProfileChangeRequest.Builder()
-                            .setDisplayName(u.getUserName())
-                            .build();
+                                user.updateEmail(email)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                Log.d("EMAIL", "User email address updated.");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                return;
+                                            }
+                                        });
+                                user.updateProfile(profileChangeRequest)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Log.d("UPDATEPROFILE", "User profile updated.");
+                                                }
+                                            }
+                                        });
+                                finish();
+                            }
+                            else {
+                                Log.e("code", response.code()+"");
+                            }
+                        }
 
-                    user.updateEmail(email)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    Log.d("EMAIL", "User email address updated.");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    return;
-                                }
-                            });
-                    user.updateProfile(profileChangeRequest)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        Log.d("UPDATEPROFILE", "User profile updated.");
-                                    }
-                                }
-                            });
-                    finish();
+                        @Override
+                        public void onFailure(Call<UpdatePojo> call, Throwable t) {
+
+                        }
+                    });
                 }
-
-                Toast.makeText(EditProfileActivity.this, "Updated", Toast.LENGTH_SHORT).show();
-                finish();
             }
         });
     }
