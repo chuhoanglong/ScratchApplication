@@ -23,12 +23,12 @@ public class ProfileServiceRepository {
         this.application = application;
     }
 
-    public MutableLiveData<Profile> providesProfileService(){
+    public MutableLiveData<Profile> providesProfileService(String uid){
         MutableLiveData<Profile> data = new MutableLiveData<>();
         try{
             JsonApi service = RestClient.createService(JsonApi.class);
             RecipeRoomDBRepository roomDBRepository = new RecipeRoomDBRepository(application);
-            service.getProfile(FirebaseAuth.getInstance().getUid()).enqueue(new Callback<ProfilePojo>() {
+            service.getProfile(uid).enqueue(new Callback<ProfilePojo>() {
                 @Override
                 public void onResponse(Call<ProfilePojo> call, Response<ProfilePojo> response) {
                     if (!response.isSuccessful()){
@@ -42,7 +42,6 @@ public class ProfileServiceRepository {
                 }
                 @Override
                 public void onFailure(Call<ProfilePojo> call, Throwable t) {
-
                 }
             });
         }catch (Exception e){

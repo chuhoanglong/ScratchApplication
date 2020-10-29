@@ -23,7 +23,7 @@ public class ProfileViewModel extends AndroidViewModel {
         profileServiceRepository = new ProfileServiceRepository(application);
     }
     public LiveData<Profile> getProfileById(String id){
-        observable = profileServiceRepository.providesProfileService();
+        observable = profileServiceRepository.providesProfileService(id);
         mProfile = recipeRoomDBRepository.getProfileById(id);
         return mProfile;
     }

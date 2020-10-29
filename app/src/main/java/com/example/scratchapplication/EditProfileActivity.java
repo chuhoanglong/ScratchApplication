@@ -25,6 +25,8 @@ import androidx.preference.PreferenceManager;
 import com.example.scratchapplication.api.JsonApi;
 import com.example.scratchapplication.api.RestClient;
 import com.example.scratchapplication.model.Profile;
+import com.example.scratchapplication.model.ProfilePojo;
+import com.example.scratchapplication.model.UpdatePojo;
 import com.example.scratchapplication.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -74,6 +76,7 @@ public class EditProfileActivity extends AppCompatActivity {
         if(actionBar != null){
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        String uid = FirebaseAuth.getInstance().getUid();
         mStorageRef = FirebaseStorage.getInstance().getReference("avatar");
         mDatabaseRef = FirebaseDatabase.getInstance().getReference("users");
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -92,16 +95,18 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         });
         buttonEdit = findViewById(R.id.btn_edit);
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
-        reference.child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        JsonApi api = RestClient.createService(JsonApi.class);
+        api.getProfile(uid).enqueue(new Callback<ProfilePojo>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User profile = snapshot.getValue(User.class);
-                editTextAddress.setText(profile.getAddress());
+            public void onResponse(Call<ProfilePojo> call, Response<ProfilePojo> response) {
+                if (response.isSuccessful()){
+                    Profile profile = response.body().getProfile();
+                    editTextAddress.setText(profile.getAddress());
+                }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(Call<ProfilePojo> call, Throwable t) {
 
             }
         });
@@ -112,7 +117,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 final String name = editTextName.getText().toString().trim();
                 final String email = editTextEmail.getText().toString().trim();
                 final String address = editTextAddress.getText().toString().trim();
-                String uid = FirebaseAuth.getInstance().getUid();
                 JsonApi service = RestClient.createService(JsonApi.class);
 
                 if (name.equals("")||email.equals("")||address.equals("")){
@@ -135,10 +139,10 @@ public class EditProfileActivity extends AppCompatActivity {
                                                 public void onSuccess(Uri uri) {
                                                     DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users");
 
-                                                    Profile profile = new Profile(address,uri.toString(),name,uid);
-                                                    service.updateProfile(profile).enqueue(new Callback<Profile>() {
+                                                    UpdatePojo profile = new UpdatePojo(name, address,uri.toString(),uid);
+                                                    service.updateProfile(profile).enqueue(new Callback<UpdatePojo>() {
                                                         @Override
-                                                        public void onResponse(Call<Profile> call, Response<Profile> response) {
+                                                        public void onResponse(Call<UpdatePojo> call, Response<UpdatePojo> response) {
                                                             if (response.isSuccessful()){
                                                                 UserProfileChangeRequest profileChangeRequest;
                                                                 profileChangeRequest = new UserProfileChangeRequest.Builder()
@@ -171,10 +175,8 @@ public class EditProfileActivity extends AppCompatActivity {
                                                                 finish();
                                                             }
                                                         }
-
                                                         @Override
-                                                        public void onFailure(Call<Profile> call, Throwable t) {
-
+                                                        public void onFailure(Call<UpdatePojo> call, Throwable t) {
                                                         }
                                                     });
                                                 }
@@ -185,10 +187,10 @@ public class EditProfileActivity extends AppCompatActivity {
                             });
                 }
                 else {
-                    Profile profile = new Profile(address,user.getPhotoUrl().toString(),name,uid);
-                    service.updateProfile(profile).enqueue(new Callback<Profile>() {
+                    UpdatePojo profile = new UpdatePojo(name, address,user.getPhotoUrl().toString(),uid);
+                    service.updateProfile(profile).enqueue(new Callback<UpdatePojo>() {
                         @Override
-                        public void onResponse(Call<Profile> call, Response<Profile> response) {
+                        public void onResponse(Call<UpdatePojo> call, Response<UpdatePojo> response) {
                             if (response.isSuccessful()){
                                 //update firebaseuser
                                 UserProfileChangeRequest profileChangeRequest;
@@ -220,10 +222,13 @@ public class EditProfileActivity extends AppCompatActivity {
                                         });
                                 finish();
                             }
+                            else {
+                                Log.e("code", response.code()+"");
+                            }
                         }
 
                         @Override
-                        public void onFailure(Call<Profile> call, Throwable t) {
+                        public void onFailure(Call<UpdatePojo> call, Throwable t) {
 
                         }
                     });

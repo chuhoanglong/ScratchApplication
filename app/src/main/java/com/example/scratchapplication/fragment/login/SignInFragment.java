@@ -84,7 +84,7 @@ import static android.content.ContentValues.TAG;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class SignInFragment extends Fragment {
-    public static final int AUTHENTICATION_DURATION_SECONDS = 2;
+    public static final int AUTHENTICATION_DURATION_SECONDS = 20;
     public static final String KEY_NAME = "key";
     public static final String TRANSFORMATION = KeyProperties.KEY_ALGORITHM_AES + "/" + KeyProperties.BLOCK_MODE_CBC + "/"
             + KeyProperties.ENCRYPTION_PADDING_PKCS7;
@@ -156,33 +156,6 @@ public class SignInFragment extends Fragment {
         saveCredentials = v.findViewById(R.id.saveCredentials);
         loginWithFingerprint = v.findViewById(R.id.loginWithFingerprint);
 
-
-
-
-       /* if (user  == null){
-            FacebookSdk.sdkInitialize(getContext());
-            loginButton =  v.findViewById(R.id.login_button);
-            callbackManager = CallbackManager.Factory.create();
-            loginButton.setReadPermissions(Arrays.asList("email","public_profile"));
-            loginButton.setFragment(this);
-            loginButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    buttonClickFB(v);
-                }
-            });
-
-            createRequest();
-            buttonSignInGoogle.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    signInGoogle();
-                }
-            });
-
-        }else{
-            updateUI(user);
-        }*/
         forgotPass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
