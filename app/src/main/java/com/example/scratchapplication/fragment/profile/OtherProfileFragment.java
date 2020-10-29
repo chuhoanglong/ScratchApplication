@@ -41,6 +41,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.JsonObject;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.net.URISyntaxException;
@@ -185,7 +186,7 @@ public class OtherProfileFragment extends Fragment {
         profileViewModel.getProfileById(uid).observe(getActivity(), new Observer<Profile>() {
             @Override
             public void onChanged(Profile profile) {
-                Picasso.with(getContext()).load(profile.getAvatar()).into(imageViewAvatar);
+                Picasso.with(getContext()).load(profile.getAvatar()).networkPolicy(NetworkPolicy.OFFLINE).into(imageViewAvatar);
                 textViewName.setText(profile.getUserName());
                 textViewAddress.setText(profile.getAddress());
                 String likes = profile.getLikes()>1?" likes":" like";
