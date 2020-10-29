@@ -2,6 +2,7 @@ package com.example.scratchapplication.tablayout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,14 +54,17 @@ public class SaveFragment extends Fragment implements Serializable{
         recipesViewModel.getAllRecipes().observe(getActivity(), new Observer<List<ModelRecipe>>() {
             @Override
             public void onChanged(List<ModelRecipe> modelRecipes) {
+                recipes.clear();
                 for (ModelRecipe modelRecipe:modelRecipes){
                     if (saves.contains(modelRecipe.getRid())){
-
-                        if (!recipes.contains(modelRecipe))
+                        if (!recipes.contains(modelRecipe)) {
+                            Log.e("save fragment", modelRecipe.getName());
                             recipes.add(modelRecipe);
-                        recyclerView.setAdapter(new RecipesFragment.MyRecipeAdapter(recipes,getContext()));
+                        }
+
                     }
                 }
+                recyclerView.setAdapter(new RecipesFragment.MyRecipeAdapter(recipes,getContext()));
             }
         });
         return view;

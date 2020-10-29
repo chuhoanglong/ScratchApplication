@@ -98,7 +98,6 @@ public class OtherProfileFragment extends Fragment {
         //button follow
         buttonFollow = v.findViewById(R.id.btn_follow);
         String myUid = FirebaseAuth.getInstance().getUid();
-
         Call<ProfilePojo> callMyProfile = api.getProfile(myUid);
         callMyProfile.enqueue(new Callback<ProfilePojo>() {
             @Override
@@ -150,8 +149,6 @@ public class OtherProfileFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ProfilePojo> call, Throwable t) {
-                Toast.makeText(getContext(), "Không có kết nối internet", Toast.LENGTH_SHORT).show();
-                getActivity().finish();
             }
         });
         buttonFollow.setOnClickListener(new View.OnClickListener() {
@@ -172,6 +169,7 @@ public class OtherProfileFragment extends Fragment {
 
                     @Override
                     public void onFailure(Call<Follow> call, Throwable t) {
+                        Toast.makeText(getContext(), "Không có kết nối internet", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -183,17 +181,10 @@ public class OtherProfileFragment extends Fragment {
         textViewCount = v.findViewById(R.id.tv_other_count);
         viewPager = v.findViewById(R.id.pager_other_profile);
         tabLayout = v.findViewById(R.id.tab_other_profile);
-
-        Call<ProfilePojo> profileCall = api.getProfile(uid);
-        profileCall.enqueue(new Callback<ProfilePojo>() {
+        profileViewModel = ViewModelProviders.of(getActivity()).get(ProfileViewModel.class);
+        profileViewModel.getProfileById(uid).observe(getActivity(), new Observer<Profile>() {
             @Override
-            public void onResponse(Call<ProfilePojo> call, Response<ProfilePojo> response) {
-                if (!response.isSuccessful()){
-                    Log.e("Code profileCall ",response.code()+" "+ call.request().url().toString());
-                    return;
-                }
-                Profile profile = response.body().getProfile();
-
+            public void onChanged(Profile profile) {
                 Picasso.with(getContext()).load(profile.getAvatar()).into(imageViewAvatar);
                 textViewName.setText(profile.getUserName());
                 textViewAddress.setText(profile.getAddress());
@@ -210,13 +201,7 @@ public class OtherProfileFragment extends Fragment {
                 adapter = new ProfileViewPagerAdapter(getFragmentManager(),0,fragments,titles);
                 viewPager.setAdapter(adapter);
             }
-
-            @Override
-            public void onFailure(Call<ProfilePojo> call, Throwable t) {
-                Log.e("Fail profile call ",t.getMessage());
-            }
         });
-
         return v;
     }
 }

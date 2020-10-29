@@ -4,6 +4,7 @@ import com.example.scratchapplication.fragment.Follow;
 import com.example.scratchapplication.model.Comment;
 import com.example.scratchapplication.model.ListRecipes;
 import com.example.scratchapplication.model.Like;
+import com.example.scratchapplication.model.ListUsers;
 import com.example.scratchapplication.model.Message;
 import com.example.scratchapplication.model.Profile;
 import com.example.scratchapplication.model.ProfilePojo;
@@ -27,6 +28,8 @@ public interface JsonApi {
 
     @GET("home/recipes")
     Call<ListRecipes> getAllRecipes();
+    @GET("profile/user")
+    Call<ListUsers> getAllUsers();
     @POST("home/recipes")
     Call<ModelRecipe> postRecipe(@Body ModelRecipe modelRecipe);
     @POST("home/recipes/like")

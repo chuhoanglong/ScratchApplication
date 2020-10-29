@@ -75,22 +75,27 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.MyViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ModelRecipe model = list.get(position);
-        holder.textViewProfileName.setText(model.getProfileName());
+        profileViewModel.getProfileAdapter(model.getUid()).observe((FragmentActivity) context, new Observer<Profile>() {
+            @Override
+            public void onChanged(Profile profile) {
+                holder.textViewProfileName.setText(profile.getUserName());
 
-        Picasso.with(context)
-                .load(model.getProfileAvatar())
-                .networkPolicy(NetworkPolicy.OFFLINE)
-                .into(holder.imageViewAvatar, new com.squareup.picasso.Callback() {
-                    @Override
-                    public void onSuccess() {
+                Picasso.with(context)
+                        .load(profile.getAvatar())
+                        .networkPolicy(NetworkPolicy.OFFLINE)
+                        .into(holder.imageViewAvatar, new com.squareup.picasso.Callback() {
+                            @Override
+                            public void onSuccess() {
 
-                    }
+                            }
 
-                    @Override
-                    public void onError() {
-                        Picasso.with(context).load(model.getProfileAvatar()).into(holder.imageViewAvatar);
-                    }
-                });
+                            @Override
+                            public void onError() {
+                                Picasso.with(context).load(model.getProfileAvatar()).into(holder.imageViewAvatar);
+                            }
+                        });
+            }
+        });
         holder.textViewRecipeName.setText(model.getName());
         holder.textViewRecipeDesc.setText(model.getDescription());
         Picasso.with(context)
