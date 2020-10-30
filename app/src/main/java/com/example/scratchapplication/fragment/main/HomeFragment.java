@@ -31,6 +31,7 @@ import com.example.scratchapplication.api.ProfileServiceRepository;
 import com.example.scratchapplication.api.RestClient;
 import com.example.scratchapplication.dialog.BottomSheetFilter;
 import com.example.scratchapplication.model.ListRecipes;
+import com.example.scratchapplication.model.ListUsers;
 import com.example.scratchapplication.model.Profile;
 import com.example.scratchapplication.model.ProfilePojo;
 import com.example.scratchapplication.model.home.ModelRecipe;
@@ -38,7 +39,12 @@ import com.example.scratchapplication.room.ProfileViewModel;
 import com.example.scratchapplication.room.RecipesViewModel;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;

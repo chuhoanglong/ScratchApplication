@@ -33,6 +33,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -111,9 +112,8 @@ public class RecipesFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
             ModelRecipe modelRecipe = modelRecipes.get(position);
-            Picasso.with(context).load(modelRecipe.getUrlCover()).into(holder.imageView);
+            Picasso.with(context).load(modelRecipe.getUrlCover()).networkPolicy(NetworkPolicy.OFFLINE).into(holder.imageView);
             holder.textView.setText(modelRecipe.getName());
-
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -15,6 +15,7 @@ import java.util.List;
 public class RecipeRoomDBRepository {
     private RecipeDao recipeDao;
     private ProfileDao profileDao;
+    LiveData<List<Profile>> mAllUsers;
     LiveData<List<ModelRecipe>> mAllRecipes;
     LiveData<ModelRecipe> mRecipe;
     LiveData<Profile> mProfile;
@@ -24,6 +25,7 @@ public class RecipeRoomDBRepository {
         recipeDao = db.recipeDao();
         profileDao = db.profileDao();
         mAllRecipes = recipeDao.getAllRecipes();
+        mAllUsers = profileDao.getAllUsers();
     }
 
     public LiveData<Profile> getProfileById(String id){
@@ -38,6 +40,9 @@ public class RecipeRoomDBRepository {
     public LiveData<List<ModelRecipe>> getAllRecipes(){
         return mAllRecipes;
     }
+    public LiveData<List<Profile>> getAllUsers(){
+        return mAllUsers;
+    }
     public LiveData<ModelRecipe> getRecipeById(String rId){
         mRecipe = recipeDao.getRecipeByRid(rId);
         return mRecipe;
@@ -45,6 +50,23 @@ public class RecipeRoomDBRepository {
 
     public void insertRecipes(List<ModelRecipe> modelRecipes){
         new InsertAsyncTask(recipeDao).execute(modelRecipes);
+    }
+
+    public void insertAllUsers(List<Profile> profiles){
+        new InsertUsersAsynctask(profileDao).execute(profiles);
+    }
+    private static class InsertUsersAsynctask extends AsyncTask<List<Profile>,Void,Void>{
+        private ProfileDao mDao;
+
+        public InsertUsersAsynctask(ProfileDao mDao) {
+            this.mDao = mDao;
+        }
+
+        @Override
+        protected Void doInBackground(List<Profile>... lists) {
+            mDao.insertAllUsers(lists[0]);
+            return null;
+        }
     }
 
     private static class InsertAsyncTask extends AsyncTask<List<ModelRecipe>,Void,Void>{

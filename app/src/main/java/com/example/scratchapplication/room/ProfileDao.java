@@ -15,6 +15,10 @@ import java.util.List;
 public interface ProfileDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertProfile(Profile profile);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAllUsers(List<Profile> profiles);
     @Query("SELECT * from profiles where userId = :userId")
     LiveData<Profile> getProfileById(String userId);
+    @Query("SELECT * from profiles")
+    LiveData<List<Profile>> getAllUsers();
 }
